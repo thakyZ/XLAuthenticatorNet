@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "XLAuthenticatorNet": {
+      "commandName": "Project",
+      "hotReloadEnabled": false,
+      "nativeDebugging": true
+    }
+  }
+}

@@ -13,12 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace XL_Authenticator_Net {
+namespace XLAuthenticatorNet.Windows.Dialog {
   /// <summary>
-  /// Interaction logic for MainWindow.xaml
+  /// Interaction logic for OtpKeyDialog.xaml
   /// </summary>
-  public partial class MainWindow : Window {
-    public MainWindow() {
+  public partial class OtpKeyDialog : UserControl {
+    public OtpKeyDialog() {
       InitializeComponent();
     }
   }
