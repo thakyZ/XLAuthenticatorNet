@@ -5,6 +5,8 @@ using XLAuthenticatorNet.Windows.ViewModel;
 
 using XLAuthenticatorNet;
 using XLAuthenticatorNet.Config;
+using NuGet;
+using Castle.Core.Internal;
 
 namespace XLAuthenticatorNet.Windows {
 
@@ -12,9 +14,9 @@ namespace XLAuthenticatorNet.Windows {
   /// Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow : Window {
-    private MainWindowViewModel Model => this.DataContext as MainWindowViewModel;
 
     private AccountManager _accountManager;
+    private MainWindowViewModel Model => this.DataContext as MainWindowViewModel;
 
     public MainWindow() {
       InitializeComponent();
@@ -61,13 +63,32 @@ namespace XLAuthenticatorNet.Windows {
 
       var savedAccount = _accountManager.CurrentAccount;
 
+      if (savedAccount != null)
+        SwitchAccount(savedAccount, false);
+
+      SettingsControl.CreateAccountManager(ref _accountManager);
       SettingsControl.ReloadSettings();
 
       Show();
       Activate();
     }
 
-    //public Config.Settings settings = null;
+    private void SwitchAccount(TotpAccount account, bool saveAsCurrent) {
+      SettingsControl.Model.LauncherIp = account.LauncherIpAddress;
+      SettingsControl.Model.OtpKey = HandleOtpKey(account.Token);
+
+      if (saveAsCurrent) {
+        _accountManager.CurrentAccount = account;
+      }
+    }
+
+    private string HandleOtpKey(string key) {
+      return key.IsNullOrEmpty() ? "No" : "Yes";    
+    }
+
+    private void OnAccountSwitchedEventHandler(object sender, TotpAccount e) {
+      SwitchAccount(e, true);
+    }
 
     private void ResendOTPKey_Click(object sender, RoutedEventArgs e) {
     }

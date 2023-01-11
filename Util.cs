@@ -15,7 +15,7 @@ namespace XLAuthenticatorNet {
 
     public static void ShowError(string message, string caption, [CallerMemberName] string callerName = "",
         [CallerLineNumber] int callerLineNumber = 0) {
-      MessageBox.Show($"{message}\n\n{callerName} L{callerLineNumber}", caption, MessageBoxButton.OK,
+      _ = MessageBox.Show($"{message}\n\n{callerName} L{callerLineNumber}", caption, MessageBoxButton.OK,
           MessageBoxImage.Error);
     }
 
@@ -45,9 +45,7 @@ namespace XLAuthenticatorNet {
       return auth.FileVersion;
     }
 
-    public static long GetUnixMillis() {
-      return (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
-    }
+    public static long GetUnixMillis() => (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
   }
 
   public class Paths {

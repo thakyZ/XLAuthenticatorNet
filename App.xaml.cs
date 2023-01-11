@@ -26,7 +26,7 @@ namespace XLAuthenticatorNet {
 #endif
     */
 
-    private MainWindow _mainWindow = null;
+    internal MainWindow _mainWindow = null;
 
     public App() {
       try {

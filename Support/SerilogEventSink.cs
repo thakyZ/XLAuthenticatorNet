@@ -20,9 +20,7 @@ namespace XLAuthenticatorNet.Support {
     /// Initializes a new instance of the <see cref="SerilogEventSink"/> class.
     /// </summary>
     /// <param name="formatProvider">Logging format provider.</param>
-    private SerilogEventSink(IFormatProvider formatProvider) {
-      this.formatProvider = formatProvider;
-    }
+    private SerilogEventSink(IFormatProvider formatProvider) => this.formatProvider = formatProvider;
 
     /// <summary>
     /// Event on a log line being emitted.

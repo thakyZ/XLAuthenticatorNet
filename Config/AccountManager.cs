@@ -25,7 +25,7 @@ namespace XLAuthenticatorNet.Config {
       set => _setting.CurrentAccountId = value.Id;
     }
 
-    private IAuthSettingsV1 _setting;
+    private readonly IAuthSettingsV1 _setting;
 
     public AccountManager(IAuthSettingsV1 setting) {
       Load();

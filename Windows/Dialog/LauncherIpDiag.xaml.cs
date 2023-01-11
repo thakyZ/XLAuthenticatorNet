@@ -1,5 +1,7 @@
 ﻿using System.Windows.Controls;
 
+using Castle.DynamicProxy.Contributors;
+
 using XLAuthenticatorNet.Config;
 using XLAuthenticatorNet.Windows.ViewModel;
 
@@ -9,12 +11,10 @@ namespace XLAuthenticatorNet.Windows.Dialog {
   /// Interaction logic for LaucherIpDiag.xaml
   /// </summary>
   public partial class LauncherIpDialog : UserControl {
-    private LauncherIpDiagViewModel ViewModel => DataContext as LauncherIpDiagViewModel;
     public string Result { get; private set; }
 
     public LauncherIpDialog() {
       InitializeComponent();
-      DataContext = new LauncherIpDiagViewModel();
       SubmitButton.Click += SubmitButton_Click;
       CancelButton.Click += CancelButton_Click;
     }

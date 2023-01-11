@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
+
+using XLAuthenticatorNet.Config;
 
 namespace XLAuthenticatorNet.Windows.Dialog {
   /// <summary>
   /// Interaction logic for OtpKeyDialog.xaml
   /// </summary>
   public partial class OtpKeyDialog : UserControl {
-    public OtpKeyDialog() {
+
+    public OtpKeyDialog(AccountManager accountManager) {
       InitializeComponent();
+      SubmitButton.Click += SubmitButton_Click;
+      CancelButton.Click += CancelButton_Click;
+      InputTextBox.Text = accountManager.CurrentAccount.LauncherIpAddress;
+    }
+
+    private void CancelButton_Click(object sender, System.Windows.RoutedEventArgs e) {
+      CancelButton.CommandParameter = new object[] { false, InputTextBox.Text };
+    }
+
+    private void SubmitButton_Click(object sender, System.Windows.RoutedEventArgs e) {
+      SubmitButton.CommandParameter = new object[] { true, InputTextBox.Text };
     }
   }
 }

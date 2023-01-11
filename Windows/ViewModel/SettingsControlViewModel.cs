@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 using System.Windows.Input;
@@ -15,7 +9,6 @@ using System.Windows.Media;
 
 using MaterialDesignThemes.Wpf;
 
-using XLAuthenticatorNet;
 using XLAuthenticatorNet.Config;
 using XLAuthenticatorNet.Domain;
 using XLAuthenticatorNet.Windows.Dialog;
@@ -23,73 +16,25 @@ using XLAuthenticatorNet.Windows.Dialog;
 namespace XLAuthenticatorNet.Windows.ViewModel {
 
   internal class SettingsControlViewModel : ViewModelBase {
-    public AccountManager AccountManager { get; private set; } = new(App.Settings);
+    private AccountManager _accountManager;
 
-    private string _launcherIp;
-
-    public string LauncherIp {
-      get => _launcherIp;
-
-      set {
-        _launcherIp = value;
-        SetProperty(ref _launcherIp, value, "LauncherIP");
-      }
+    public SettingsControlViewModel(ref AccountManager accountManager) {
     }
 
-    private string _otpKey;
+    public string LauncherIp;
+    public string OtpKey;
 
-    public string OtpKey {
-      get => AccountManager.CurrentAccount.Token != "null" ? "Yes" : "No";
-
-      set {
-        AccountManager.CurrentAccount.Token = value;
-        SetProperty(ref _otpKey, value, "OtpKey");
-      }
-    }
-
-    public SettingsControlViewModel() {
-    }
-
-    public async Task SetupOtp(string launcherIp, string token) {
-      if (AccountManager.CurrentAccount != null && AccountManager.CurrentAccount.LauncherIpAddress.Equals(launcherIp) &&
-          AccountManager.CurrentAccount.Token != token &&
-          AccountManager.CurrentAccount.SavePassword) {
-        AccountManager.UpdateToken(AccountManager.CurrentAccount, token);
-      }
-
-      if (AccountManager.CurrentAccount == null || AccountManager.CurrentAccount.Id != $"{launcherIp}") {
-        var accountToSave = new TotpAccount(launcherIp) {
-          Token = token
-        };
-
-        AccountManager.AddAccount(accountToSave);
-
-        AccountManager.CurrentAccount = accountToSave;
-      }
-
-      LauncherIp = launcherIp;
-      OtpKey = token;
-
-      LauncherIPText = LauncherIp;
-      IsRegisteredText = OtpKey;
-    }
+    public void CreateAccountManager(ref AccountManager accountManager) => _accountManager = accountManager;
 
     protected override bool SetProperty<T>(ref T member, T value, [CallerMemberName] string propertyName = null) {
       if (propertyName is not null) {
         if (propertyName.Equals("OtpKey")) {
           var _temp = (value as string) != "null" ? true.ToString() : false.ToString();
           SetOTPKey(_temp);
-
-          AccountManager.AddAccount(new TotpAccount(LauncherIp) {
-            Token = OtpKey
-          });
         }
         if (propertyName.Equals("LauncherIP")) {
-          var _temp = value as string is null ? AccountManager.CurrentAccount.LauncherIpAddress : value as string;
-          SetIP(_temp ?? AccountManager.CurrentAccount.LauncherIpAddress);
-
-          AccountManager.AddAccount(new TotpAccount(LauncherIp) {
-          });
+          var _temp = value as string is null ? _accountManager.CurrentAccount.LauncherIpAddress : value as string;
+          SetIP(_temp ?? _accountManager.CurrentAccount.LauncherIpAddress);
         }
       }
 
@@ -107,8 +52,7 @@ namespace XLAuthenticatorNet.Windows.ViewModel {
     }
 
     private void SetIP(string arg) {
-      var checkedIp = CheckIP(arg);
-      if (checkedIp.Result) {
+      if (StartCheckIP(arg)) {
         LauncherIPText = arg;
         LauncherIPColor = new SolidColorBrush(Colors.LimeGreen);
       } else {
@@ -117,9 +61,21 @@ namespace XLAuthenticatorNet.Windows.ViewModel {
       }
     }
 
-    private async Task<bool> StartCheckIP(string args) {
-      var checkIP = await CheckIP(args);
-      return checkIP;
+    private void SetIP(string arg, bool updated) {
+      if (updated) {
+        if (StartCheckIP(arg)) {
+          LauncherIPText = arg;
+          LauncherIPColor = new SolidColorBrush(Colors.LimeGreen);
+        } else {
+          LauncherIPText = arg;
+          LauncherIPColor = new SolidColorBrush(Colors.Red);
+        }
+      }
+    }
+
+    internal bool StartCheckIP(string args) {
+      var checkIP = CheckIP(args);
+      return checkIP.Result;
     }
 
     private static Task<bool> CheckIP(string args) {
@@ -164,19 +120,19 @@ namespace XLAuthenticatorNet.Windows.ViewModel {
 
     private async void SetLauncherIpDialog(object commandParameter) {
       var view = new LauncherIpDialog() {
-        DataContext = new LauncherIpDiagViewModel()
+        DataContext = new LauncherIpDiagViewModel(ref _accountManager)
       };
 
-      var result = await DialogHost.Show(view, "RootDialog", SetLauncherClosingEventHandler);
+      var result = await DialogHost.Show(view, "RootDialog", SetLauncherIpClosingEventHandler);
     }
 
-    private void SetLauncherClosingEventHandler(object sender, DialogClosingEventArgs eventArgs) {
+    private void SetLauncherIpClosingEventHandler(object sender, DialogClosingEventArgs eventArgs) {
       if (eventArgs.Parameter is not Array)
         return;
       if (!Equals((eventArgs.Parameter as Array)?.GetValue(0), true))
         return;
 
-      LauncherIp = (eventArgs.Parameter as Array)?.GetValue(1) as string ?? "null";
+      SetIP((eventArgs.Parameter as Array)?.GetValue(1) as string ?? "null");
     }
   }
 }

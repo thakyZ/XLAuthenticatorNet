@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.PeerToPeer;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+
+using Castle.Core.Internal;
 
 using MaterialDesignThemes.Wpf.Transitions;
 
@@ -23,26 +29,47 @@ namespace XLAuthenticatorNet.Windows {
 
     public event EventHandler SettingsDismissed;
 
-    private SettingsControlViewModel ViewModel => DataContext as SettingsControlViewModel;
+    internal SettingsControlViewModel Model => DataContext as SettingsControlViewModel;
     private AccountManager _accountManager;
+
+    internal Action LauncherIpUpdated;
+    internal Action OtpKeyUpdated;
+
+    private void UpdateLauncherIpAccount(string value) {
+      if (_accountManager.CurrentAccount == null ||
+      _accountManager.CurrentAccount.Id != $"{value}") {
+        var accountToSave = new TotpAccount(value)
+        {
+          Token = "",
+        };
+
+        _accountManager.AddAccount(accountToSave);
+
+        _accountManager.CurrentAccount = accountToSave;
+      }
+    }
+
+    public string OtpKey {
+      get => _accountManager.CurrentAccount.LauncherIpAddress.IsNullOrEmpty() == false ? "Yes" : "No";
+
+      set {
+        _accountManager.UpdateToken(_accountManager.CurrentAccount, value);
+      }
+    }
+
+    internal void CreateAccountManager(ref AccountManager accountManager) {
+      _accountManager = accountManager;
+    }
 
     public SettingsControl() {
       InitializeComponent();
-      DataContext = new SettingsControlViewModel();
+      DataContext = new SettingsControlViewModel(ref _accountManager);
       ReloadSettings();
     }
 
     public void ReloadSettings() {
-      if (ViewModel is null || App.Settings is null) {
+      if (Model is null || App.Settings is null) {
         throw new NullReferenceException();
-      }
-
-      _accountManager = new AccountManager(App.Settings);
-
-      var savedAccount = _accountManager.CurrentAccount;
-
-      if (savedAccount is not null) {
-        SwitchAccount(savedAccount, false);
       }
 
       CloseAppAfterSendingBox.IsChecked = App.Settings.CloseApp;
@@ -52,14 +79,6 @@ namespace XLAuthenticatorNet.Windows {
 
     private void SettingsBack_Click(object sender, RoutedEventArgs e) {
       Transitioner.MoveNextCommand.Execute(null, null);
-    }
-
-    private void SwitchAccount(TotpAccount account, bool saveAsCurrent) {
-      if (account is null)
-        throw new ArgumentNullException(nameof(account));
-      if (string.IsNullOrEmpty(_accountManager.CurrentAccount.LauncherIpAddress).Equals(false)) {
-        Dispatcher.InvokeAsync(() => ViewModel.SetupOtp(_accountManager.CurrentAccount.LauncherIpAddress, _accountManager.CurrentAccount.Token));
-      }
     }
   }
 }

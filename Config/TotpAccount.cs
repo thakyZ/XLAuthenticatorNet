@@ -14,12 +14,11 @@ namespace XLAuthenticatorNet.Config {
   public class TotpAccount {
 
     [JsonIgnore]
-    public string Id => $"{LauncherIpAddress}-{CloseOnSend}";
+    public string Id => $"{LauncherIpAddress}";
 
     public override string ToString() => Id;
 
     public string LauncherIpAddress { get; private set; }
-    public bool CloseOnSend { get; private set; }
 
     [JsonIgnore]
     public string Token {
@@ -30,12 +29,12 @@ namespace XLAuthenticatorNet.Config {
 
       set {
         try {
-          CredentialManager.RemoveCredentials($"XIVQuickLauncherAuth-{LauncherIpAddress.ToLower()}");
+          _ = CredentialManager.RemoveCredentials($"XIVQuickLauncherAuth-{LauncherIpAddress.ToLower()}");
         } catch (Win32Exception) {
           // ignored
         }
 
-        CredentialManager.SaveCredentials($"XIVQuickLauncherAuth-{LauncherIpAddress.ToLower()}", new NetworkCredential {
+        _ = CredentialManager.SaveCredentials($"XIVQuickLauncherAuth-{LauncherIpAddress.ToLower()}", new NetworkCredential {
           UserName = LauncherIpAddress,
           Password = value
         });
@@ -44,8 +43,6 @@ namespace XLAuthenticatorNet.Config {
 
     public bool SavePassword => true;
 
-    public TotpAccount(string launcherIpAddress) {
-      LauncherIpAddress = launcherIpAddress.ToLower();
-    }
+    public TotpAccount(string launcherIpAddress) => LauncherIpAddress = launcherIpAddress.ToLower();
   }
 }

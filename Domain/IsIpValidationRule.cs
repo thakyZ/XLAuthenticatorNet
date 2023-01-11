@@ -12,8 +12,7 @@ namespace XLAuthenticatorNet.Domain {
   public class IsIpValidationRule : ValidationRule {
 
     public override ValidationResult Validate(object value, CultureInfo cultureInfo) {
-      IPAddress address;
-      return IPAddress.TryParse((string)value, out address)
+      return IPAddress.TryParse((string)value, out _)
           ? ValidationResult.ValidResult :
           new ValidationResult(false, "Field is required.");
     }
