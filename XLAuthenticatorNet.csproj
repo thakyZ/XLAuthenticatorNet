@@ -70,6 +70,8 @@
   <ItemGroup>
     <Content Include="LICENSE" CopyToOutputDirectory="PreserveNewest" />
     <None Include="LICENSE" Pack="true" PackagePath="$(PackageLicenseFile)" />
+    <None Include="$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings.user" Condition="Exists('$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings.user')" />
+    <None Include="$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings" Condition="Exists('$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings')" />
   </ItemGroup>
 
   <ItemGroup>
