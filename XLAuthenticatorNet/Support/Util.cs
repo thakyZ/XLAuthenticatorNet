@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Windows;
 
-namespace XLAuthenticatorNet.Domain;
+namespace XLAuthenticatorNet.Support;
 
 /// <summary>
 /// The util class
