@@ -1,39 +1,49 @@
-﻿using System;
+using System;
+using System.ComponentModel;
 using System.Windows;
-
-using XLAuthenticatorNet.Windows.ViewModel;
-
-using XLAuthenticatorNet;
+using System.Windows.Threading;
+using Serilog;
 using XLAuthenticatorNet.Config;
-using NuGet;
-using Castle.Core.Internal;
+using XLAuthenticatorNet.Dialogs;
+using XLAuthenticatorNet.Domain;
+using XLAuthenticatorNet.Models.ViewModel;
 
 namespace XLAuthenticatorNet.Windows {
-
   /// <summary>
   /// Interaction logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow : Window {
+    /// <summary>
+    /// Gets the value of the view model
+    /// </summary>
+    private MainWindowViewModel ViewModel => (this.DataContext as MainWindowViewModel)!;
+    /// <summary>
+    /// Gets the value of the settings control
+    /// </summary>
+    internal SettingsControl SettingsControl { get; }
+    /// <summary>
+    /// Gets the value of the main content
+    /// </summary>
+    internal MainControl MainContent { get; }
+    /// <summary>
+    /// The timer
+    /// </summary>
+    private readonly DispatcherTimer _timer;
 
-    private AccountManager _accountManager;
-    private MainWindowViewModel Model => this.DataContext as MainWindowViewModel;
-
-    public MainWindow() {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MainWindow"/> class
+    /// </summary>
+    /// <exception cref="Exception">Failed to load main window</exception>
+    internal MainWindow() {
+      this.SettingsControl = new SettingsControl { ParentWindow = this };
+      this.MainContent = new MainControl { ParentWindow = this };
       InitializeComponent();
-      this.DataContext = new MainWindowViewModel();
-
-      Model.Activate += () => this.Dispatcher.Invoke(() => {
-        this.Show();
-        this.Activate();
-        this.Focus();
-      });
-
+      this.DataContext = new MainWindowViewModel(this);
 #if !XL_NOAUTOUPDATE
       Title += " v" + Util.GetAssemblyVersion();
 #else
       Title += " " + Util.GetGitHash();
 #endif
-
 #if !XL_NOAUTOUPDATE
       if (EnvironmentSettings.IsDisableUpdates)
 #endif
@@ -41,66 +51,51 @@ namespace XLAuthenticatorNet.Windows {
         Title += " - UNSUPPORTED VERSION - NO UPDATES - COULD DO BAD THINGS";
       }
 
-      if (App.SetupDevice)
-        OpenSettingsWindow();
+      _timer = new DispatcherTimer(DispatcherPriority.Background) {
+        Interval = TimeSpan.FromSeconds(1), IsEnabled = false,
+      };
+      _timer.Tick += DispatcherTimer_Tick;
+      _timer.Start();
 
-      if (EnvironmentSettings.IsWine)
+      if (EnvironmentSettings.IsWine) {
         Title += " - Wine on Linux";
+      }
 
 #if DEBUG
       Title += " - Debugging";
 #endif
-    }
+      Log.Information("MainWindow initializing...");
+      if (this.ViewModel is null) {
+        throw new Exception("Failed to load main window");
+      }
 
-    private void OpenSettingsWindow() {
-      MainWindowTransitioner.SelectedIndex = 0;
-    }
+      TotpAccount? savedAccount = App.AccountManager.CurrentAccount;
+      if (savedAccount is not null) {
+        App.AccountManager.SwitchAccount(savedAccount, false);
+      }
 
-    public void Initialize() {
-      Console.WriteLine("[INF] MainWindow initialized.");
-
-      _accountManager = new AccountManager(App.Settings);
-
-      var savedAccount = _accountManager.CurrentAccount;
-
-      if (savedAccount != null)
-        SwitchAccount(savedAccount, false);
-
-      SettingsControl.CreateAccountManager(ref _accountManager);
-      SettingsControl.ReloadSettings();
-
+      this.SettingsControl.ReloadSettings();
       Show();
       Activate();
     }
 
-    private void SwitchAccount(TotpAccount account, bool saveAsCurrent) {
-      SettingsControl.Model.LauncherIp = account.LauncherIpAddress;
-      SettingsControl.Model.OtpKey = HandleOtpKey(account.Token);
-
-      if (saveAsCurrent) {
-        _accountManager.CurrentAccount = account;
-      }
+    /// <summary>
+    /// Dispatchers the timer tick using the specified sender
+    /// </summary>
+    /// <param name="sender">The sender</param>
+    /// <param name="e">The </param>
+    private void DispatcherTimer_Tick(object? sender, EventArgs e) {
+      this.MainContent.RefreshData(updateOTP: true);
     }
 
-    private string HandleOtpKey(string key) {
-      return key.IsNullOrEmpty() ? "No" : "Yes";    
-    }
-
-    private void OnAccountSwitchedEventHandler(object sender, TotpAccount e) {
-      SwitchAccount(e, true);
-    }
-
-    private void ResendOTPKey_Click(object sender, RoutedEventArgs e) {
-    }
-
-    private void OpenSettings_Click(object sender, RoutedEventArgs e) {
-      OpenSettingsWindow();
-    }
-
-    private void SettingsControl_OnSettingsDismissed(object sender, EventArgs e) {
-      if (App.Settings is null) {
-        throw new NullReferenceException();
-      }
+    /// <summary>
+    /// Main the window on closing using the specified sender
+    /// </summary>
+    /// <param name="sender">The sender</param>
+    /// <param name="e">The </param>
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e) {
+      this.ViewModel.Dispose();
+      this.Hide();
     }
   }
 }

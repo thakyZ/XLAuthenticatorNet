@@ -1,0 +1,193 @@
+﻿<UserControl x:Class="XLAuthenticatorNet.Dialogs.SettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModel="clr-namespace:XLAuthenticatorNet.Models.ViewModel"
+             d:DataContext="{d:DesignInstance viewModel:SettingsControlViewModel}"
+             d:DesignWidth="350"
+             d:DesignHeight="500"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{materialDesign:MaterialDesignFont}"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             mc:Ignorable="d">
+  <UserControl.Content>
+    <materialDesign:DrawerHost>
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="0.0*" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+        <materialDesign:ColorZone Grid.Row="0"
+                                  Padding="16"
+                                  DockPanel.Dock="Top"
+                                  Mode="PrimaryMid"
+                                  Foreground="{DynamicResource MaterialDesign.Brush.Foreground}">
+          <DockPanel>
+            <StackPanel Orientation="Horizontal">
+              <Button Width="{Binding ActualHeight, RelativeSource={RelativeSource Self}}"
+                      materialDesign:RippleAssist.Feedback="{Binding RelativeSource={RelativeSource Self}, Path=Foreground, Converter={StaticResource BrushRoundConverter}}"
+                      Command="{Binding SettingsBack}"
+                      Content="{materialDesign:PackIcon Kind=ArrowLeft, Size=24}"
+                      Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                      Style="{StaticResource MaterialDesignToolButton}" />
+              <TextBlock Margin="24,0,0,0"
+                         Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                         Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"
+                         Text="{Binding Title}"
+                         TextWrapping="Wrap" />
+            </StackPanel>
+          </DockPanel>
+        </materialDesign:ColorZone>
+        <StackPanel Grid.Row="1"
+                    Margin="24,0,24,0"
+                    VerticalAlignment="Center"
+                    Orientation="Vertical">
+          <StackPanel HorizontalAlignment="Center"
+                      Orientation="Horizontal">
+            <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}"
+                       Text="{Binding RegisteredLabel}"
+                       Margin="0,0,10,0" />
+            <TextBlock Foreground="{Binding IsRegisteredColor}"
+                       Style="{StaticResource MaterialDesignBody1TextBlock}"
+                       Text="{Binding IsRegisteredText}" />
+          </StackPanel>
+          <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+          <Button HorizontalAlignment="Center"
+                  Command="{Binding SetOtpKeyDialogCommand}"
+                  Style="{StaticResource MaterialDesignRaisedButton}"
+                  Content="{Binding SetupOTPCodeButtonLabel}"
+                  Foreground="{DynamicResource MaterialDesign.Brush.Foreground}" />
+          <StackPanel HorizontalAlignment="Center"
+                      Orientation="Horizontal">
+            <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}"
+                       Text="{Binding XIVLauncherIPLabel}"
+                       Margin="0,0,10,0" />
+            <TextBlock Foreground="{Binding LauncherIPColor}"
+                       Style="{StaticResource MaterialDesignBody1TextBlock}"
+                       Text="{Binding LauncherIPText}" />
+          </StackPanel>
+          <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+          <Button HorizontalAlignment="Center"
+                  Command="{Binding SetLauncherIPDialogCommand}"
+                  Style="{StaticResource MaterialDesignRaisedButton}"
+                  Content="{Binding XIVLauncherIPButtonLabel}"
+                  Foreground="{DynamicResource MaterialDesign.Brush.Foreground}" />
+          <CheckBox x:Name="CloseAppAfterSendingCheckBox"
+                    Margin="0,12,0,12"
+                    Content="{Binding CloseAppAfterSendingCheckBoxLabel}"
+                    IsThreeState="False"
+                    IsChecked="{Binding CloseAppAfterSending}"
+                    Command="{Binding CloseAppAfterSendingCheckBoxCommand}" />
+        </StackPanel>
+        <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+        <materialDesign:SplitButton x:Name="AccountSelectionButton"
+                                    Grid.Row="2"
+                                    Margin="24,0,24,0"
+                                    VerticalAlignment="Bottom"
+                                    Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+                                    PopupContent="{Binding AccountSelectionButtonContent}">
+          <materialDesign:SplitButton.Resources>
+            <Style TargetType="{x:Type materialDesign:SplitButton}"
+                   BasedOn="{StaticResource MaterialDesignSplitButton}">
+              <Setter Property="SplitContentTemplate">
+                <Setter.Value>
+                  <DataTemplate>
+                    <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+                    <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+                                             Kind="ChevronDown" />
+                  </DataTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </materialDesign:SplitButton.Resources>
+          <materialDesign:SplitButton.Content>
+            <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+            <TextBlock Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+                       Text="{Binding CurrentAccountName, FallbackValue=N/A}" />
+          </materialDesign:SplitButton.Content>
+        </materialDesign:SplitButton>
+        <Grid Margin="24,0,24,24"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Center"
+              Grid.Row="4">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+          <materialDesign:SplitButton x:Name="LanguageSelectionButton"
+                                      Grid.Column="1"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Left"
+                                      Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+                                      PopupContent="{Binding AccountSelectionButtonContent}">
+            <materialDesign:SplitButton.Resources>
+              <Style TargetType="{x:Type materialDesign:SplitButton}"
+                     BasedOn="{StaticResource MaterialDesignSplitButton}">
+                <Setter Property="SplitContentTemplate">
+                  <Setter.Value>
+                    <DataTemplate>
+                      <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+                      <materialDesign:PackIcon Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+                                               Kind="ChevronDown" />
+                    </DataTemplate>
+                  </Setter.Value>
+                </Setter>
+              </Style>
+            </materialDesign:SplitButton.Resources>
+            <materialDesign:SplitButton.Content>
+              <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+              <TextBlock Foreground="{DynamicResource MaterialDesign.Brush.Foreground}"
+                         Text="{Binding CurrentAccountName, FallbackValue=N/A}" />
+            </materialDesign:SplitButton.Content>
+          </materialDesign:SplitButton>
+          <!-- ReSharper disable once Xaml.InvalidDynamicResourceType -->
+          <Button HorizontalContentAlignment="Center"
+                  Grid.Column="3"
+                  Command="{Binding SaveSettingsButtonCommand}"
+                  Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                  Foreground="{DynamicResource MaterialDesign.Brush.Foreground}">
+            <materialDesign:PackIcon Kind="Floppy"
+                                     Height="24"
+                                     Width="24" />
+          </Button>
+        </Grid>
+        <TextBlock x:Name="CreditsBlock"
+                   Grid.Row="5"
+                   Margin="24,0,24,24"
+                   VerticalAlignment="Bottom"
+                   Style="{DynamicResource MaterialDesignCaptionTextBlock}" />
+        <materialDesign:DialogHost Grid.Row="0"
+                                   Grid.RowSpan="7"
+                                   Grid.ZIndex="1"
+                                   Identifier="OTPKeyDialogHost" />
+        <materialDesign:DialogHost Grid.Row="0"
+                                   Grid.RowSpan="7"
+                                   Grid.ZIndex="1"
+                                   Identifier="LauncherIPDialogHost" />
+        <materialDesign:DialogHost Grid.Row="0"
+                                   Grid.RowSpan="7"
+                                   Grid.ZIndex="1"
+                                   Identifier="AddAccountDialogHost" />
+        <materialDesign:DialogHost Grid.Row="0"
+                                   Grid.RowSpan="7"
+                                   Grid.ZIndex="1"
+                                   Identifier="RenameAccountDialogHost" />
+        <materialDesign:DialogHost Grid.Row="0"
+                                   Grid.RowSpan="7"
+                                   Grid.ZIndex="1"
+                                   Identifier="DeleteAccountDialogHost" />
+      </Grid>
+    </materialDesign:DrawerHost>
+  </UserControl.Content>
+</UserControl>

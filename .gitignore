@@ -18,7 +18,7 @@ mono_crash.*
 
 # Build results
 [Dd]ebug/
-[Dd]ebugPublic/
+[Dd]ebuginternal/
 [Rr]elease/
 [Rr]eleases/
 x64/
@@ -396,3 +396,11 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/.idea/.idea.XLAuthenticatorNet/.idea/.gitignore
+/.idea/.idea.XLAuthenticatorNet/.idea/codeStyles/codeStyleConfig.xml
+/.idea/.idea.XLAuthenticatorNet/.idea/encodings.xml
+/.idea/.idea.XLAuthenticatorNet/.idea/indexLayout.xml
+/.idea/.idea.XLAuthenticatorNet/.idea/codeStyles/Project.xml
+/.idea/.idea.XLAuthenticatorNet/.idea/inspectionProfiles/Project_Default.xml
+/.idea/.idea.XLAuthenticatorNet/.idea/dictionaries/thaky.xml
+/.idea/.idea.XLAuthenticatorNet/.idea/vcs.xml
