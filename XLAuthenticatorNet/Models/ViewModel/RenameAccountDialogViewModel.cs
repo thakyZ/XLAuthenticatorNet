@@ -14,15 +14,15 @@ namespace XLAuthenticatorNet.Models.ViewModel;
 /// The rename account dialog view model class
 /// </summary>
 /// <seealso cref="ViewModelBase{RenameAccountDialog}"/>
-internal class RenameAccountDialogViewModel : ViewModelBase<RenameAccountDialog> {
+internal sealed class RenameAccountDialogViewModel : ViewModelBase<RenameAccountDialog> {
   /// <summary>
   /// Gets the value of the title
   /// </summary>
-  public string Title => Loc.Localize(nameof(RenameAccountDialog) + nameof(Title), "New Account");
+  public string Title => Loc.Localize(nameof(RenameAccountDialog) + nameof(this.Title), "New Account");
   /// <summary>
   /// Gets the value of the account name label
   /// </summary>
-  public string AccountNameLabel => Loc.Localize(nameof(AccountNameLabel), "Name:");
+  public string AccountNameLabel => Loc.Localize(nameof(this.AccountNameLabel), "Name:");
   /// <summary>
   /// Gets the value of the submit button label
   /// </summary>
@@ -38,17 +38,13 @@ internal class RenameAccountDialogViewModel : ViewModelBase<RenameAccountDialog>
   /// <summary>
   /// Gets the value of the submit rename account dialog
   /// </summary>
-  public ICommand SubmitRenameAccountDialog => new CommandImpl(() => {
-    DialogHost.CloseDialogCommand.Execute(new DialogResult<string>(MessageBoxResult.OK, AccountNameValue), null);
-  });
+  public ICommand SubmitRenameAccountDialog => new CommandImpl(() => DialogHost.CloseDialogCommand.Execute(new DialogResult<string>(MessageBoxResult.OK, this.AccountNameValue), target: null));
   /// <summary>
   /// Gets the value of the cancel rename account dialog
   /// </summary>
   [SuppressMessage("Performance", "CA1822:Mark members as static"),
    SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-  public ICommand CancelRenameAccountDialog => new CommandImpl(() => {
-    DialogHost.CloseDialogCommand.Execute(new DialogResult<string>(MessageBoxResult.Cancel), null);
-  });
+  public ICommand CancelRenameAccountDialog => new CommandImpl(() => DialogHost.CloseDialogCommand.Execute(new DialogResult<string>(MessageBoxResult.Cancel), target: null));
 
   /// <summary>
   /// Initializes a new instance of the <see cref="RenameAccountDialogViewModel"/> class

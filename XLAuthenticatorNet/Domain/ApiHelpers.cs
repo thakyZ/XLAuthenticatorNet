@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Linq;
 
 namespace XLAuthenticatorNet.Domain;
@@ -21,11 +22,11 @@ internal static class ApiHelpers {
       return codes[rng.Next(0, codes.Length)];
     }
 
-    int howMany = rng.Next(2, 4);
-    string[] deck = codesMany.OrderBy(_ => rng.Next()).Take(howMany).ToArray();
-    string hdr = string.Empty;
+    int      howMany = rng.Next(2, 4);
+    string[] deck    = codesMany.OrderBy(_ => rng.Next()).Take(howMany).ToArray();
+    string?  hdr     = string.Empty;
     for (var i = 0; i < deck.Length; i++) {
-      hdr += deck.ElementAt(i) + $";q=0.{10 - (i + 1)}";
+      hdr += deck[i] + string.Create(CultureInfo.InvariantCulture, $";q=0.{10 - (i + 1)}");
       if (i != deck.Length - 1) {
         hdr += ";";
       }

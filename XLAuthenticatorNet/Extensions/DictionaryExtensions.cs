@@ -17,8 +17,8 @@ internal static class DictionaryExtensions {
   [SuppressMessage("ReSharper", "UnusedMember.Global")]
   [MethodImpl(MethodImplOptions.AggressiveOptimization)]
   internal static Dictionary<object, object?> ToNativeDictionary(this ResourceDictionary resourceDictionary) {
-    var dictionary = new Dictionary<object, object?>();
-    foreach (object key in resourceDictionary.Keys) {
+    Dictionary<object, object?> dictionary = [];
+    foreach (var key in resourceDictionary.Keys) {
       dictionary[key] = resourceDictionary[key];
     }
 

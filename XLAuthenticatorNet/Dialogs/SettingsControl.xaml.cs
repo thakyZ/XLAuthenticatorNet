@@ -13,7 +13,7 @@ public partial class SettingsControl : UserControl {
   /// <summary>
   /// Gets the value of the view model
   /// </summary>
-  private SettingsControlViewModel ViewModel => (DataContext as SettingsControlViewModel)!;
+  private SettingsControlViewModel ViewModel => (this.DataContext as SettingsControlViewModel)!;
   /// <summary>
   /// Gets or inits the value of the parent window
   /// </summary>
@@ -23,7 +23,7 @@ public partial class SettingsControl : UserControl {
   /// Initializes a new instance of the <see cref="SettingsControl"/> class
   /// </summary>
   internal SettingsControl() {
-    InitializeComponent();
+    this.InitializeComponent();
     this.DataContext = new SettingsControlViewModel(this);
   }
 
@@ -33,21 +33,21 @@ public partial class SettingsControl : UserControl {
   /// <exception cref="NullReferenceException"></exception>
   internal void ReloadSettings() {
     if (this.ViewModel is null) {
-      throw new NullReferenceException();
+      throw new InvalidOperationException();
     }
 
     App.Settings.NotifyReloadTriggered();
-    App.AccountManager.NotifyReloadTriggered();
+    App.AccountManager.OnReloadTriggered();
   }
 
   internal void CloseAndCancelSettings() {
-    NavigationCommands.HideSettingsCommand.Execute(this, null);
+    NavigationCommands.HideSettingsCommand.Execute(this, target: null);
   }
 
   /// <summary>
-  /// Refreshes the data using the specified update popup content
+  /// Refreshes the data using the specified update pop-up content
   /// </summary>
-  /// <param name="updatePopupContent">A boolean determining whether to update popup content.</param>
+  /// <param name="updatePopupContent">A boolean determining whether to update pop-up content.</param>
   /// <param name="updateLabels">A boolean determining whether to update all labels.</param>
   internal void RefreshData(bool updatePopupContent = false, bool updateLabels = false) {
     this.ViewModel.RefreshData(updatePopupContent: updatePopupContent, updateLabels: updateLabels);

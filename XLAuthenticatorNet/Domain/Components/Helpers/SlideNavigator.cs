@@ -9,7 +9,7 @@ namespace XLAuthenticatorNet.Domain.Components.Helpers;
 /// <summary>
 /// The slide navigator class
 /// </summary>
-internal class SlideNavigator {
+internal sealed class SlideNavigator {
   /// <summary>
   /// The slide navigation subject
   /// </summary>
@@ -54,7 +54,7 @@ internal class SlideNavigator {
   /// Goes the to
   /// </summary>
   /// <typeparam name="TSlide">The slide</typeparam>
-  internal void GoTo<TSlide>() => this.GoTo(IndexOfSlide<TSlide>());
+  internal void GoTo<TSlide>() => this.GoTo(this.IndexOfSlide<TSlide>());
 
   /// <summary>
   /// Goes the to using the specified slide index
@@ -67,7 +67,7 @@ internal class SlideNavigator {
       this._currentPositionNode = new LinkedListNode<SlideNavigatorFrame>(new SlideNavigatorFrame(slideIndex, setupSlide));
       this._historyLinkedList.AddLast(this._currentPositionNode);
     } else {
-      var newNode = new LinkedListNode<SlideNavigatorFrame>(new SlideNavigatorFrame(slideIndex, setupSlide));
+      LinkedListNode<SlideNavigatorFrame> newNode = new LinkedListNode<SlideNavigatorFrame>(new SlideNavigatorFrame(slideIndex, setupSlide));
       this._historyLinkedList.AddAfter(this._currentPositionNode, newNode);
       this._currentPositionNode = newNode;
       LinkedListNode<SlideNavigatorFrame>? tail = newNode.Next;
@@ -90,7 +90,7 @@ internal class SlideNavigator {
     }
 
     this._currentPositionNode = this._currentPositionNode.Previous;
-    GoTo(this._currentPositionNode);
+    this.GoTo(this._currentPositionNode);
   }
 
   /// <summary>
@@ -102,7 +102,7 @@ internal class SlideNavigator {
     }
 
     this._currentPositionNode = this._currentPositionNode.Next;
-    GoTo(this._currentPositionNode);
+    this.GoTo(this._currentPositionNode);
   }
 
   /// <summary>

@@ -6,16 +6,17 @@ using System.Windows.Input;
 namespace XLAuthenticatorNet.Domain.Commands;
 
 /// <summary>
-/// The async command impl class
+/// The implementation of the <see cref="ICommand" /> as an asynchronous method class.
 /// </summary>
 /// <seealso cref="ICommand"/>
-internal class AsyncCommandImpl : ICommand {
+internal sealed class AsyncCommandImpl : ICommand {
   /// <summary>
-  /// The can execute
+  /// The internal command to execute.
   /// </summary>
   private readonly Predicate<object?> _canExecute;
+
   /// <summary>
-  /// The execute
+  /// The internal command to test if we can execute.
   /// </summary>
   private readonly Func<Task> _execute;
 
@@ -37,14 +38,15 @@ internal class AsyncCommandImpl : ICommand {
   }
 
   /// <summary>
-  /// Cans the execute using the specified parameter
+  /// Tests if the method can be executed with the given parameter.
   /// </summary>
   /// <param name="parameter">The parameter</param>
-  /// <returns>The bool</returns>
-  public bool CanExecute(object? parameter) => this._canExecute(parameter);
+  /// <returns><see langword="true" /> if this command can execute; otherwise <see langword="false" />.</returns>
+  public bool CanExecute(object? parameter)
+    => this._canExecute(parameter);
 
   /// <summary>
-  /// The can execute changed
+  /// The event handler when the indicator of this command's execution requirements change.
   /// </summary>
   public event EventHandler? CanExecuteChanged {
     add => CommandManager.RequerySuggested += value;
@@ -52,9 +54,19 @@ internal class AsyncCommandImpl : ICommand {
   }
 
   /// <summary>
-  /// Executes the parameter
+  /// Executes the command with the given parameter
   /// </summary>
   /// <param name="parameter">The parameter</param>
   [SuppressMessage("ReSharper", "AsyncVoidMethod")]
-  public async void Execute(object? parameter) => await this._execute();
+  public async void Execute(object? parameter)
+    => await this._execute();
+
+  /// <summary>
+  /// Refreshes this instance
+  /// </summary>
+  [SuppressMessage("ReSharper", "UnusedMember.Global"),
+   SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
+   SuppressMessage("Performance", "CA1822:Mark members as static")]
+  internal void Refresh()
+    => CommandManager.InvalidateRequerySuggested();
 }

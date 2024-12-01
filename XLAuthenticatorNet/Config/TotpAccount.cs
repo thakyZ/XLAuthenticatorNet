@@ -1,52 +1,48 @@
-using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Security;
 using AdysTech.CredentialManager;
 using Newtonsoft.Json;
 using OtpNet;
-using Serilog;
 using XLAuthenticatorNet.Config.Converters;
 using XLAuthenticatorNet.Extensions;
 
 namespace XLAuthenticatorNet.Config;
 
 /// <summary>
-/// The totp account class
+/// The TOTP account class
 /// </summary>
 /// <seealso cref="IEquatable{TotpAccount}"/>
 /// <seealso cref="IKeyProvider"/>
 [Serializable]
-internal class TotpAccount : IEquatable<TotpAccount>, IKeyProvider {
+internal sealed class TOTPAccount : IEquatable<TOTPAccount>, IKeyProvider {
   /// <summary>
   /// The credentials prefix
   /// </summary>
   private const string _CREDENTIALS_PREFIX = "XIVQuickLauncherAuth";
 
   /// <summary>
-  /// Gets or inits the value of the id
+  /// Gets the value of the account id
   /// </summary>
   [JsonProperty("id"), JsonConverter(typeof(GuidJsonConverter))]
   public Guid Id { get; init; }
   /// <summary>
-  /// Gets or sets the value of the name
+  /// Gets or sets the value of the account name
   /// </summary>
   [JsonProperty("name")]
-  public string Name { get; set; }
+  public string Name { get; set; } = string.Empty;
   /// <summary>
-  /// Gets or sets the value of the launcher ip address
+  /// Gets or sets the value of the launcher IP address
   /// </summary>
   [JsonProperty("address"), JsonConverter(typeof(IPAddressJsonConverter))]
   public IPAddress? LauncherIpAddress { get; set; }
 
   /// <summary>
-  /// Gets the value of the is current
+  /// Gets the a <see langword="bool" /> indicating if this is the current account.
   /// </summary>
   [JsonIgnore]
-  internal bool IsCurrent => App.AccountManager.CurrentAccount?.Id == Id;
+  internal bool IsCurrent => App.AccountManager.CurrentAccount?.Id == this.Id;
 
   /// <summary>
   /// Gets or sets the value of the token
@@ -54,7 +50,7 @@ internal class TotpAccount : IEquatable<TotpAccount>, IKeyProvider {
   [JsonIgnore]
   internal SecureString? Token {
     get {
-      NetworkCredential? credentials = CredentialManager.GetCredentials($"XIVQuickLauncherAuth-{this.Id:B}");
+      var credentials = CredentialManager.GetCredentials($"XIVQuickLauncherAuth-{this.Id:B}");
       return credentials?.SecurePassword;
     }
     set {
@@ -63,14 +59,14 @@ internal class TotpAccount : IEquatable<TotpAccount>, IKeyProvider {
       } catch (Win32Exception) {
         // ignored
       } catch (Exception ex) {
-        Log.Error(ex, "Failed to remove credential from Credential Manager.");
+        Logger.Error(ex, "Failed to remove credential from Credential Manager.");
       }
 
       if (value.IsNullOrEmptyOrWhiteSpace()) {
         try {
           _ = CredentialManager.RemoveCredentials($"XIVQuickLauncherAuth-{this.Id:B}");
         } catch (Exception e) {
-          Log.Error(e, "Failed to remove credential from Credential Manager. (May be edge case)");
+          Logger.Error(e, "Failed to remove credential from Credential Manager. (May be edge case)");
         }
 
         return;
@@ -84,12 +80,12 @@ internal class TotpAccount : IEquatable<TotpAccount>, IKeyProvider {
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="TotpAccount"/> class
+  /// Initializes a new instance of the <see cref="TOTPAccount"/> class
   /// </summary>
   /// <param name="name">The name</param>
-  /// <param name="launcherIpAddress">The launcher ip address</param>
+  /// <param name="launcherIpAddress">The launcher IP address</param>
   /// <param name="token">The token</param>
-  internal TotpAccount(string name, IPAddress? launcherIpAddress, SecureString? token = null) {
+  internal TOTPAccount(string name, IPAddress? launcherIpAddress, SecureString? token = null) {
     this.Name = name;
     this.Id = Guid.NewGuid();
     if (launcherIpAddress is not null) {
@@ -101,15 +97,14 @@ internal class TotpAccount : IEquatable<TotpAccount>, IKeyProvider {
     }
   }
 
-#pragma warning disable CS8618, CS9264
   /// <summary>
-  /// Initializes a new instance of the <see cref="TotpAccount"/> class
+  /// Initializes a new instance of the <see cref="TOTPAccount"/> class
   /// </summary>
   [SuppressMessage("ReSharper", "UnusedMember.Global"),
    SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
-  internal TotpAccount() {}
-#pragma warning restore CS8618, CS9264
+   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor."),
+   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.")]
+  internal TOTPAccount() {}
 
   /// <summary>
   /// Computes the hmac using the specified mode
@@ -117,44 +112,53 @@ internal class TotpAccount : IEquatable<TotpAccount>, IKeyProvider {
   /// <param name="mode">The mode</param>
   /// <param name="data">The data</param>
   /// <returns>The byte array</returns>
-  public byte[] ComputeHmac(OtpHashMode mode, byte[] data) => this.Token?.ToString()?.ToByteArray() ?? [];
+  public byte[] ComputeHmac(OtpHashMode mode, byte[] data) => this.Token?.ToPlainText()?.ToByteArray() ?? [];
 
   /// <summary>
   /// Returns the string
   /// </summary>
   /// <returns>The string</returns>
-  public override string ToString() => Id.ToString();
+  public override string ToString() => this.Id.ToString();
 
   /// <summary>
   /// Equalses the other
   /// </summary>
   /// <param name="other">The other</param>
   /// <returns>The bool</returns>
-  public bool Equals(TotpAccount? other) => other is not null && Id == other.Id;
+  public bool Equals(TOTPAccount? other) => other is not null && this.Id == other.Id;
   /// <summary>
   /// Equalses the obj
   /// </summary>
   /// <param name="obj">The obj</param>
   /// <returns>The bool</returns>
-  public override bool Equals(object? obj) => obj is TotpAccount other && Equals(other);
+  public override bool Equals(object? obj) => obj is TOTPAccount other && this.Equals(other);
   /// <summary>
   /// Gets the hash code
   /// </summary>
   /// <returns>The int</returns>
-  public override int GetHashCode() => HashCode.Combine(Id);
+  public override int GetHashCode() => HashCode.Combine(this.Id);
 
   /// <summary>
-  /// Creates the totp
+  /// Creates the TOTP
   /// </summary>
-  /// <returns>The totp</returns>
+  /// <returns>The TOTP</returns>
   public Totp? CreateTOTP() {
     try {
       if (this.Token?.ToPlainText() is string @string) {
-        return new Totp(Base32Encoding.ToBytes(@string), mode: OtpHashMode.Sha1, step: 30, totpSize: 6, timeCorrection: new TimeCorrection(GetNistTime()));
+        var nistTime = TOTPAccount.GetNistTime();
+        var timeCorrection = new TimeCorrection(nistTime);
+        var bytes = Base32Encoding.ToBytes(@string);
+        return new Totp(bytes, step: 30, mode: OtpHashMode.Sha1, totpSize: 6, timeCorrection);
       }
+#if DEBUG
+    } catch (Exception exception) {
+      Logger.Verbose(exception, "Failed to generate new TOTP code.");
+    }
+#else
     } catch {
       // Ignore...
     }
+#endif
 
     return null;
   }
@@ -169,12 +173,9 @@ internal class TotpAccount : IEquatable<TotpAccount>, IKeyProvider {
     // Get UTC time from the response header of request to "https://www.google.com"
     using var httpClient = new HttpClient();
     try {
-      using HttpResponseMessage response = httpClient.GetAsync("https://www.google.com").Result;
+      using var response = httpClient.GetAsync("https://www.google.com").Result;
       if (response is { IsSuccessStatusCode: true, Headers.Date: not null }) {
-        return DateTime.ParseExact(response.Headers.Date.Value.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'"),
-                                   "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
-                                   CultureInfo.InvariantCulture.DateTimeFormat,
-                                   DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+        return response.Headers.Date.Value.DateTime;
       }
       throw new Exception("Failed to get exact time for the TOTP");
     } catch (Exception ex) {

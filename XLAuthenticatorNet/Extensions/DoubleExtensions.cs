@@ -29,8 +29,8 @@ internal static class DoubleExtensions {
   /// <param name="other">The other</param>
   /// <returns>The double</returns>
   internal static double SubtractLargest(this double @double, double other) {
-    double smallest = Math.Min(@double, other);
-    double largest  = Math.Max(@double, other);
+    var smallest = Math.Min(@double, other);
+    var largest  = Math.Max(@double, other);
     return largest - smallest;
   }
 
@@ -41,8 +41,8 @@ internal static class DoubleExtensions {
   /// <param name="other">The other</param>
   /// <returns>The double</returns>
   internal static double SubtractSmallest(this double @double, double other) {
-    double smallest = Math.Min(@double, other);
-    double largest  = Math.Max(@double, other);
+    var smallest = Math.Min(@double, other);
+    var largest  = Math.Max(@double, other);
     return smallest - largest;
   }
 }

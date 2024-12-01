@@ -5,13 +5,13 @@ namespace XLAuthenticatorNet.Domain;
 /// <summary>
 /// The dialog result
 /// </summary>
-internal struct DialogResult {
+internal readonly struct DialogResult {
   /// <summary>
-  /// Gets or inits the value of the value
+  /// Gets the value of the value of the dialog result
   /// </summary>
   internal object? Value { get; init; }
   /// <summary>
-  /// Gets or inits the value of the result
+  /// Gets the value of the <see cref="MessageBoxResult" /> of the dialog result
   /// </summary>
   internal MessageBoxResult Result { get; init; }
 

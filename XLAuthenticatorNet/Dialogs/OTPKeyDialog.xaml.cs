@@ -11,14 +11,16 @@ public partial class OTPKeyDialog : UserControl {
   /// <summary>
   /// Gets the value of the model
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Local")]
-  private OTPKeyDialogViewModel Model => (this.DataContext as OTPKeyDialogViewModel)!;
+  [SuppressMessage("ReSharper", "UnusedMember.Local"),
+   SuppressMessage("CodeQuality", "IDE0051:Remove unused private members")]
+  private OTPKeyDialogViewModel Model
+    => (this.DataContext as OTPKeyDialogViewModel)!;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="OTPKeyDialog"/> class
   /// </summary>
   internal OTPKeyDialog() {
-    InitializeComponent();
-    DataContext = new OTPKeyDialogViewModel(this);
+    this.InitializeComponent();
+    this.DataContext = new OTPKeyDialogViewModel(this);
   }
 }

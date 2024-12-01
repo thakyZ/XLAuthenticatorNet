@@ -9,8 +9,7 @@ namespace XLAuthenticatorNet.Domain.Validation;
 /// The not empty validation rule class
 /// </summary>
 /// <seealso cref="ValidationRule"/>
-[SuppressMessage("ReSharper", "UnusedType.Global")]
-internal class NotEmptyValidationRule : ValidationRule {
+internal sealed class NotEmptyValidationRule : ValidationRule {
   /// <summary>
   /// Validates the value
   /// </summary>
@@ -19,6 +18,6 @@ internal class NotEmptyValidationRule : ValidationRule {
   /// <returns>The validation result</returns>
   public override ValidationResult Validate(object? value, CultureInfo cultureInfo) =>
     (value as string).IsNullOrEmptyOrWhiteSpace()
-      ? new ValidationResult(false, "Field is required.")
+      ? new ValidationResult(isValid: false, "Field is required.")
       : ValidationResult.ValidResult;
 }

@@ -1,8 +1,5 @@
-using System;
-using System.Globalization;
 using System.Security;
 using System.Windows.Data;
-using Serilog;
 using XLAuthenticatorNet.Extensions;
 
 namespace XLAuthenticatorNet.Models.Converters;
@@ -21,7 +18,7 @@ public class SecureStringConverter : IValueConverter {
   /// <param name="culture">The culture</param>
   /// <returns>The object</returns>
   public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
-    Log.Debug("Converting SecureString {0} [{1}]", value, value?.GetType().FullName ?? "null");
+    Logger.Debug("Converting SecureString {0} [{1}]", value, value?.GetType().FullName ?? "null");
     if (value is SecureString secureString) {
       return secureString.ToPlainText();
     }
@@ -42,7 +39,7 @@ public class SecureStringConverter : IValueConverter {
   /// <param name="culture">The culture</param>
   /// <returns>The object</returns>
   public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
-    Log.Debug("Converting String {0} [{1}]", value, value?.GetType().FullName ?? "null");
+    Logger.Debug("Converting String {0} [{1}]", value, value?.GetType().FullName ?? "null");
     if (value is SecureString secureString) {
       return secureString;
     }

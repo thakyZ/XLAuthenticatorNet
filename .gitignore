@@ -98,6 +98,9 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+# Generated files
+*.g.cs
+
 # Chutzpah Test files
 _Chutzpah*
 
@@ -404,3 +407,6 @@ FodyWeavers.xsd
 /.idea/.idea.XLAuthenticatorNet/.idea/inspectionProfiles/Project_Default.xml
 /.idea/.idea.XLAuthenticatorNet/.idea/dictionaries/thaky.xml
 /.idea/.idea.XLAuthenticatorNet/.idea/vcs.xml
+
+# Environment Variables
+.env

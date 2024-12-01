@@ -1,117 +1,123 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Product>XLAuthenticatorNet</Product>
-    <AssemblyTitle>XLAuthenticatorNet</AssemblyTitle>
+    <AssemblyTitle>XLAuth</AssemblyTitle>
     <VersionPrefix>1.0.0</VersionPrefix>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <StartupObject>XLAuthenticatorNet.App</StartupObject>
+    <ApplicationManifest>$(ProjectDir)App.manifest</ApplicationManifest>
+    <ApplicationIcon>$(ProjectDir)Resources\xlauth_icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <Platforms>x64;x86;AnyCPU</Platforms>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
-    <OutputPath>bin\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <OutputPath>$(SolutionDir)bin\$(Configuration)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <StartupObject>XLAuthenticatorNet.App</StartupObject>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <NoWarn>$(NoWarn);AD0001;CODEGENCS003</NoWarn>
   </PropertyGroup>
 
-  <!-- Assets -->
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Loc\xl\*.json" />
-    <None Remove="Resources\logo.png" />
-    <EmbeddedResource Include="Resources\logo.png" CopyToOutputDirectory="Never" LogicalName="logo" />
-    <None Remove="Resources\xlauth_icon.ico" />
-    <EmbeddedResource Include="Resources\xlauth_icon.ico" CopyToOutputDirectory="Never" LogicalName="xlauth_icon" />
-  </ItemGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <Optimize>true</Optimize>
     <DefineConstants>TRACE;DEBUG;XL_NOAUTOUPDATE</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'ReleaseNoUpdate' ">
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'ReleaseNoUpdate'">
     <DefineConstants>TRACE;XL_NOAUTOUPDATE</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- Assets -->
+  <ItemGroup Label="Resources">
+    <None Remove="$(ProjectDir)Resources\logo.png" />
+    <EmbeddedResource Include="$(ProjectDir)Resources\Loc\xl\*.json" />
+    <EmbeddedResource Include="Resources\logo.png" CopyToOutputDirectory="Never" LogicalName="logo" />
+    <None Remove="$(ProjectDir)Resources\xlauth_icon.ico" />
+    <EmbeddedResource Include="$(ProjectDir)Resources\xlauth_icon.ico" CopyToOutputDirectory="Never" LogicalName="xlauth_icon" />
+    <None Include="$(ProjectDir)App.config" Condition="Exists('$(ProjectDir)App.config')" />
+  </ItemGroup>
+
+  <ItemGroup Label="Dependencies">
     <PackageReference Include="AdysTech.CredentialManager" Version="2.6.0" />
     <PackageReference Include="CheapLoc" Version="1.1.8" />
-    <PackageReference Include="Clowd.Squirrel" Version="2.11.1" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="MSBuildGitHash" Version="2.0.2" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" Condition="'$(BuildHash)' == ''" />
     <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Otp.NET" Version="1.4.0" />
     <PackageReference Include="Serilog" Version="4.1.0" />
+    <PackageReference Include="Serilog.Enrichers.Sensitive" Version="1.7.3" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="SerilogAnalyzer" Version="0.15.0" />
     <PackageReference Include="SharedMemory" Version="2.3.2" />
-    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.Encodings.Web" Version="8.0.0" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageReference Include="Velopack" Version="0.0.942" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(BuildHash)' == ''">
-    <AssemblyMetadataCommand Include="BuildOrigin">
-      <Command>@echo off &amp; echo $(GITHUB_REPOSITORY)</Command>
-    </AssemblyMetadataCommand>
-    <AssemblyMetadataCommand Include="GitHash">
-      <Command>git describe --long --always --dirty --abbrev=8</Command>
-    </AssemblyMetadataCommand>
+  <ItemGroup Label="Build Tools">
+    <PackageReference Include="CodegenCS.DotNet" Version="3.5.0" />
+    <PackageReference Include="CodegenCS.SourceGenerator" Version="3.5.2" />
+    <PackageReference Include="MSBuildGitHash" Version="2.0.2" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" Condition="'$(BuildHash)' == ''" />
+  </ItemGroup>
+  
+  <ItemGroup Label="Analyzers">
+    <PackageReference Include="DotNetAnalyzers.DocumentationAnalyzers.Unstable" Version="1.0.0.59" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.182" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="LICENSE" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="LICENSE" Pack="true" PackagePath="$(PackageLicenseFile)" />
+  <ItemGroup Label="Assembly Metadata" Condition="'$(BuildHash)' == ''">
+    <AssemblyMetadataCommand Include="BuildOrigin" Command="@echo off &amp; echo $(GITHUB_REPOSITORY)" />
+    <AssemblyMetadataCommand Include="GitHash" Command="git describe --long --always --dirty --abbrev=8" />
+  </ItemGroup>
+
+  <ItemGroup Label="Other Files">
+    <None Include="$(ProjectDir).env" />
+    <Content Include="$(SolutionDir)LICENSE" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Resources\xlauth_icon.ico" />
     <None Include="$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings.user" Condition="Exists('$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings.user')" />
     <None Include="$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings" Condition="Exists('$(ProjectDir)XLAuthenticatorNet.csproj.DotSettings')" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Page Update="Windows\ChangelogWindow.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
-    <Page Update="Windows\CustomMessageBox.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
-    <Page Update="Windows\UpdateLoadingWindow.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
-    <Page Update="Dialog\AddAccountDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Dialog\DeleteAccountDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Dialog\LauncherIPDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Dialog\MainControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Dialog\OTPKeyDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Dialog\RenameAccountDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="Dialog\SettingsControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
-      <SubType>Designer</SubType>
-    </Page>
+  <ItemGroup Label="XAML Designer">
+    <Page Update="$(ProjectDir)Windows\ChangelogWindow.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Windows\CustomMessageBox.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Windows\UpdateLoadingWindow.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Dialog\AddAccountDialog.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Dialog\DeleteAccountDialog.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Dialog\LauncherIPDialog.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Dialog\MainControl.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Dialog\OTPKeyDialog.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Dialog\RenameAccountDialog.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+    <Page Update="$(ProjectDir)Dialog\SettingsControl.xaml" Generator="MSBuild:Compile" XamlRuntime="Wpf" SubType="Designer" />
+  </ItemGroup>
+
+  <ItemGroup Label="Code Generator">
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="CodegenCSOutput" />
+    <AdditionalFiles Include="$(ProjectDir)Generate\LoggerTemplate.csx" CodegenCSOutput="File" />
   </ItemGroup>
 </Project>

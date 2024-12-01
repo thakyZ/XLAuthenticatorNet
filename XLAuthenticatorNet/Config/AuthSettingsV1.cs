@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 using Serilog.Events;
 using XLAuthenticatorNet.Config.Converters;
 using XLAuthenticatorNet.Domain;
+using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Support;
 
 namespace XLAuthenticatorNet.Config;
@@ -18,7 +20,8 @@ namespace XLAuthenticatorNet.Config;
 /// </summary>
 /// <seealso cref="IEquatable{AuthSettingsV1}"/>
 [Serializable]
-internal class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
+[SuppressMessage("Naming", "AV1704:Identifier contains one or more digits in its name")]
+internal sealed class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
 #region Program Settings
 
   /// <summary>
@@ -67,7 +70,8 @@ internal class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
   internal event EventHandler? ReloadTriggered;
 
   internal void NotifyReloadTriggered([CallerMemberName] string caller = "") {
-    this.ReloadTriggered?.Invoke(caller, EventArgs.Empty);
+    var eventArgs = new PropertyChangedEventArgs(caller);
+    this.ReloadTriggered?.Invoke(this, eventArgs);
   }
 
   /// <summary>
@@ -81,7 +85,7 @@ internal class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
        && this.CurrentAccountID.Equals(other.CurrentAccountID)
        && this.Language == other.Language
        && this.VersionUpgradeLevel == other.VersionUpgradeLevel
-       && this.AcceptLanguage == other.AcceptLanguage
+       && string.Equals(this.AcceptLanguage, other.AcceptLanguage, StringComparison.Ordinal)
        && this.LogLevel == other.LogLevel;
 
   /// <summary>
@@ -92,8 +96,8 @@ internal class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
   public override bool Equals(object? obj)
     => obj is not null
        && (ReferenceEquals(this, obj)
-           || obj.GetType() == GetType()
-           && Equals((AuthSettingsV1)obj));
+           || (obj.GetType() == this.GetType()
+           && this.Equals((AuthSettingsV1)obj)));
 
   /// <summary>
   /// Gets the hash code
@@ -107,20 +111,29 @@ internal class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
   /// </summary>
   /// <returns>The auth settings</returns>
   private AuthSettingsV1 UseCommandlineArguments() {
-    Type t = typeof(AuthSettingsV1);
-    PropertyInfo[] properties = t.GetProperties();
-    List<ArgumentPair> arguments = ArgumentParser.ParseArguments(Environment.GetCommandLineArgs());
-    foreach (PropertyInfo property in properties) {
-      var attributes = property.GetCustomAttributes().ToList();
-      if (attributes.FirstOrDefault(x => x is JsonPropertyAttribute) is not JsonPropertyAttribute propertyAttribute)
+    var type = typeof(AuthSettingsV1);
+    PropertyInfo[] properties = type.GetProperties();
+    var cliArgs = Environment.GetCommandLineArgs();
+    List<ArgumentPair> arguments = ArgumentParser.ParseArguments(cliArgs);
+    foreach (var property in properties) {
+      List<Attribute> attributes = property.GetCustomAttributes().ToList();
+      if (attributes.Find(attribute => attribute is JsonPropertyAttribute) is not JsonPropertyAttribute propertyAttribute) {
         continue;
-      var argumentValues = arguments.Where(x => x.Name == propertyAttribute.PropertyName).ToList();
-      if (argumentValues.Count < 1 || !argumentValues.All(x => x.Value is not null))
+      }
+
+      List<ArgumentPair> argumentValues = arguments.Where(pair => pair.Name.Equals(propertyAttribute.PropertyName, StringComparison.OrdinalIgnoreCase)).ToList();
+      if (argumentValues.Count < 1 || !argumentValues.TrueForAll(pair => pair.Value is not null)) {
         continue;
+      }
+
       if ((property.PropertyType.IsGenericType && property.PropertyType.IsEquivalentTo(typeof(List<>))) || property.PropertyType.IsEquivalentTo(typeof(Array))) {
-        property.SetValue(this, arguments.Where(x => property.PropertyType.GenericTypeArguments.All(y => x.Value!.GetType().IsEquivalentTo(y))).Select(x => x.Value).ToArray());
-      } else if (property.PropertyType.IsEquivalentTo(argumentValues.First().Value!.GetType())) {
-        property.SetValue(this, argumentValues.First().Value!);
+        var value = arguments.WhereIn(property.PropertyType.GenericTypeArguments, (pair, genericType) => pair.Value!.GetType().IsEquivalentTo(genericType)).Select(pair => pair.Value).ToArray();
+        property.SetValue(this, value);
+      } else {
+        var argumentValueType = argumentValues[0].Value!.GetType();
+        if (property.PropertyType.IsEquivalentTo(argumentValueType)) {
+          property.SetValue(this, argumentValues[0].Value);
+        }
       }
     }
 
@@ -131,11 +144,14 @@ internal class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
   /// Saves the path
   /// </summary>
   /// <param name="path">The path</param>
-  internal void Save(string? path = null) {
-    path ??= Path.Combine(Paths.RoamingPath, "authConfigV1.json");
-    using FileStream file = File.OpenWrite(path);
+  internal void Save(string path = "") {
+    if (path.IsNullOrEmptyOrWhiteSpace()) {
+      path = Path.Combine(Paths.RoamingPath, "authConfigV1.json");
+    }
+    using var file = File.OpenWrite(path);
     using var writer = new StreamWriter(file);
-    writer.Write(JsonConvert.SerializeObject(this, Formatting.Indented));
+    var text = JsonConvert.SerializeObject(this, Formatting.Indented);
+    writer.Write(text);
   }
 
   /// <summary>
@@ -143,14 +159,18 @@ internal class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
   /// </summary>
   /// <param name="path">The path</param>
   /// <returns>The output</returns>
-  internal static AuthSettingsV1 Load(string? path = null) {
-    path ??= Path.Combine(Paths.RoamingPath, "authConfigV1.json");
+  internal static AuthSettingsV1 Load(string path = "") {
+    if (path.IsNullOrEmptyOrWhiteSpace()) {
+      path = Path.Combine(Paths.RoamingPath, "authConfigV1.json");
+    }
+
     if (!File.Exists(path)) {
         new AuthSettingsV1().Save(path);
     }
-    using StreamReader file = File.OpenText(path);
-    string jsonText = file.ReadToEnd();
-    AuthSettingsV1 output = (JsonConvert.DeserializeObject<AuthSettingsV1>(jsonText, App.SerializerSettings) ?? new AuthSettingsV1()).UseCommandlineArguments();
+
+    using var file = File.OpenText(path);
+    var jsonText = file.ReadToEnd();
+    var output = (JsonConvert.DeserializeObject<AuthSettingsV1>(jsonText, App.SerializerSettings) ?? new AuthSettingsV1()).UseCommandlineArguments();
 
     if (string.IsNullOrEmpty(output.AcceptLanguage)) {
       output.AcceptLanguage = ApiHelpers.GenerateAcceptLanguage();

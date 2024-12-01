@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using Serilog;
 using XLAuthenticatorNet.Domain.Components.Helpers;
 using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Models.ViewModel;
@@ -22,20 +17,17 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// The parent element.
   /// </summary>
   private readonly TFrameworkElement? _parent;
-  /// <summary>
-  /// The inheritor type of this class.
-  /// </summary>
-  private readonly Type _thisType;
+
   /// <summary>
   /// Gets the value of the parent
   /// </summary>
   public TFrameworkElement Parent {
     get {
-      if (_parent is not null) {
-        return _parent;
+      if (this._parent is not null) {
+        return this._parent;
       }
 
-      Log.Warning("Failed to fetch parent control, likely a default constructor was called.");
+      Logger.Warning("Failed to fetch parent control, likely a default constructor was called.");
       return null!;
     }
   }
@@ -46,15 +38,12 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// <param name="parent">The parent</param>
   protected ViewModelBase(TFrameworkElement parent) {
     this._parent = parent;
-    this._thisType = typeof(ViewModelBase<TFrameworkElement>);
   }
 
   /// <summary>
   /// Initializes a new instance of the <see cref="ViewModelBase{TFrameworkElement}"/> class
   /// </summary>
-  protected ViewModelBase() {
-    this._thisType = typeof(ViewModelBase<TFrameworkElement>);
-  }
+  protected ViewModelBase() { }
 
   public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -89,7 +78,7 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
     }
 
     member = value;
-    NotifyPropertyChanged(propertyName);
+    this.NotifyPropertyChanged(propertyName);
     return true;
   }
 
@@ -98,29 +87,34 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// </summary>
   /// <param name="propertyName">Name of the property, used to notify listeners.</param>
   protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "") {
-    if (!propertyName.Equals(nameof(MainControlViewModel.OTPTimeLeft)) && !propertyName.Equals(nameof(MainControlViewModel.OTPValue))) {
-      Log.Verbose("Property Changed: \"{0}\"", propertyName);
+    switch (propertyName) {
+      case nameof(MainControlViewModel.OTPTimeLeft):
+      case nameof(MainControlViewModel.OTPValue):
+        Logger.Verbose("Property Changed: \"{0}\"", propertyName);
+        goto default;
+      default:
+        this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return;
     }
-    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
   }
 
   /// <summary>
   /// Allows ViewModels to be reloaded from outside.
-  /// <para>NOTE: May be able to be used maliciously since this method uses reflection.</para>
+  /// <remarks><para>NOTE: May be able to be used maliciously since this method uses reflection.</para></remarks>
   /// </summary>
   public virtual void RefreshData() {
     Type type = this.GetType();
 
     if (!type.IsSubclassOfRawGeneric(typeof(ViewModelBase<>))) {
-      Log.Verbose("type is not subclass of IViewModel<> = {0}, Base = {1}", type.FullName, type.BaseType?.FullName ?? "None");
+      Logger.Verbose("type is not subclass of IViewModel<> = {0}, Base = {1}", type.FullName, type.BaseType?.FullName ?? "None");
       return;
     }
 
-    MethodInfo? methodInfo = type.GetMethods().FirstOrDefault(x => x.Name == "NotifyPropertyChanged");
+    MethodInfo? methodInfo = type.GetMethods().FirstOrDefault(x => x.Name.Equals("NotifyPropertyChanged", StringComparison.Ordinal));
     bool useBuiltin = methodInfo is null;
 
     foreach (PropertyInfo property in type.GetProperties()) {
-      Log.Verbose("RefreshData PropertyChanged = {0}", property.Name);
+      Logger.Verbose("RefreshData PropertyChanged = {0}", property.Name);
       if (useBuiltin) {
         this.NotifyPropertyChanged(property.Name);
       } else {
@@ -133,6 +127,7 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// Releases the unmanaged resources
   /// </summary>
   protected virtual void ReleaseUnmanagedResources() {}
+
   /// <summary>
   /// Releases the managed resources
   /// </summary>
@@ -144,9 +139,9 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// </summary>
   /// <param name="disposing">The disposing</param>
   private void Dispose(bool disposing) {
-    ReleaseUnmanagedResources();
+    this.ReleaseUnmanagedResources();
     if (disposing) {
-      ReleaseManagedResources();
+      this.ReleaseManagedResources();
     }
   }
 
@@ -154,11 +149,11 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// Disposes this instance
   /// </summary>
   public void Dispose() {
-    Dispose(true);
+    this.Dispose(disposing: true);
     GC.SuppressFinalize(this);
   }
 
   ~ViewModelBase() {
-    Dispose(false);
+    this.Dispose(disposing: false);
   }
 }

@@ -10,11 +10,11 @@ namespace XLAuthenticatorNet.Domain.Animations;
 /// The fade wipe class
 /// </summary>
 /// <seealso cref="ITransitionWipe"/>
-internal class FadeWipe : ITransitionWipe {
+internal sealed class FadeWipe : ITransitionWipe {
     /// <summary>
     /// The sine ease
     /// </summary>
-    private readonly SineEase _sineEase = new SineEase();
+    private readonly SineEase _sineEase = new();
     /// <summary>
     /// The zero
     /// </summary>
@@ -32,13 +32,9 @@ internal class FadeWipe : ITransitionWipe {
     /// </summary>
     /// <param name="fromSlide">The from slide</param>
     /// <param name="toSlide">The to slide</param>
-    /// <param name="origin">The origin</param>
+    /// <param name="_">The origin (unused)</param>
     /// <param name="zIndexController">The index controller</param>
-    public void Wipe(TransitionerSlide? fromSlide, TransitionerSlide? toSlide, Point origin, IZIndexController? zIndexController) {
-        ArgumentNullException.ThrowIfNull(fromSlide);
-        ArgumentNullException.ThrowIfNull(toSlide);
-        ArgumentNullException.ThrowIfNull(zIndexController);
-
+    public void Wipe(TransitionerSlide fromSlide, TransitionerSlide toSlide, Point _, IZIndexController zIndexController) {
         // Set up time points
         var endKeyTime = KeyTime.FromTimeSpan(TimeSpan.FromSeconds(this.Duration.TotalSeconds / 2));
 
@@ -59,7 +55,7 @@ internal class FadeWipe : ITransitionWipe {
         // Set up events
         toAnimation.Completed += (object? _, EventArgs _) => {};
         fromAnimation.Completed += (object? _, EventArgs _) => {
-            fromSlide.BeginAnimation(UIElement.OpacityProperty, null);
+            fromSlide.BeginAnimation(UIElement.OpacityProperty, animation: null);
             toSlide.BeginAnimation(UIElement.OpacityProperty, toAnimation);
         };
 

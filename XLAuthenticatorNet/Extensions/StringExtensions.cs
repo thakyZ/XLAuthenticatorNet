@@ -98,6 +98,6 @@ internal static class StringExtensions {
   /// <param name="digits">The digits</param>
   /// <returns>The bool</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  internal static bool IsNumberOf([NotNullWhen(true)] this string? @string, int digits)
+  internal static bool IsNumberOf([NotNullWhen(true)] this string? @string, int digits = 1)
     => @string?.ToCharArray() is char[] chars && chars.All(char.IsDigit) && chars.Length == digits;
 }

@@ -4,108 +4,108 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:self="clr-namespace:XLAuthenticatorNet"
         xmlns:resources="clr-namespace:XLAuthenticatorNet.Resources"
+        xmlns:self="clr-namespace:XLAuthenticatorNet"
         xmlns:viewModel="clr-namespace:XLAuthenticatorNet.Models.ViewModel"
-        mc:Ignorable="d"
+        Title="{Binding Caption}"
         Width="Auto"
         MinHeight="100"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Title="{Binding Caption}"
-        Icon="{Binding Source={x:Static self:App.AppIcon}}"
+        d:DataContext="{d:DesignInstance viewModel:CustomMessageBoxViewModel}"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{materialDesign:MaterialDesignFont}"
-        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-        TextElement.FontWeight="Medium"
+        Icon="{Binding Source={x:Static self:App.Icon}}"
+        ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
-        d:DataContext="{d:DesignInstance viewModel:CustomMessageBoxViewModel}">
+        TextElement.FontWeight="Medium"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        WindowStartupLocation="CenterScreen"
+        mc:Ignorable="d">
   <Grid>
-    <StackPanel Orientation="Horizontal"
-                Margin="10 10 10 50">
-      <materialDesign:PackIcon Kind="{Binding IconKind}"
-                               Visibility="{Binding IconVisibility}"
+    <StackPanel Margin="10,10,10,50" Orientation="Horizontal">
+      <materialDesign:PackIcon Width="30"
+                               Height="30"
+                               Margin="0,0,10,0"
                                HorizontalAlignment="Stretch"
                                VerticalAlignment="Top"
-                               Width="30"
-                               Height="30"
                                Foreground="{Binding IconColor}"
-                               Margin="0,0,10,0" />
-      <StackPanel Orientation="Vertical" Width="540" MinHeight="100">
+                               Kind="{Binding IconKind}"
+                               Visibility="{Binding IconVisibility}" />
+      <StackPanel Width="540"
+                  MinHeight="100"
+                  Orientation="Vertical">
         <Grid MinHeight="30">
-          <TextBlock Text="{Binding Message}"
-                     Style="{StaticResource MaterialDesignBody1TextBlock}" />
+          <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}" Text="{Binding Message}" />
         </Grid>
         <RichTextBox x:Name="Description"
-                     Visibility="{Binding DescriptionVisibility}"
+                     MaxHeight="120"
                      Margin="0,10,0,0"
                      Padding="4"
+                     materialDesign:HintAssist.Hint="Multiline text"
                      AcceptsReturn="True"
                      IsDocumentEnabled="True"
                      IsReadOnly="True"
-                     VerticalScrollBarVisibility="Auto"
                      SpellCheck.IsEnabled="False"
-                     materialDesign:HintAssist.Hint="Multiline text"
-                     MaxHeight="120">
+                     VerticalScrollBarVisibility="Auto"
+                     Visibility="{Binding DescriptionVisibility}">
           <RichTextBox.Resources>
             <Style TargetType="{x:Type Border}">
-              <Setter Property="CornerRadius"
-                      Value="4" />
+              <Setter Property="CornerRadius" Value="4" />
             </Style>
           </RichTextBox.Resources>
         </RichTextBox>
       </StackPanel>
       <StackPanel.ContextMenu>
         <ContextMenu>
-          <MenuItem Header="{Binding CopyMessageTextLabel}"
-                    Command="{Binding CopyMessageTextCommand}" />
+          <MenuItem Command="{Binding CopyMessageTextCommand}" Header="{Binding CopyMessageTextLabel}" />
         </ContextMenu>
       </StackPanel.ContextMenu>
     </StackPanel>
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Margin="0 0 10 10">
-      <Button Style="{DynamicResource MaterialDesignFlatButton}"
+    <StackPanel Margin="0,0,10,10"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Orientation="Horizontal">
+      <Button Margin="5,0,0,0"
               HorizontalAlignment="Left"
-              Margin="5,0,0,0"
               Command="{Binding JoinDiscordButtonCommand}"
+              Style="{DynamicResource MaterialDesignFlatButton}"
               Visibility="{Binding DiscordVisibility}">
         <StackPanel Orientation="Horizontal">
           <resources:PackIcon Kind="Discord" />
-          <TextBlock Margin="8 0 0 0"
+          <TextBlock Margin="8,0,0,0"
                      VerticalAlignment="Center"
                      Text="{Binding JoinDiscordButtonLabel}" />
         </StackPanel>
       </Button>
-      <Button Style="{DynamicResource MaterialDesignFlatButton}"
+      <Button Margin="5,0,0,0"
               HorizontalAlignment="Left"
-              Margin="5,0,0,0"
               Command="{Binding OpenFAQCommand}"
+              Style="{DynamicResource MaterialDesignFlatButton}"
               Visibility="{Binding FAQVisibility}">
         <StackPanel Orientation="Horizontal">
           <materialDesign:PackIcon Kind="Information" />
-          <TextBlock Margin="8 0 0 0"
+          <TextBlock Margin="8,0,0,0"
                      VerticalAlignment="Center"
                      Text="{Binding OpenFAQLabel}" />
         </StackPanel>
       </Button>
-      <Button Style="{DynamicResource MaterialDesignFlatButton}"
+      <Button Margin="5,0,0,0"
               HorizontalAlignment="Left"
-              Margin="5,0,0,0"
               Command="{Binding ReportIssueCommand}"
+              Style="{DynamicResource MaterialDesignFlatButton}"
               Visibility="{Binding ReportIssueVisibility}">
         <StackPanel Orientation="Horizontal">
           <materialDesign:PackIcon Kind="Github" />
-          <TextBlock Margin="8 0 0 0"
+          <TextBlock Margin="8,0,0,0"
                      VerticalAlignment="Center"
                      Text="{Binding ReportIssueLabel}" />
         </StackPanel>
       </Button>
       <Button x:Name="OKButton"
-              Visibility="{Binding OKVisibility}"
-              Command="{Binding OKCommand}"
-              HorizontalAlignment="Right"
+              MinWidth="80"
               Margin="5,0,0,0"
-              MinWidth="80">
+              HorizontalAlignment="Right"
+              Command="{Binding OKCommand}"
+              Visibility="{Binding OKVisibility}">
         <Button.Content>
           <TextBlock HorizontalAlignment="Center"
                      Style="{StaticResource MaterialDesignButtonTextBlock}"
@@ -113,11 +113,11 @@
         </Button.Content>
       </Button>
       <Button x:Name="YesButton"
-              Visibility="{Binding YesVisibility}"
-              Command="{Binding YesCommand}"
-              HorizontalAlignment="Right"
+              MinWidth="80"
               Margin="5,0,0,0"
-              MinWidth="80">
+              HorizontalAlignment="Right"
+              Command="{Binding YesCommand}"
+              Visibility="{Binding YesVisibility}">
         <Button.Content>
           <TextBlock HorizontalAlignment="Center"
                      Style="{StaticResource MaterialDesignButtonTextBlock}"
@@ -125,11 +125,11 @@
         </Button.Content>
       </Button>
       <Button x:Name="NoButton"
-              Visibility="{Binding NoVisibility}"
-              Command="{Binding NoCommand}"
-              HorizontalAlignment="Right"
+              MinWidth="80"
               Margin="5,0,0,0"
-              MinWidth="80">
+              HorizontalAlignment="Right"
+              Command="{Binding NoCommand}"
+              Visibility="{Binding NoVisibility}">
         <Button.Content>
           <TextBlock HorizontalAlignment="Center"
                      Style="{StaticResource MaterialDesignButtonTextBlock}"
@@ -137,11 +137,11 @@
         </Button.Content>
       </Button>
       <Button x:Name="CancelButton"
-              Visibility="{Binding CancelVisibility}"
-              Command="{Binding CancelCommand}"
-              HorizontalAlignment="Right"
+              MinWidth="80"
               Margin="5,0,0,0"
-              MinWidth="80">
+              HorizontalAlignment="Right"
+              Command="{Binding CancelCommand}"
+              Visibility="{Binding CancelVisibility}">
         <Button.Content>
           <TextBlock HorizontalAlignment="Center"
                      Style="{StaticResource MaterialDesignButtonTextBlock}"

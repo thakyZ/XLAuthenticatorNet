@@ -1,16 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media.Imaging;
 using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Windows;
 
@@ -29,8 +20,7 @@ internal static class Util {
   /// <param name="callerLineNumber">The caller line number</param>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   internal static void ShowError(string message, string caption, [CallerMemberName] string callerName = "", [CallerLineNumber] int callerLineNumber = 0) {
-    _ = CustomMessageBox.Show($"{message}\n\n{callerName} L{callerLineNumber}", caption, MessageBoxButton.OK,
-      MessageBoxImage.Error);
+    _ = CustomMessageBox.Show(string.Format(CultureInfo.InvariantCulture, "{0}\n\n{1} L{2}", message, callerName, callerLineNumber), caption, MessageBoxButton.OK, MessageBoxImage.Error);
   }
 
   /// <summary>
@@ -40,7 +30,7 @@ internal static class Util {
   internal static string GetGitHash() {
     var asm = Assembly.GetExecutingAssembly();
     IEnumerable<AssemblyMetadataAttribute> attrs = asm.GetCustomAttributes<AssemblyMetadataAttribute>();
-    return attrs.FirstOrDefault(a => a.Key == "GitHash")?.Value ?? string.Empty;
+    return attrs.FirstOrDefault(a => a.Key.Equals("GitHash", StringComparison.Ordinal))?.Value ?? string.Empty;
   }
 
   /// <summary>
@@ -51,7 +41,7 @@ internal static class Util {
   internal static string GetBuildOrigin() {
     var asm = Assembly.GetExecutingAssembly();
     IEnumerable<AssemblyMetadataAttribute> attrs = asm.GetCustomAttributes<AssemblyMetadataAttribute>();
-    return attrs.FirstOrDefault(a => a.Key == "BuildOrigin")?.Value ?? string.Empty;
+    return attrs.FirstOrDefault(a => a.Key.Equals("BuildOrigin", StringComparison.Ordinal))?.Value ?? string.Empty;
   }
 
   /// <summary>
@@ -65,58 +55,39 @@ internal static class Util {
   }
 
   /// <summary>
-  /// Gets the unix millis
+  /// Gets the Unix timestamp in milliseconds from the date and time of now.
   /// </summary>
-  /// <returns>The long</returns>
+  /// <returns>The Unix timestamp</returns>
   [SuppressMessage("ReSharper", "UnusedMember.Global")]
-  internal static long GetUnixMillis() => (long)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
+  internal static long GetUnixMillis()
+    => (long)DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalMilliseconds;
 
   /// <summary>
-  /// Opens the website using the specified uri
+  /// Opens the website using the specified url
   /// </summary>
-  /// <param name="uri">The uri</param>
-  internal static void OpenWebsite(string uri) {
-    OpenWebsite(new Uri(uri));
+  /// <param name="url">The url of the website</param>
+  internal static void OpenWebsite(string url) {
+    var uri = new Uri(url);
+    Util.OpenWebsite(uri);
   }
 
   /// <summary>
-  /// Opens the website using the specified uri
+  /// Opens the website using the specified <paramref name="uri"/>
   /// </summary>
-  /// <param name="uri">The uri</param>
+  /// <param name="uri">The url of the website</param>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   internal static void OpenWebsite(Uri uri) {
     try {
-      Process.Start(uri.ToString());
+      var url = uri.ToString();
+      Process.Start(url);
+#if DEBUG
+    } catch (Exception exception) {
+      Logger.Verbose(exception, "Failed to open uri {0}.", uri);
+    }
+#else
     } catch {
       // Ignore...
     }
-  }
-
-  /// <summary>
-  /// Gets the from resources using the specified resource name
-  /// </summary>
-  /// <param name="resourceName">The resource name</param>
-  /// <returns>The string</returns>
-  internal static string? GetFromResources(string resourceName) {
-    var asm = Assembly.GetExecutingAssembly();
-    using Stream? stream = asm.GetManifestResourceStream(resourceName);
-    if (stream is null) {
-      ShowError($"Failed to load resource \"{resourceName}\".", "Failed to load resource");
-      return null;
-    }
-    using var reader = new StreamReader(stream);
-
-    return reader.ReadToEnd();
-  }
-
-  /// <summary>
-  /// Gets the blank bitmap
-  /// </summary>
-  /// <returns>The bitmap source</returns>
-  internal static BitmapSource GetBlankBitmap() {
-      var output = new Bitmap(1, 1, PixelFormat.Alpha);
-      output.SetPixel(0, 0, System.Drawing.Color.FromArgb(0, 0, 0, 0));
-      return Imaging.CreateBitmapSourceFromHBitmap(output.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty,
-          BitmapSizeOptions.FromEmptyOptions());
+#endif
   }
 }

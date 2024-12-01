@@ -8,26 +8,29 @@ namespace XLAuthenticatorNet.Models.Events;
 /// The account switched event args class
 /// </summary>
 /// <seealso cref="EventArgs"/>
-internal class AccountSwitchedEventArgs : EventArgs {
+internal sealed class AccountSwitchedEventArgs : EventArgs {
   /// <summary>
   /// Gets the value of the old account
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-  internal TotpAccount? OldAccount { get; }
+  internal TOTPAccount? OldAccount { get; }
+
   /// <summary>
   /// Gets the value of the new account
   /// </summary>
-  internal TotpAccount? NewAccount { get; }
+  internal TOTPAccount? NewAccount { get; }
+
   /// <summary>
   /// Gets the value of the should switch
   /// </summary>
-  internal bool ShouldSwitch => OldAccount?.Id != NewAccount?.Id;
+  internal bool ShouldSwitch => this.OldAccount?.Id != this.NewAccount?.Id;
+
   /// <summary>
   /// Initializes a new instance of the <see cref="AccountSwitchedEventArgs"/> class
   /// </summary>
   /// <param name="oldAccount">The old account</param>
   /// <param name="newAccount">The new account</param>
-  internal AccountSwitchedEventArgs(TotpAccount? oldAccount, TotpAccount? newAccount) {
+  internal AccountSwitchedEventArgs(TOTPAccount? oldAccount, TOTPAccount? newAccount) {
     this.OldAccount = oldAccount;
     this.NewAccount = newAccount;
   }

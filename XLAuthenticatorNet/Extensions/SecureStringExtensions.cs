@@ -41,5 +41,5 @@ internal static class SecureStringExtensions {
   /// <param name="secureString">The secure string</param>
   /// <returns>The bool</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  internal static bool IsNullOrEmptyOrWhiteSpace(this SecureString? secureString) => secureString is null || secureString.IsNullOrEmpty() || secureString.IsNullOrWhiteSpace();
+  internal static bool IsNullOrEmptyOrWhiteSpace(this SecureString? secureString) => secureString.IsNullOrEmpty() || secureString.IsNullOrWhiteSpace();
 }

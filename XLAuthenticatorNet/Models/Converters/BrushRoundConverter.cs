@@ -9,7 +9,7 @@ namespace XLAuthenticatorNet.Models.Converters;
 /// The brush round converter class
 /// </summary>
 /// <seealso cref="IValueConverter"/>
-internal class BrushRoundConverter : IValueConverter {
+internal sealed class BrushRoundConverter : IValueConverter {
   /// <summary>
   /// Gets the value of the high value
   /// </summary>
@@ -33,13 +33,13 @@ internal class BrushRoundConverter : IValueConverter {
       return null;
     }
 
-    Color color = solidColorBrush.Color;
+    var color = solidColorBrush.Color;
 
-    double brightness = 0.3 * color.R
-                        + 0.59 * color.G
-                        + 0.11 * color.B;
+    var brightness = (0.3 * color.R)
+                   + (0.59 * color.G)
+                   + (0.11 * color.B);
 
-    return brightness < 123 ? LowValue : HighValue;
+    return brightness < 123 ? this.LowValue : this.HighValue;
   }
 
   /// <summary>

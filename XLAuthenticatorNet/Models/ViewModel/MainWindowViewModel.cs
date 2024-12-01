@@ -17,11 +17,11 @@ namespace XLAuthenticatorNet.Models.ViewModel;
 /// </summary>
 /// <seealso cref="ViewModelBase{MainWindow}"/>
 /// <seealso cref="ISlideNavigationSubject"/>
-internal class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNavigationSubject {
+internal sealed class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNavigationSubject {
   /// <summary>
   /// Gets the value of the title
   /// </summary>
-  public string Title => Loc.Localize(nameof(MainWindow) + nameof(Title), "XIVLauncher Authenticator");
+  public string Title => Loc.Localize(nameof(MainWindow) + nameof(this.Title), "XIVLauncher Authenticator");
   /// <summary>
   /// The slide navigator
   /// </summary>
@@ -34,7 +34,7 @@ internal class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNavigation
   /// Gets or sets the value of the active slide index
   /// </summary>
   public int ActiveSlideIndex {
-    get => _activeSlideIndex;
+    get => this._activeSlideIndex;
     set => this.SetProperty(ref this._activeSlideIndex, value);
   }
   /// <summary>
@@ -47,11 +47,11 @@ internal class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNavigation
   /// </summary>
   /// <param name="parent">The parent</param>
   internal MainWindowViewModel(MainWindow parent) : base(parent) {
-    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(NavigationCommands.ShowSettingsCommand, ShowSettingsExecuted));
-    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(NavigationCommands.HideSettingsCommand, HideSettingsExecuted));
-    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(NavigationCommands.GoBackCommand, GoBackExecuted));
-    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(System.Windows.Input.NavigationCommands.BrowseBack, GoBackExecuted));
-    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(System.Windows.Input.NavigationCommands.BrowseForward, GoForwardExecuted));
+    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(NavigationCommands.ShowSettingsCommand,                this.ShowSettingsExecuted));
+    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(NavigationCommands.HideSettingsCommand,                this.HideSettingsExecuted));
+    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(NavigationCommands.GoBackCommand,                      this.GoBackExecuted));
+    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(System.Windows.Input.NavigationCommands.BrowseBack,    this.GoBackExecuted));
+    CommandManager.RegisterClassCommandBinding(typeof(MainWindow), new CommandBinding(System.Windows.Input.NavigationCommands.BrowseForward, this.GoForwardExecuted));
     this.Slides = [
       new TransitionerSlide {
         Content = parent.SettingsControl,

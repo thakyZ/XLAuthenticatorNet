@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Security;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Serilog;
 using XLAuthenticatorNet.Domain;
 using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Models.Events;
@@ -20,59 +15,62 @@ using XLAuthenticatorNet.Windows;
 namespace XLAuthenticatorNet.Config;
 
 /// <summary>
-/// The account manager class
+/// The item manager class
 /// </summary>
-internal class AccountManager {
+internal sealed class AccountManager {
   internal event EventHandler<AccountSwitchedEventArgs>? AccountSwitched;
   internal event EventHandler?                           ReloadTriggered;
 
   /// <summary>
   /// Gets the value of the accounts
   /// </summary>
-  internal ObservableCollection<TotpAccount> Accounts { get; }
+  internal ObservableCollection<TOTPAccount> Accounts { get; }
 
   /// <summary>
-  /// The current account
+  /// The current item
   /// </summary>
-  private TotpAccount? _currentAccount;
+  private TOTPAccount? _currentAccount;
+
   /// <summary>
-  /// Gets or sets the value of the current account
+  /// Gets or sets the value of the current item
   /// </summary>
-  public TotpAccount? CurrentAccount {
-    get => this.Accounts.FirstOrDefault(a => a.Id == App.Settings.CurrentAccountID);
+  public TOTPAccount? CurrentAccount {
+    get => this.Accounts.FirstOrDefault(account => account.Id == App.Settings.CurrentAccountID);
     private set {
       if (value is not null && App.Settings.CurrentAccountID == value.Id) {
         return;
       }
+      var previousAccount = this._currentAccount;
       this._currentAccount = value;
       App.Settings.CurrentAccountID = value?.Id ?? Guid.Empty;
-      AccountSwitched?.Invoke(null, new AccountSwitchedEventArgs(this._currentAccount, value));
+      this.OnAccountSwitched(previousAccount, value);
     }
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="AccountManager"/> class
+  /// Initializes item new instance of the <see cref="AccountManager"/> class
   /// </summary>
   internal AccountManager() {
-    this.Accounts = [..Load()];
-    this.Accounts.CollectionChanged += Accounts_CollectionChanged;
+    this.Accounts = [..AccountManager.Load()];
+    this.Accounts.CollectionChanged += this.AccountsOnCollectionChanged;
   }
 
-  internal void NotifyReloadTriggered([CallerMemberName] string caller = "") {
-    this.ReloadTriggered?.Invoke(caller, EventArgs.Empty);
+  internal void OnReloadTriggered([CallerMemberName] string caller = "") {
+    var eventArgs = new PropertyChangedEventArgs(caller);
+    this.ReloadTriggered?.Invoke(this, eventArgs);
   }
 
   /// <summary>
   /// Accountses the collection changed using the specified sender
   /// </summary>
   /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void Accounts_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-    this.ReloadTriggered?.Invoke(nameof(AccountManager), EventArgs.Empty);
+  /// <param name="event">The </param>
+  private void AccountsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs @event) {
+    this.OnReloadTriggered();
   }
 
   /// <summary>
-  /// Updates the current account using the specified value
+  /// Updates the current item using the specified value
   /// </summary>
   /// <typeparam name="TProperty">The property</typeparam>
   /// <param name="value">The value</param>
@@ -81,29 +79,39 @@ internal class AccountManager {
       return;
     }
 
-    Type type = typeof(TProperty);
+    var type = typeof(TProperty);
 
     if (type.IsEquivalentTo(typeof(IPAddress))) {
       this.CurrentAccount.LauncherIpAddress = value as IPAddress;
-    } else if (type.IsEquivalentTo(typeof(string))) {
-      if (IPAddress.TryParse(value as string, out IPAddress? address)) {
-        this.CurrentAccount.LauncherIpAddress = address;
+    } else {
+      if (type.IsEquivalentTo(typeof(string))) {
+        if (IPAddress.TryParse(value as string, out var address)) {
+          this.CurrentAccount.LauncherIpAddress = address;
+        } else {
+          this.RenameAccount(this.CurrentAccount.Id, value as string);
+        }
       } else {
-        RenameAccount(this.CurrentAccount.Id, value as string);
+        if (type.IsEquivalentTo(typeof(SecureString))) {
+          Logger.Debug("UpdatePassword() called");
+          this.CurrentAccount.Token = value as SecureString;
+        }
       }
-    } else if (type.IsEquivalentTo(typeof(SecureString))) {
-      Log.Debug("UpdatePassword() called");
-      this.CurrentAccount.Token = value as SecureString;
     }
-    AccountSwitched?.Invoke(null, new AccountSwitchedEventArgs(null, this.CurrentAccount));
+
+    this.OnAccountSwitched(previous: null, this.CurrentAccount);
+  }
+
+  private void OnAccountSwitched(TOTPAccount? previous, TOTPAccount? current) {
+    var eventArgs = new AccountSwitchedEventArgs(previous, current);
+    this.AccountSwitched?.Invoke(this, eventArgs);
   }
 
   /// <summary>
-  /// Switches the account using the specified account
+  /// Switches the item using the specified item
   /// </summary>
-  /// <param name="account">The account</param>
+  /// <param name="account">The item</param>
   /// <param name="saveAsCurrent">The save as current</param>
-  internal void SwitchAccount(TotpAccount? account, bool saveAsCurrent) {
+  internal void SwitchAccount(TOTPAccount? account, bool saveAsCurrent) {
     App.ReloadSettings();
     App.RefreshData(all: true);
 
@@ -113,41 +121,28 @@ internal class AccountManager {
   }
 
   /// <summary>
-  /// Switches the account using the specified account id
+  /// Switches the item using the specified item id
   /// </summary>
-  /// <param name="accountId">The account id</param>
+  /// <param name="accountId">The item id</param>
   internal void SwitchAccount(Guid accountId) {
-    if (this.Accounts.FirstOrDefault(a => a.Id == accountId) is not TotpAccount account) {
+    if (this.Accounts.FirstOrDefault(account => account.Id == accountId) is not TOTPAccount account) {
       return;
     }
-    App.ReloadSettings();
-    App.RefreshData(all: true);
-    this.SetCurrentAccount(account);
+
+    this.SwitchAccount(account, saveAsCurrent: false);
   }
 
   /// <summary>
-  /// Adds the account using the specified name
+  /// Adds the item using the specified item
   /// </summary>
-  /// <param name="name">The name</param>
-  /// <param name="account">The account</param>
-  /// <param name="ipAddress">The ip address</param>
-  /// <param name="totpKey">The totp key</param>
-  internal void AddAccount(string name, out TotpAccount account, IPAddress? ipAddress = null, SecureString? totpKey = null) {
-    account = new TotpAccount(name, ipAddress, totpKey);
-    this.AddAccount(account);
-  }
-
-  /// <summary>
-  /// Adds the account using the specified account
-  /// </summary>
-  /// <param name="account">The account</param>
+  /// <param name="account">The item</param>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-  internal void AddAccount(TotpAccount account) {
-    TotpAccount? existingAccount = this.Accounts.FirstOrDefault(a => a.Id == account.Id);
-    Log.Debug($"Existing Account: {existingAccount?.Id}");
+  internal void AddOrUpdateAccount(TOTPAccount account) {
+    var existingAccount = this.Accounts.FirstOrDefault(account => account.Id == account.Id);
+    Logger.Debug("Existing Account: {0}", existingAccount?.Id);
 
     if (existingAccount is not null && existingAccount.Token != account.Token) {
-      Log.Debug("Updating password...");
+      Logger.Debug("Updating password...");
       existingAccount.Token = account.Token;
       return;
     }
@@ -160,12 +155,24 @@ internal class AccountManager {
   }
 
   /// <summary>
-  /// Renames the account using the specified account id
+  /// Adds the item using the specified name
   /// </summary>
-  /// <param name="accountID">The account id</param>
+  /// <param name="name">The name</param>
+  /// <param name="ipAddress">The IP address</param>
+  /// <param name="totpKey">The TOTP key</param>
+  internal TOTPAccount AddAccount(string name, IPAddress? ipAddress = null, SecureString? totpKey = null) {
+    var account = new TOTPAccount(name, ipAddress, totpKey);
+    this.AddOrUpdateAccount(account);
+    return account;
+  }
+
+  /// <summary>
+  /// Renames the item using the specified item id
+  /// </summary>
+  /// <param name="accountID">The item id</param>
   /// <param name="value">The value</param>
   internal void RenameAccount(Guid accountID, string? value) {
-    if (this.Accounts.FirstOrDefault(x => x.Id == accountID) is not TotpAccount account || value.IsNullOrEmptyOrWhiteSpace()) {
+    if (this.Accounts.FirstOrDefault(account => account.Id == accountID) is not TOTPAccount account || value.IsNullOrEmptyOrWhiteSpace()) {
       return;
     }
 
@@ -173,35 +180,34 @@ internal class AccountManager {
   }
 
   /// <summary>
-  /// Removes the account using the specified account id
+  /// Removes the item using the specified item id
   /// </summary>
-  /// <param name="accountID">The account id</param>
+  /// <param name="accountID">The item id</param>
   internal void RemoveAccount(Guid accountID) {
     if (this.Accounts.Count == 1) {
       return;
     }
 
     if (this.CurrentAccount?.Id.Equals(accountID) == true) {
-      if (this.Accounts.FirstOrDefault(x => !x.Id.Equals(accountID)) is TotpAccount totpAccount) {
+      if (this.Accounts.FirstOrDefault(account => !account.Id.Equals(accountID)) is TOTPAccount totpAccount) {
         this.SwitchAccount(totpAccount.Id);
       } else {
         return;
       }
     }
 
-    this.Accounts.RemoveWhere(x => x.Id == accountID);
+    this.Accounts.RemoveWhere(account => account.Id == accountID);
   }
 
   /// <summary>
-  /// Removes the account using the specified account
+  /// Removes the item using the specified item
   /// </summary>
-  /// <param name="account">The account</param>
-  internal void RemoveAccount(TotpAccount account) {
+  /// <param name="account">The item</param>
+  internal void RemoveAccount(TOTPAccount account) {
     this.Accounts.Remove(account);
   }
 
   #region Save & Load
-
   /// <summary>
   /// The base directory
   /// </summary>
@@ -212,50 +218,50 @@ internal class AccountManager {
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   internal void Save() {
-    string text = JsonConvert.SerializeObject(this.Accounts, App.SerializerSettings);
-    File.WriteAllText(_configurationPath, text);
+    AccountManager.Save(this.Accounts);
   }
 
   /// <summary>
   /// Saves the accounts
   /// </summary>
   /// <param name="accounts">The accounts</param>
-  private static void Save(ObservableCollection<TotpAccount> accounts) {
-    string text = JsonConvert.SerializeObject(accounts, App.SerializerSettings);
+  private static void Save(ObservableCollection<TOTPAccount> accounts) {
+    var text = JsonConvert.SerializeObject(accounts, App.SerializerSettings);
     File.WriteAllText(_configurationPath, text);
   }
 
   /// <summary>
   /// Loads
   /// </summary>
-  /// <returns>A list of totp account</returns>
-  private static List<TotpAccount> Load() {
+  /// <returns>A list of TOTP item</returns>
+  private static List<TOTPAccount> Load() {
     if (!File.Exists(_configurationPath)) {
-      Save([]);
+      AccountManager.Save([]);
     }
 
-    List<TotpAccount>? output = [];
+    List<TOTPAccount>? output = [];
 
     try {
-      using FileStream fs   = File.OpenRead(_configurationPath);
+      using var fs   = File.OpenRead(_configurationPath);
       using var sr   = new StreamReader(fs);
-      string       text = sr.ReadToEnd();
+      var       text = sr.ReadToEnd();
 
-      output = JsonConvert.DeserializeObject<List<TotpAccount>>(text, App.SerializerSettings);
+      output = JsonConvert.DeserializeObject<List<TOTPAccount>>(text, App.SerializerSettings);
 #if DEBUG
       if (output is null || output.Count == 0) {
-        var testAccount = new TotpAccount("Test", new IPAddress([127, 0, 0, 1]), "a01b23c45d67e89f".ToSecureString());
+        var ipAddress = new IPAddress([127, 0, 0, 1]);
+        var temporaryKey = "a01b23c45d67e89f".ToSecureString();
+        var testAccount = new TOTPAccount("Test", ipAddress, temporaryKey);
         return [testAccount];
       }
       // ReSharper disable once ConditionIsAlwaysTrueOrFalse
 #endif
     } catch (Exception exception) {
-      _ = CustomMessageBox.AssertOrShowError(true, "Failed to load accountList.json\n" + exception.Message + (exception.StackTrace is string stackTrace ? "\n" + stackTrace : string.Empty), true);
+      _ = CustomMessageBox.AssertOrShowError(condition: true, "Failed to load accountList.json\n" + exception.ToFullyQualifiedString(), fatal: true);
     }
 
     return output ?? [];
   }
-
   #endregion Save & Load
 
   /// <summary>
@@ -263,16 +269,16 @@ internal class AccountManager {
   /// </summary>
   /// <param name="account">The account</param>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-  internal void SetCurrentAccount(TotpAccount? account) {
-    this.CurrentAccount = this.Accounts.FirstOrDefault(a => a.Id == account?.Id);
+  internal void SetCurrentAccount(TOTPAccount? account) {
+    this.CurrentAccount = this.Accounts.FirstOrDefault(item => item.Id == account?.Id);
   }
 
   /// <summary>
-  /// Sends the otp key using the specified otp value
+  /// Sends the OTP key using the specified OTP value
   /// </summary>
-  /// <param name="otpValue">The otp value</param>
-  /// <returns>A task containing the otp key response response exception exception</returns>
-  internal static async Task<(OTPKeyResponse Response, Exception? Exception)> SendOTPKey(string? otpValue) {
+  /// <param name="otpValue">The OTP value</param>
+  /// <returns>A task containing the OTP key response exception</returns>
+  internal static async Task<(OTPKeyResponse Response, Exception? Exception)> SendOTPKeyAsync(string? otpValue) {
     Exception? exception = null;
     if (App.AccountManager.CurrentAccount is null) {
       return (OTPKeyResponse.CurrentAccountNull, exception);
@@ -289,10 +295,10 @@ internal class AccountManager {
     using var httpClient = new HttpClient();
     IXLLauncherResponse? result = null;
     try {
-      result = await httpClient.GetFromJsonAsync<IXLLauncherResponse>($"http://{App.AccountManager.CurrentAccount.LauncherIpAddress}:4646/ffxivlauncher/{otpValue}", App.SerializerSettings);
-    } catch (Exception ex) {
-      Log.Error(ex, "Failed to send otp key to XLLauncher");
-      exception = ex;
+      result = await httpClient.GetFromJsonAsync<IXLLauncherResponse>(string.Format(CultureInfo.InvariantCulture, "http://{0}:4646/ffxivlauncher/{1}", App.AccountManager.CurrentAccount.LauncherIpAddress, otpValue), App.SerializerSettings).ConfigureAwait(false);
+    } catch (Exception innerException) {
+      Logger.Error(innerException, "Failed to send OTP key to XLLauncher");
+      exception = innerException;
     }
 
     if (result is IXLLauncherResponse response && response.App.Equals("XIVLauncher", StringComparison.OrdinalIgnoreCase)) {

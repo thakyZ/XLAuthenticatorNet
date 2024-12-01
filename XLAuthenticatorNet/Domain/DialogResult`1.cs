@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Windows;
 
 namespace XLAuthenticatorNet.Domain;
@@ -5,13 +6,14 @@ namespace XLAuthenticatorNet.Domain;
 /// <summary>
 /// The dialog result
 /// </summary>
-public struct DialogResult<T> {
+[StructLayout(LayoutKind.Auto)]
+public readonly struct DialogResult<T> {
   /// <summary>
-  /// Gets or inits the value of the value
+  /// Gets the value of the dialog result.
   /// </summary>
   internal T? Value { get; init; }
   /// <summary>
-  /// Gets or inits the value of the result
+  /// Gets the <see cref="MessageBoxResult" /> of the dialog result.
   /// </summary>
   internal MessageBoxResult Result { get; init; }
 

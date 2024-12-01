@@ -18,6 +18,6 @@ internal static class ResourceDictionaryExtensions {
   /// <returns>A list of key value pair object and object</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   internal static List<KeyValuePair<object, object?>> ToList(this ResourceDictionary resourceDictionary) {
-    return resourceDictionary.Keys.Cast<object>().Merge(resourceDictionary.Values.Cast<object?>()).ToList();
+    return [..resourceDictionary.Keys.Cast<object>().Merge(resourceDictionary.Values.Cast<object?>())];
   }
 }

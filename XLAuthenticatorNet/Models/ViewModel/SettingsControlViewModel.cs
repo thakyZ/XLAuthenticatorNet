@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
 using System.Windows;
@@ -15,7 +13,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using CheapLoc;
 using MaterialDesignThemes.Wpf;
-using Serilog;
 using XLAuthenticatorNet.Config;
 using XLAuthenticatorNet.Dialogs;
 using XLAuthenticatorNet.Domain;
@@ -31,42 +28,43 @@ namespace XLAuthenticatorNet.Models.ViewModel;
 /// The settings control view model class
 /// </summary>
 /// <seealso cref="ViewModelBase{SettingsControl}"/>
-[SuppressMessage("Performance", "CA1822:Mark members as static"), SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
+[SuppressMessage("Performance", "CA1822:Mark members as static"),
+ SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 #region Binding Properties
 #region Localization
   /// <summary>
   /// Gets the value of the title
   /// </summary>
-  public string Title => Loc.Localize(nameof(SettingsControl) + nameof(Title), "Settings");
+  public string Title => Loc.Localize(nameof(SettingsControl) + nameof(this.Title), "Settings");
   /// <summary>
   /// Gets the value of the registered label
   /// </summary>
-  public string RegisteredLabel => Loc.Localize(nameof(RegisteredLabel), "Registered: ");
+  public string RegisteredLabel => Loc.Localize(nameof(this.RegisteredLabel), "Registered: ");
   /// <summary>
-  /// Gets the value of the setup otp code button text
+  /// Gets the value of the setup OTP code button text
   /// </summary>
-  public string SetupOTPCodeButtonLabel => Loc.Localize(nameof(SetupOTPCodeButtonLabel), "Set-up OTP Code");
+  public string SetupOTPCodeButtonLabel => Loc.Localize(nameof(this.SetupOTPCodeButtonLabel), "Set-up OTP Code");
   /// <summary>
-  /// Gets the value of the xiv launcher ip label
+  /// Gets the value of the xiv launcher IP label
   /// </summary>
-  public string XIVLauncherIPLabel => Loc.Localize(nameof(XIVLauncherIPLabel), "XIVLauncher IP: ");
+  public string XIVLauncherIPLabel => Loc.Localize(nameof(this.XIVLauncherIPLabel), "XIVLauncher IP: ");
   /// <summary>
-  /// Gets the value of the xiv launcher ip button text
+  /// Gets the value of the xiv launcher IP button text
   /// </summary>
-  public string XIVLauncherIPButtonLabel => Loc.Localize(nameof(XIVLauncherIPButtonLabel), "Set-up XIVLauncher IP");
+  public string XIVLauncherIPButtonLabel => Loc.Localize(nameof(this.XIVLauncherIPButtonLabel), "Set-up XIVLauncher IP");
   /// <summary>
-  /// Gets the value of the otp label
+  /// Gets the value of the OTP label
   /// </summary>
-  public string YourOTPLabel => Loc.Localize(nameof(YourOTPLabel), "Your OTP:");
+  public string YourOTPLabel => Loc.Localize(nameof(this.YourOTPLabel), "Your OTP:");
   /// <summary>
-  /// Gets the value of the otp label
+  /// Gets the value of the OTP label
   /// </summary>
-  public string SaveSettingsButtonLabel => Loc.Localize(nameof(SaveSettingsButtonLabel), "Save");
+  public string SaveSettingsButtonLabel => Loc.Localize(nameof(this.SaveSettingsButtonLabel), "Save");
   /// <summary>
   /// Gets the value of the close app after sending check box label
   /// </summary>
-  public string CloseAppAfterSendingCheckBoxLabel => Loc.Localize(nameof(CloseAppAfterSendingCheckBoxLabel), "Close App After Sending: ");
+  public string CloseAppAfterSendingCheckBoxLabel => Loc.Localize(nameof(this.CloseAppAfterSendingCheckBoxLabel), "Close App After Sending: ");
 #endregion Localization
 
 #region Config Options
@@ -86,11 +84,11 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   private object? _launcherIPText = string.Empty;
 
   /// <summary>
-  /// Gets or sets the value of the launcher ip text
+  /// Gets or sets the value of the launcher IP text
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   public object? LauncherIPText {
-    get => _launcherIPText;
+    get => this._launcherIPText;
     set => this.SetProperty(ref this._launcherIPText, value);
   }
 
@@ -100,11 +98,11 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   private Brush _launcherIPColor = Brushes.Black;
 
   /// <summary>
-  /// Gets or sets the value of the launcher ip color
+  /// Gets or sets the value of the launcher IP color
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   public Brush LauncherIPColor {
-    get => _launcherIPColor;
+    get => this._launcherIPColor;
     set => this.SetProperty(ref this._launcherIPColor, value);
   }
 
@@ -118,7 +116,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   public string IsRegisteredText {
-    get => _isRegisteredText;
+    get => this._isRegisteredText;
     set => this.SetProperty(ref this._isRegisteredText, value);
   }
 #endregion Diagnostic Properties
@@ -140,7 +138,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("ReSharper", "UnusedMember.Global")]
   public object PopupContent {
-    get => _popupContent;
+    get => this._popupContent;
     set => this.SetProperty(ref this._popupContent, value);
   }
 
@@ -154,7 +152,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("ReSharper", "UnusedMember.Global")]
   public Brush IsRegisteredColor {
-    get => _isRegisteredColor;
+    get => this._isRegisteredColor;
     set => this.SetProperty(ref this._isRegisteredColor, value);
   }
 
@@ -167,7 +165,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// Gets or sets the value of the account selection button content
   /// </summary>
   public object? AccountSelectionButtonContent {
-    get => _accountSelectionButtonContent;
+    get => this._accountSelectionButtonContent;
     set => this.SetProperty(ref this._accountSelectionButtonContent, value);
   }
 #endregion Account Selection Properties
@@ -176,9 +174,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// <summary>
   /// Gets the value of the Settings Back Command
   /// </summary>
-  public ICommand SettingsBack => new CommandImpl(() => {
-    this.Parent.CloseAndCancelSettings();
-  });
+  public ICommand SettingsBack => new CommandImpl(() => this.Parent.CloseAndCancelSettings());
 
   /// <summary>
   /// Gets the value of the Save Settings Command
@@ -196,24 +192,24 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
     // Extra null checks here so that the XAML preview can actually work.
     bool? isChecked = this.Parent?.CloseAppAfterSendingCheckBox?.IsChecked ?? false;
 
-    if (isChecked.HasValue && isChecked.Value != CloseAppAfterSending) {
+    if (isChecked is not null && isChecked.Value != this.CloseAppAfterSending) {
       App.Settings.CloseApp = isChecked.Value;
     }
   });
 
   /// <summary>
-  /// Gets the value of the set otp key dialog command
+  /// Gets the value of the set OTP key dialog command
   /// </summary>
   public ICommand SetOtpKeyDialogCommand => new AsyncCommandImpl(async () => {
-    var view = new OTPKeyDialog();
-    object? @object = await DialogHost.Show(view, "OTPKeyDialogHost");
+    var     view    = new OTPKeyDialog();
+    object? @object = await DialogHost.Show(view, "OTPKeyDialogHost").ConfigureAwait(false);
 
     if (@object is not DialogResult<SecureString> result) {
       throw new Exception("Returned object from DialogHost is not typeof DialogResult!");
     }
 
     if (result.Result == MessageBoxResult.Cancel) {
-      Log.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
+      Logger.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
 
       return;
     }
@@ -223,18 +219,18 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   });
 
   /// <summary>
-  /// Gets the value of the set launcher ip dialog command
+  /// Gets the value of the set launcher IP dialog command
   /// </summary>
   public ICommand SetLauncherIPDialogCommand => new AsyncCommandImpl(async () => {
-    var view = new LauncherIPDialog();
-    object? @object = await DialogHost.Show(view, "LauncherIPDialogHost");
+    var     view    = new LauncherIPDialog();
+    object? @object = await DialogHost.Show(view, "LauncherIPDialogHost").ConfigureAwait(false);
 
     if (@object is not DialogResult<IPAddress?> result) {
       throw new Exception("Returned object from DialogHost is not typeof DialogResult!");
     }
 
     if (result.Result == MessageBoxResult.Cancel || result.Value is null) {
-      Log.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
+      Logger.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
 
       return;
     }
@@ -248,20 +244,20 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand AddAccountCommand => new AsyncCommandImpl(async () => {
-    var view = new AddAccountDialog();
-    var @object = await DialogHost.Show(view, "AddAccountDialogHost");
+    var     view    = new AddAccountDialog();
+    object? @object = await DialogHost.Show(view, "AddAccountDialogHost").ConfigureAwait(false);
 
     if (@object is not DialogResult<string> result) {
       throw new Exception("Returned object from DialogHost is not typeof DialogResult!");
     }
 
     if (result.Result == MessageBoxResult.Cancel || result.Value is null) {
-      Log.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
+      Logger.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
 
       return;
     }
 
-    App.AccountManager.AddAccount(result.Value, out TotpAccount account);
+    var account = App.AccountManager.AddAccount(result.Value);
     App.AccountManager.SwitchAccount(account.Id);
     this.Parent.ReloadSettings();
   });
@@ -271,15 +267,15 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand RenameAccountCommand => new AsyncCommandImpl<Guid>(async (Guid id) => {
-    var view = new RenameAccountDialog();
-    object? @object = await DialogHost.Show(view, "RenameAccountDialogHost");
+    var     view    = new RenameAccountDialog();
+    object? @object = await DialogHost.Show(view, "RenameAccountDialogHost").ConfigureAwait(false);
 
     if (@object is not DialogResult<string> result) {
       throw new Exception("Returned object from DialogHost is not typeof DialogResult!");
     }
 
     if (result.Result == MessageBoxResult.Cancel || result.Value is null) {
-      Log.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
+      Logger.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
 
       return;
     }
@@ -293,22 +289,22 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// Gets the value of the switch account command
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
-  public ICommand SwitchAccountCommand => new CommandImpl<Guid>((Guid accountId) => { App.AccountManager.SwitchAccount(accountId); });
+  public ICommand SwitchAccountCommand => new CommandImpl<Guid>((Guid accountId) => App.AccountManager.SwitchAccount(accountId));
 
   /// <summary>
   /// Gets the value of the delete account command
   /// </summary>
   [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand DeleteAccountCommand => new AsyncCommandImpl<Guid>(async (Guid id) => {
-    var view = new DeleteAccountDialog();
-    object? @object = await DialogHost.Show(view, "DeleteAccountDialogHost");
+    var     view    = new DeleteAccountDialog();
+    object? @object = await DialogHost.Show(view, "DeleteAccountDialogHost").ConfigureAwait(false);
 
     if (@object is not DialogResult<bool> result) {
       throw new Exception("Returned object from DialogHost is not typeof DialogResult!");
     }
 
-    if (result.Result == MessageBoxResult.Cancel || result.Value is false) {
-      Log.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
+    if (result.Result == MessageBoxResult.Cancel || !result.Value) {
+      Logger.Debug("Result: {0} | Value: {1}", result.Result, result.Value);
 
       return;
     }
@@ -423,22 +419,22 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
     this.BuildCredits();
     this.UpdatePopupContent();
-    this.NotifyPropertyChanged(nameof(CurrentAccountName));
-    App.AccountManager.AccountSwitched += AccountManager_OnAccountSwitched;
-    App.AccountManager.ReloadTriggered += AccountManager_OnReloadTriggered;
+    this.NotifyPropertyChanged(nameof(this.CurrentAccountName));
+    App.AccountManager.AccountSwitched += this.AccountManager_OnAccountSwitched;
+    App.AccountManager.ReloadTriggered += this.AccountManager_OnReloadTriggered;
   }
 
 #if DEBUG
   [SuppressMessage("ReSharper", "UnusedMember.Global"), SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."), SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public SettingsControlViewModel() {
-    this.SetIP(null);
-    this.SetOTPKey(false);
+    this.SetIP(arg: null);
+    this.SetOTPKey(value: false);
   }
 #endif
-#endregion Constructors
+  #endregion Constructors
 
-#region Internal Methods
-#region Override Methods
+  #region Internal Methods
+  #region Override Methods
   /// <summary>
   /// Sets the property using the specified member
   /// </summary>
@@ -447,93 +443,76 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// <param name="value">The value</param>
   /// <param name="propertyName">The property name</param>
   /// <returns>The bool</returns>
+  [SuppressMessage("Design", "MA0051:Method is too long", Justification = "80 out of 60 maximum lines, good enough.")]
   protected override bool SetProperty<T>(ref T member, T value, [CallerMemberName] string propertyName = "") {
-    if (propertyName.Length == 0) {
-      return base.SetProperty(ref member, value, propertyName);
-    }
-
-    if (propertyName.Equals("OtpKey")) {
-      this.SetOTPKey(value is string);
-    }
-
-    if (propertyName.Equals("LauncherIPValue")) {
-      if (value is IPAddress launcherIP1) {
-        this.SetIP(launcherIP1);
-      } else if (value is string launcherIPString && IPAddress.TryParse(launcherIPString, out IPAddress? launcherIP2)) {
-        this.SetIP(launcherIP2);
-      } else {
-        // ReSharper disable UseStringInterpolation
-        var message = string.Format("Unable to parse IP address '{0}'{1}", value, value is not string and not null ? string.Format(" [{0}]", value.GetType().FullName) : string.Empty);
-        // ReSharper restore UseStringInterpolation
-        Log.Error(message);
-        CustomMessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-
-        return false;
+    switch (propertyName) {
+      case "OTPKey":
+        this.SetOTPKey(value is string);
+        goto default;
+      case "LauncherIPValue":
+        if (value is IPAddress launcherIP1) {
+          this.SetIP(launcherIP1);
+        } else if (value is string launcherIPString && IPAddress.TryParse(launcherIPString, out IPAddress? launcherIP2)) {
+          this.SetIP(launcherIP2);
+        } else {
+          Logger.ErrorDialog(exception: null, "Unable to parse IP address '{0}'{1}", value, value is not string and not null ? string.Format(" [{0}]", value.GetType().FullName) : string.Empty);
+          return false;
+        }
+        goto default;
+      case nameof(this.AccountSelectionButtonActualWidth): {
+        if (value is double @double) {
+          Logger.Verbose("AccountSelectionButtonActualWidth = {0}d", @double);
+        }
+        goto default;
       }
-    }
-
-    if (propertyName.Equals(nameof(this.AccountSelectionButtonActualWidth))) {
-      if (value is double @double) {
-        Log.Verbose("AccountSelectionButtonActualWidth = {0}d", @double);
+      case nameof(this.GridActualHeight): {
+        if (value is double @double) {
+          double unit = @double / (4.0d / 3.0d);
+          Logger.Verbose("GridActualHeight = {0}d", @double);
+          this.ButtonHeightWidth = unit;
+        } else {
+          return false;
+        }
+        goto default;
       }
-    }
-
-    if (propertyName.Equals(nameof(GridActualHeight))) {
-      if (value is double @double) {
-        double unit = @double / (4.0d / 3.0d);
-        Log.Verbose("GridActualHeight = {0}d", @double);
-        this.ButtonHeightWidth = unit;
-      } else {
-        return false;
+      case nameof(this.ButtonHeightWidth): {
+        if (value is double @double) {
+          Logger.Verbose("ButtonHeightWidth = {0}d", @double);
+          double unit1 = (this.GridActualHeight - @double) / 2.0d;
+          this.ButtonMargin = new Thickness(unit1, unit1, unit1, unit1);
+          this.ButtonIconHeightWidth = @double / 1.5d;
+        } else {
+          return false;
+        }
+        goto default;
       }
-    }
-
-    if (propertyName.Equals(nameof(this.ButtonHeightWidth))) {
-      if (value is double @double) {
-        Log.Verbose("ButtonHeightWidth = {0}d", @double);
+      case nameof(this.ButtonIconHeightWidth): {
+        if (value is double @double) {
+          Logger.Verbose("ButtonIconHeightWidth = {0}d", @double);
+          if (this.ButtonHeightWidth != 0.0d) {
+            double unit = (this.ButtonHeightWidth - @double) / 2.0d;
+            this.ButtonIconMargin = new Thickness(unit, unit, unit, unit);
+          } else {
+            return false;
+          }
+        }
+        goto default;
       }
-    }
-
-    if (propertyName.Equals(nameof(this.ButtonHeightWidth))) {
-      if (value is double @double) {
-        double unit1 = (this.GridActualHeight - @double) / 2.0d;
-        this.ButtonMargin = new Thickness(unit1, unit1, unit1, unit1);
-        double unit2 = @double / 1.5d;
-        this.ButtonIconHeightWidth = unit2;
-      } else {
-        return false;
+      case nameof(this.ButtonMargin): {
+        if (value is Thickness thickness) {
+          Logger.Verbose("ButtonMargin = {0}d", thickness.Bottom);
+        }
+        goto default;
       }
-    }
-
-    if (propertyName.Equals(nameof(this.ButtonIconHeightWidth))) {
-      if (value is double @double) {
-        Log.Verbose("ButtonIconHeightWidth = {0}d", @double);
+      case nameof(this.ButtonIconMargin): {
+        if (value is Thickness thickness) {
+          Logger.Verbose("ButtonIconMargin = {0}d", thickness.Bottom);
+        }
+        goto default;
       }
+      default:
+        return base.SetProperty(ref member, value, propertyName);
     }
-
-    if (propertyName.Equals(nameof(this.ButtonIconHeightWidth))) {
-      if (value is double @double && this.ButtonHeightWidth != 0.0d) {
-        double unit = (this.ButtonHeightWidth - @double) / 2.0d;
-        this.ButtonIconMargin = new Thickness(unit, unit, unit, unit);
-      } else {
-        return false;
-      }
-    }
-
-    if (propertyName.Equals(nameof(this.ButtonMargin))) {
-      if (value is Thickness thickness) {
-        Log.Verbose("ButtonMargin = {0}d", thickness.Bottom);
-      }
-    }
-
-    // ReSharper disable once InvertIf
-    if (propertyName.Equals(nameof(this.ButtonIconMargin))) {
-      if (value is Thickness thickness) {
-        Log.Verbose("ButtonIconMargin = {0}d", thickness.Bottom);
-      }
-    }
-
-    return base.SetProperty(ref member, value, propertyName);
   }
 #endregion Override Methods
 
@@ -541,26 +520,29 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// <inheritdoc />
   protected override void ReleaseUnmanagedResources() {
     foreach ((string method, FrameworkElement frameworkElement) in this.DisposeOfSizeChanged) {
-      if (method.Equals(nameof(AccountSelectionButtonActualWidth_SizeChanged))) {
-        frameworkElement.SizeChanged -= AccountSelectionButtonActualWidth_SizeChanged;
-      } else if (method.Equals(nameof(GridActualHeight_SizeChanged))) {
-        frameworkElement.SizeChanged -= GridActualHeight_SizeChanged;
+      if (method.Equals(nameof(AccountSelectionButtonActualWidth_SizeChanged), StringComparison.OrdinalIgnoreCase)) {
+        frameworkElement.SizeChanged -= this.AccountSelectionButtonActualWidth_SizeChanged;
       } else {
-        Log.Warning("Attempted to dispose item of {0}.{1} method name of {2}", nameof(SettingsControlViewModel), nameof(DisposeOfSizeChanged), method);
+        if (method.Equals(nameof(GridActualHeight_SizeChanged), StringComparison.OrdinalIgnoreCase)) {
+          frameworkElement.SizeChanged -= this.GridActualHeight_SizeChanged;
+        } else {
+          Logger.Warning("Attempted to dispose item of {0}.{1} method name of {2}", nameof(SettingsControlViewModel), nameof(this.DisposeOfSizeChanged), method);
+        }
       }
     }
 
     base.ReleaseUnmanagedResources();
   }
-#endregion Dispose Methods
+  #endregion Dispose Methods
 
   /// <summary>
   /// Refreshes the data on this view model.
   /// </summary>
   /// <param name="updatePopupContent">A boolean determine whether to update the update popup content.</param>
-  /// <param name="updateOTPKeyContent">A boolean determine whether to update the update otp key content.</param>
-  /// <param name="updateLauncherIPContent">A boolean determine whether to update the update launcher ip content.</param>
+  /// <param name="updateOTPKeyContent">A boolean determine whether to update the update OTP key content.</param>
+  /// <param name="updateLauncherIPContent">A boolean determine whether to update the update launcher IP content.</param>
   /// <param name="updateLabels">A boolean determine whether to update all the labels.</param>
+  [SuppressMessage("Maintainability", "AV1564:Parameter in public or internal member is of type bool or bool?")]
   internal void RefreshData(bool updatePopupContent = false, bool updateOTPKeyContent = false, bool updateLauncherIPContent = false, bool updateLabels = false) {
     base.RefreshData();
 
@@ -602,7 +584,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// <param name="sender">The sender</param>
   /// <param name="e">The </param>
   private void AccountManager_OnAccountSwitched(object? sender, AccountSwitchedEventArgs e) {
-    this.NotifyPropertyChanged(nameof(CurrentAccountName));
+    this.NotifyPropertyChanged(nameof(this.CurrentAccountName));
     (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData();
 
     // ReSharper disable once InvertIf
@@ -613,7 +595,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   }
 
   /// <summary>
-  /// Accounts the selection button actual width size changed using the specified  
+  /// Accounts the selection button actual width size changed using the specified
   /// </summary>
   /// <param name="_">The </param>
   /// <param name="args">The args</param>
@@ -622,7 +604,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   }
 
   /// <summary>
-  /// Grids the actual height size changed using the specified  
+  /// Grids the actual height size changed using the specified
   /// </summary>
   /// <param name="_">The </param>
   /// <param name="args">The args</param>
@@ -634,20 +616,22 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   /// Updates the dialog's labels
   /// </summary>
   private void UpdateLabels() {
-    foreach (var property in this.GetType().GetProperties()) {
+    foreach (PropertyInfo property in this.GetType().GetProperties()) {
       if (property.PropertyType == typeof(string)) {
-        NotifyPropertyChanged(property.Name);
+        this.NotifyPropertyChanged(property.Name);
       }
     }
   }
 
   /// <summary>
-  /// Updates the popup content
+  /// Updates the pop-up content
   /// </summary>
+  // TODO: See if this can be condensed.
+  [SuppressMessage("Design", "MA0051:Method is too long", Justification = "This is heavy I know.")]
   private void UpdatePopupContent() {
 #region StackPanel Outer
-    this.Parent.AccountSelectionButton.SizeChanged += AccountSelectionButtonActualWidth_SizeChanged;
-    DisposeOfSizeChanged.Add(nameof(AccountSelectionButtonActualWidth_SizeChanged), this.Parent.AccountSelectionButton);
+    this.Parent.AccountSelectionButton.SizeChanged += this.AccountSelectionButtonActualWidth_SizeChanged;
+    this.DisposeOfSizeChanged.Add(nameof(SettingsControlViewModel.AccountSelectionButtonActualWidth_SizeChanged), this.Parent.AccountSelectionButton);
 
     // ReSharper disable once PatternAlwaysMatches
     var stackPanelOuter = new StackPanel {
@@ -666,12 +650,12 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
     BindingOperations.SetBinding(stackPanelOuter, FrameworkElement.MaxWidthProperty, new Binding {
       Source = this,
-      Path = new PropertyPath(nameof(AccountSelectionButtonActualWidth)),
+      Path = new PropertyPath(nameof(this.AccountSelectionButtonActualWidth)),
     });
 
     BindingOperations.SetBinding(stackPanelOuter, FrameworkElement.WidthProperty, new Binding {
       Source = this,
-      Path = new PropertyPath(nameof(AccountSelectionButtonActualWidth)),
+      Path = new PropertyPath(nameof(this.AccountSelectionButtonActualWidth)),
     });
 
 #region Add Account Button
@@ -697,7 +681,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
     BindingOperations.SetBinding(addAccountButton, ButtonBase.CommandProperty, new Binding {
       Source = this,
-      Path = new PropertyPath(nameof(AddAccountCommand)),
+      Path = new PropertyPath(nameof(this.AddAccountCommand)),
     });
 #endregion Add Account Button
 
@@ -717,23 +701,23 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
     };
 
 #region StackPanel Inner Row
-    foreach (TotpAccount account in App.AccountManager.Accounts) {
+    foreach (TOTPAccount account in App.AccountManager.Accounts) {
       var row = new Grid {
         ColumnDefinitions = {
           new ColumnDefinition {
-            Width = new GridLength(1.00, GridUnitType.Star)
+            Width = new GridLength(1.00, GridUnitType.Star),
           },
           new ColumnDefinition {
-            Width = GridLength.Auto
+            Width = GridLength.Auto,
           },
           new ColumnDefinition {
-            Width = GridLength.Auto
+            Width = GridLength.Auto,
           },
         },
       };
 
-      row.SizeChanged += GridActualHeight_SizeChanged;
-      DisposeOfSizeChanged.Add(nameof(GridActualHeight_SizeChanged), row);
+      row.SizeChanged += this.GridActualHeight_SizeChanged;
+      this.DisposeOfSizeChanged.Add(nameof(SettingsControlViewModel.GridActualHeight_SizeChanged), row);
 
 #region Account Button
       var accountButton = new Button {
@@ -746,7 +730,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
       BindingOperations.SetBinding(accountButton, ButtonBase.CommandProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(SwitchAccountCommand)),
+        Path = new PropertyPath(nameof(this.SwitchAccountCommand)),
       });
 
       if (account.IsCurrent) {
@@ -771,7 +755,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
       BindingOperations.SetBinding(renameAccountButton, ButtonBase.CommandProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(RenameAccountCommand)),
+        Path = new PropertyPath(nameof(this.RenameAccountCommand)),
       });
 
       BindingOperations.SetBinding(renameAccountButton, FrameworkElement.WidthProperty, new Binding {
@@ -788,13 +772,13 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
       BindingOperations.SetBinding(renameAccountButton, FrameworkElement.MarginProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonMargin)),
+        Path = new PropertyPath(nameof(this.ButtonMargin)),
         Mode = BindingMode.TwoWay,
       });
 
       BindingOperations.SetBinding(renameAccountButton, Control.PaddingProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonIconMargin)),
+        Path = new PropertyPath(nameof(this.ButtonIconMargin)),
         Mode = BindingMode.TwoWay,
       });
 
@@ -836,30 +820,30 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
       BindingOperations.SetBinding(deleteAccountButton, ButtonBase.CommandProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(DeleteAccountCommand)),
+        Path = new PropertyPath(nameof(this.DeleteAccountCommand)),
       });
 
       BindingOperations.SetBinding(deleteAccountButton, FrameworkElement.WidthProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonHeightWidth)),
+        Path = new PropertyPath(nameof(this.ButtonHeightWidth)),
         Mode = BindingMode.TwoWay,
       });
 
       BindingOperations.SetBinding(deleteAccountButton, FrameworkElement.HeightProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonHeightWidth)),
+        Path = new PropertyPath(nameof(this.ButtonHeightWidth)),
         Mode = BindingMode.TwoWay,
       });
 
       BindingOperations.SetBinding(deleteAccountButton, FrameworkElement.MarginProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonMargin)),
+        Path = new PropertyPath(nameof(this.ButtonMargin)),
         Mode = BindingMode.TwoWay,
       });
 
       BindingOperations.SetBinding(deleteAccountButton, Control.PaddingProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonIconMargin)),
+        Path = new PropertyPath(nameof(this.ButtonIconMargin)),
         Mode = BindingMode.TwoWay,
       });
 
@@ -870,13 +854,13 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
       BindingOperations.SetBinding(deleteAccountButtonIcon, FrameworkElement.WidthProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonIconHeightWidth)),
+        Path = new PropertyPath(nameof(this.ButtonIconHeightWidth)),
         Mode = BindingMode.TwoWay,
       });
 
       BindingOperations.SetBinding(deleteAccountButtonIcon, FrameworkElement.HeightProperty, new Binding {
         Source = this,
-        Path = new PropertyPath(nameof(ButtonIconHeightWidth)),
+        Path = new PropertyPath(nameof(this.ButtonIconHeightWidth)),
         Mode = BindingMode.TwoWay,
       });
 
@@ -903,7 +887,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
     BindingOperations.SetBinding(divider, FrameworkElement.WidthProperty, new Binding {
       Source = this,
-      Path = new PropertyPath(nameof(AccountSelectionButtonActualWidth)),
+      Path = new PropertyPath(nameof(this.AccountSelectionButtonActualWidth)),
       Mode = BindingMode.TwoWay,
     });
 #endregion Divider
@@ -918,7 +902,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
 #region Private Static Methods
   /// <summary>
-  /// Checks the ip using the specified args
+  /// Checks the IP using the specified args
   /// </summary>
   /// <param name="args">The args</param>
   /// <param name="onRun">The on run</param>
@@ -928,23 +912,23 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
     var finished = false;
 
     try {
-      Log.Debug("Checking IP: {0}", args);
+      Logger.Debug("Checking IP: {0}", args);
       // ReSharper disable once SuggestVarOrType_SimpleTypes
-      var pongTask = new Ping().SendPingAsync(args).ConfigureAwait(true).GetAwaiter();
+      ConfiguredTaskAwaitable<PingReply>.ConfiguredTaskAwaiter pongTask = new Ping().SendPingAsync(args).ConfigureAwait(true).GetAwaiter();
 
       pongTask.UnsafeOnCompleted(() => {
         try {
           PingReply pong = pongTask.GetResult();
           finished = pong.Status.Equals(IPStatus.Success);
-          Log.Debug("Ping Completed: {0}", pong.Status);
-          onFinish(finished, null);
+          Logger.Debug("Ping Completed: {0}", pong.Status);
+          onFinish(finished, arg2: null);
         } catch (Exception e) {
-          Log.Error(e, "Error: Failed to ping {0}", args);
+          Logger.Error(e, "Error: Failed to ping {0}", args);
           onFinish(finished, e);
         }
       });
     } catch (Exception e) {
-      Log.Error(e, "Error: Failed to ping {0}", args);
+      Logger.Error(e, "Error: Failed to ping {0}", args);
       onFinish(finished, e);
     }
   }
@@ -978,7 +962,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   }
 
   /// <summary>
-  /// Sets the otp key using the specified value
+  /// Sets the OTP key using the specified value
   /// </summary>
   /// <param name="value">The value</param>
   private void SetOTPKey(bool value) {
@@ -992,7 +976,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
   }
 
   /// <summary>
-  /// Sets the ip using the specified arg
+  /// Sets the IP using the specified arg
   /// </summary>
   /// <param name="arg">The arg</param>
   private void SetIP(IPAddress? arg) {
@@ -1003,7 +987,7 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
       return;
     }
 
-    CheckIP(arg, OnRun, OnFinish);
+    SettingsControlViewModel.CheckIP(arg, OnRun, OnFinish);
 
     return;
 
@@ -1014,15 +998,17 @@ internal class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 
     void OnFinish(bool output, Exception? exception) {
       if (exception is not null) {
-        Log.Error(exception, "Task to check IP {0} canceled!", arg);
+        Logger.Error(exception, "Task to check IP {0} canceled!", arg);
         this.LauncherIPText = arg.ToString();
         this.LauncherIPColor = new SolidColorBrush(Colors.Goldenrod);
-      } else if (!output) {
-        this.LauncherIPText = arg.ToString();
-        this.LauncherIPColor = new SolidColorBrush(Colors.Red);
       } else {
-        this.LauncherIPText = arg.ToString();
-        this.LauncherIPColor = new SolidColorBrush(Colors.LimeGreen);
+        if (!output) {
+          this.LauncherIPText = arg.ToString();
+          this.LauncherIPColor = new SolidColorBrush(Colors.Red);
+        } else {
+          this.LauncherIPText = arg.ToString();
+          this.LauncherIPColor = new SolidColorBrush(Colors.LimeGreen);
+        }
       }
     }
   }

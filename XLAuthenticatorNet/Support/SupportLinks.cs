@@ -1,5 +1,3 @@
-using XLAuthenticatorNet.Domain;
-
 namespace XLAuthenticatorNet.Support;
 
 /// <summary>
@@ -13,7 +11,7 @@ internal static class SupportLinks
   internal static void OpenDiscord() => Util.OpenWebsite("https://discord.gg/3NMcUV5");
 
   /// <summary>
-  /// Opens the faq
+  /// Opens the FAQ
   /// </summary>
-  internal static void OpenFaq() => Util.OpenWebsite("https://goatcorp.github.io/faq/");
+  internal static void OpenFAQ() => Util.OpenWebsite("https://goatcorp.github.io/FAQ/");
 }

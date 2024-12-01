@@ -1,17 +1,14 @@
-using System;
+using System.Buffers;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Media;
-using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using CheapLoc;
 using MaterialDesignThemes.Wpf;
-using Serilog;
-using XLAuthenticatorNet.Domain;
+using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Models.ViewModel;
 
 namespace XLAuthenticatorNet.Windows;
@@ -20,7 +17,7 @@ namespace XLAuthenticatorNet.Windows;
 /// The custom message box class
 /// </summary>
 /// <seealso cref="Window"/>
-public partial class CustomMessageBox : Window {
+public sealed partial class CustomMessageBox : Window {
   /// <summary>
   /// The result
   /// </summary>
@@ -28,7 +25,7 @@ public partial class CustomMessageBox : Window {
   /// <summary>
   /// Gets the value of the view model
   /// </summary>
-  private CustomMessageBoxViewModel ViewModel => (DataContext as CustomMessageBoxViewModel)!;
+  private CustomMessageBoxViewModel ViewModel => (this.DataContext as CustomMessageBoxViewModel)!;
   /// <summary>
   /// The localize
   /// </summary>
@@ -42,121 +39,120 @@ public partial class CustomMessageBox : Window {
   /// Initializes a new instance of the <see cref="CustomMessageBox"/> class
   /// </summary>
   /// <param name="builder">The builder</param>
-  /// <exception cref="ArgumentOutOfRangeException">null</exception>
-  /// <exception cref="ArgumentOutOfRangeException">null</exception>
-  /// <exception cref="ArgumentOutOfRangeException">null</exception>
-  /// <exception cref="ArgumentOutOfRangeException">null</exception>
-  /// <exception cref="ArgumentOutOfRangeException">null</exception>
-  /// <exception cref="ArgumentOutOfRangeException">null</exception>
-  [SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly")]
+  /// <exception cref="ArgumentOutOfRangeException">Thrown if </exception>
+  [SuppressMessage("Usage",  "CA2208:Instantiate argument exceptions correctly"),
+   SuppressMessage("Design", "MA0051:Method is too long", Justification = "This is an initializer for a new window so whatever if it's too long.")]
   private CustomMessageBox(Builder builder) {
-    _result = builder.CancelResult;
-    InitializeComponent();
+    this._result = builder.CancelResult;
+    this.InitializeComponent();
     this.DataContext = new CustomMessageBoxViewModel(this);
     if (builder.ParentWindow?.IsVisible ?? false) {
-      Owner = builder.ParentWindow;
-      ShowInTaskbar = false;
+      this.Owner = builder.ParentWindow;
+      this.ShowInTaskbar = false;
     }
     else {
-      ShowInTaskbar = true;
+      this.ShowInTaskbar = true;
     }
 
-    ViewModel.Caption = builder.Caption;
-    ViewModel.Message = builder.Text;
+    this.ViewModel.Caption = builder.Caption;
+    this.ViewModel.Message = builder.Text;
     if (string.IsNullOrWhiteSpace(builder.Description)) {
-      ViewModel.DescriptionVisibility = Visibility.Collapsed;
+      this.ViewModel.DescriptionVisibility = Visibility.Collapsed;
     } else {
       this.Description.Document.Blocks.Clear();
-      this.Description.Document.Blocks.Add(new Paragraph(new Run(builder.Description)));
+      var paragraphRun = new Run(builder.Description);
+      var paragraph = new Paragraph(paragraphRun);
+      this.Description.Document.Blocks.Add(paragraph);
     }
 
     switch (builder.Buttons) {
-      // ReSharper disable SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
       case MessageBoxButton.OK:
-        ViewModel.OKVisibility = Visibility.Visible;
-        ViewModel.YesVisibility = Visibility.Collapsed;
-        ViewModel.CancelVisibility = Visibility.Collapsed;
-        ViewModel.NoVisibility = Visibility.Collapsed;
+        this.ViewModel.OKButtonVisibility = Visibility.Visible;
+        this.ViewModel.YesButtonVisibility = Visibility.Collapsed;
+        this.ViewModel.CancelButtonVisibility = Visibility.Collapsed;
+        this.ViewModel.NoVisibility = Visibility.Collapsed;
         (builder.DefaultResult switch {
-          MessageBoxResult.OK => OKButton,
-          _ => throw new ArgumentOutOfRangeException(nameof(builder.DefaultResult), builder.DefaultResult, null),
+          MessageBoxResult.OK => this.OKButton,
+          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
         }).Focus();
         break;
       case MessageBoxButton.OKCancel:
-        ViewModel.OKVisibility = Visibility.Visible;
-        ViewModel.CancelVisibility = Visibility.Visible;
-        ViewModel.YesVisibility = Visibility.Collapsed;
-        ViewModel.NoVisibility = Visibility.Collapsed;
+        this.ViewModel.OKButtonVisibility = Visibility.Visible;
+        this.ViewModel.CancelButtonVisibility = Visibility.Visible;
+        this.ViewModel.YesButtonVisibility = Visibility.Collapsed;
+        this.ViewModel.NoVisibility = Visibility.Collapsed;
         (builder.DefaultResult switch {
-          MessageBoxResult.OK => OKButton,
-          MessageBoxResult.Cancel => CancelButton,
-          _ => throw new ArgumentOutOfRangeException(nameof(builder.DefaultResult), builder.DefaultResult, null),
+          MessageBoxResult.OK => this.OKButton,
+          MessageBoxResult.Cancel => this.CancelButton,
+          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<System.Windows.Controls.Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
         }).Focus();
         break;
       case MessageBoxButton.YesNoCancel:
-        ViewModel.YesVisibility = Visibility.Visible;
-        ViewModel.NoVisibility = Visibility.Visible;
-        ViewModel.CancelVisibility = Visibility.Visible;
-        ViewModel.OKVisibility = Visibility.Collapsed;
+        this.ViewModel.YesButtonVisibility = Visibility.Visible;
+        this.ViewModel.NoVisibility = Visibility.Visible;
+        this.ViewModel.CancelButtonVisibility = Visibility.Visible;
+        this.ViewModel.OKButtonVisibility = Visibility.Collapsed;
         (builder.DefaultResult switch {
-          MessageBoxResult.Yes => YesButton,
-          MessageBoxResult.No => NoButton,
-          MessageBoxResult.Cancel => CancelButton,
-          _ => throw new ArgumentOutOfRangeException(nameof(builder.DefaultResult), builder.DefaultResult, null),
+          MessageBoxResult.Yes => this.YesButton,
+          MessageBoxResult.No => this.NoButton,
+          MessageBoxResult.Cancel => this.CancelButton,
+          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<System.Windows.Controls.Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
         }).Focus();
         break;
       case MessageBoxButton.YesNo:
-        ViewModel.YesVisibility = Visibility.Visible;
-        ViewModel.NoVisibility = Visibility.Visible;
-        ViewModel.OKVisibility = Visibility.Collapsed;
-        ViewModel.CancelVisibility = Visibility.Collapsed;
+        this.ViewModel.YesButtonVisibility = Visibility.Visible;
+        this.ViewModel.NoVisibility = Visibility.Visible;
+        this.ViewModel.OKButtonVisibility = Visibility.Collapsed;
+        this.ViewModel.CancelButtonVisibility = Visibility.Collapsed;
         (builder.DefaultResult switch {
-          MessageBoxResult.Yes => YesButton,
-          MessageBoxResult.No => NoButton,
-          _ => throw new ArgumentOutOfRangeException(nameof(builder.DefaultResult), builder.DefaultResult, null),
+          MessageBoxResult.Yes => this.YesButton,
+          MessageBoxResult.No => this.NoButton,
+          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<System.Windows.Controls.Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
         }).Focus();
         break;
       default:
-        throw new ArgumentOutOfRangeException(nameof(builder.Buttons), builder.Buttons, null);
-      // ReSharper restore SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
+        ExceptionExtensions.ThrowEnumOutOfRangeException<System.Windows.Controls.Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult);
+        return;
     }
 
     switch (builder.Image) {
       case MessageBoxImage.None:
-        ViewModel.IconVisibility = Visibility.Collapsed;
+        this.ViewModel.IconVisibility = Visibility.Collapsed;
         break;
       case MessageBoxImage.Hand:
-        ViewModel.IconVisibility = Visibility.Visible;
-        ViewModel.IconKind = PackIconKind.Error;
-        ViewModel.IconColor = Brushes.Red;
+        this.ViewModel.IconVisibility = Visibility.Visible;
+        this.ViewModel.IconKind = PackIconKind.Error;
+        this.ViewModel.IconColor = Brushes.Red;
         SystemSounds.Hand.Play();
         break;
       case MessageBoxImage.Question:
-        ViewModel.IconVisibility = Visibility.Visible;
-        ViewModel.IconKind = PackIconKind.QuestionMarkCircle;
-        ViewModel.IconColor = Brushes.DodgerBlue;
+        this.ViewModel.IconVisibility = Visibility.Visible;
+        this.ViewModel.IconKind = PackIconKind.QuestionMarkCircle;
+        this.ViewModel.IconColor = Brushes.DodgerBlue;
         SystemSounds.Question.Play();
         break;
       case MessageBoxImage.Exclamation:
-        ViewModel.IconVisibility = Visibility.Visible;
-        ViewModel.IconKind = PackIconKind.Warning;
-        ViewModel.IconColor = Brushes.Yellow;
+        this.ViewModel.IconVisibility = Visibility.Visible;
+        this.ViewModel.IconKind = PackIconKind.Warning;
+        this.ViewModel.IconColor = Brushes.Yellow;
         SystemSounds.Exclamation.Play();
         break;
       case MessageBoxImage.Asterisk:
-        ViewModel.IconVisibility = Visibility.Visible;
-        ViewModel.IconKind = PackIconKind.Information;
-        ViewModel.IconColor = Brushes.DodgerBlue;
+        this.ViewModel.IconVisibility = Visibility.Visible;
+        this.ViewModel.IconKind = PackIconKind.Information;
+        this.ViewModel.IconColor = Brushes.DodgerBlue;
         SystemSounds.Asterisk.Play();
         break;
       default:
-        throw new ArgumentOutOfRangeException(nameof(builder.Image), builder.Image, null);
+        ExceptionExtensions.ThrowEnumOutOfRangeException<object, MessageBoxImage>(nameof(builder.Image), builder.Image);
+        break;
     }
 
-    ViewModel.DiscordVisibility = builder.ShowDiscordLink ? Visibility.Visible : Visibility.Collapsed;
-    ViewModel.FAQVisibility = builder.ShowHelpLinks ? Visibility.Visible : Visibility.Collapsed;
-    ViewModel.ReportIssueVisibility = builder.ShowNewGitHubIssue ? Visibility.Visible : Visibility.Collapsed;
-    Topmost = builder.OverrideTopMostFromParentWindow
+    this.ViewModel.DiscordVisibility = builder.ShowDiscordLink ? Visibility.Visible : Visibility.Collapsed;
+    this.ViewModel.FAQVisibility = builder.ShowHelpLinks ? Visibility.Visible : Visibility.Collapsed;
+    this.ViewModel.ReportIssueVisibility = builder.ShowNewGitHubIssue ? Visibility.Visible : Visibility.Collapsed;
+
+    this.Topmost = builder.OverrideTopMostFromParentWindow
       ? builder.ParentWindow?.Topmost ?? builder.TopMost
       : builder.TopMost;
   }
@@ -166,7 +162,7 @@ public partial class CustomMessageBox : Window {
   /// </summary>
   /// <param name="result">The result</param>
   internal void SetResult(MessageBoxResult result) {
-    _result = result;
+    this._result = result;
     this.Close();
   }
 
@@ -187,7 +183,7 @@ public partial class CustomMessageBox : Window {
   /// <summary>
   /// The builder class
   /// </summary>
-  internal class Builder {
+  internal sealed class Builder {
     /// <summary>
     /// The text
     /// </summary>
@@ -268,7 +264,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="text">The text</param>
     /// <returns>The builder</returns>
     internal Builder WithText(string text) {
-      Text = text;
+      this.Text = text;
       return this;
     }
 
@@ -280,7 +276,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithTextFormatted(string format, params object[] args) {
-      Text = string.Format(format, args);
+      this.Text = string.Format(format, args);
       return this;
     }
 
@@ -290,7 +286,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="text">The text</param>
     /// <returns>The builder</returns>
     internal Builder WithAppendText(string? text) {
-      Text = (Text ?? string.Empty) + text;
+      this.Text = (this.Text ?? string.Empty) + text;
       return this;
     }
 
@@ -302,7 +298,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithAppendTextFormatted(string format, params object[] args) {
-      Text = (Text ?? string.Empty) + string.Format(format, args);
+      this.Text = (this.Text ?? string.Empty) + string.Format(format, args);
       return this;
     }
 
@@ -312,7 +308,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="caption">The caption</param>
     /// <returns>The builder</returns>
     internal Builder WithCaption(string caption) {
-      Caption = caption;
+      this.Caption = caption;
       return this;
     }
 
@@ -323,7 +319,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithDescription(string description) {
-      Description = description;
+      this.Description = description;
       return this;
     }
 
@@ -334,7 +330,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithAppendDescription(string description) {
-      Description = (Description ?? "") + description;
+      this.Description = (this.Description ?? "") + description;
       return this;
     }
 
@@ -344,7 +340,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="buttons">The buttons</param>
     /// <returns>The builder</returns>
     internal Builder WithButtons(MessageBoxButton buttons) {
-      Buttons = buttons;
+      this.Buttons = buttons;
       return this;
     }
 
@@ -355,7 +351,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithDefaultResult(MessageBoxResult result) {
-      DefaultResult = result;
+      this.DefaultResult = result;
       return this;
     }
 
@@ -366,7 +362,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithCancelResult(MessageBoxResult result) {
-      CancelResult = result;
+      this.CancelResult = result;
       return this;
     }
 
@@ -376,7 +372,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="image">The image</param>
     /// <returns>The builder</returns>
     internal Builder WithImage(MessageBoxImage image) {
-      Image = image;
+      this.Image = image;
       return this;
     }
 
@@ -387,7 +383,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithTopMost(bool topMost = true) {
-      TopMost = topMost;
+      this.TopMost = topMost;
       return this;
     }
 
@@ -398,7 +394,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithExitOnClose(ExitOnCloseModes exitOnCloseMode = ExitOnCloseModes.ExitOnClose) {
-      ExitOnCloseMode = exitOnCloseMode;
+      this.ExitOnCloseMode = exitOnCloseMode;
       return this;
     }
 
@@ -408,7 +404,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="showHelpLinks">The show help links</param>
     /// <returns>The builder</returns>
     internal Builder WithShowHelpLinks(bool showHelpLinks = true) {
-      ShowHelpLinks = showHelpLinks;
+      this.ShowHelpLinks = showHelpLinks;
       return this;
     }
 
@@ -418,7 +414,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="showDiscordLink">The show discord link</param>
     /// <returns>The builder</returns>
     internal Builder WithShowDiscordLink(bool showDiscordLink = true) {
-      ShowDiscordLink = showDiscordLink;
+      this.ShowDiscordLink = showDiscordLink;
       return this;
     }
 
@@ -429,7 +425,7 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithShowNewGitHubIssue(bool showNewGitHubIssue = true) {
-      ShowNewGitHubIssue = showNewGitHubIssue;
+      this.ShowNewGitHubIssue = showNewGitHubIssue;
       return this;
     }
 
@@ -439,7 +435,7 @@ public partial class CustomMessageBox : Window {
     /// <param name="window">The window</param>
     /// <returns>The builder</returns>
     internal Builder WithParentWindow(Window? window) {
-      ParentWindow = window;
+      this.ParentWindow = window;
       return this;
     }
 
@@ -451,8 +447,8 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithParentWindow(Window? window, bool overrideTopMost) {
-      ParentWindow = window;
-      OverrideTopMostFromParentWindow = overrideTopMost;
+      this.ParentWindow = window;
+      this.OverrideTopMostFromParentWindow = overrideTopMost;
       return this;
     }
 
@@ -494,8 +490,8 @@ public partial class CustomMessageBox : Window {
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithAppendSettingsDescription(string context) {
-      this.WithAppendDescription("\n\nVersion: " + Util.GetAssemblyVersion())
-        .WithAppendDescription("\nGit Hash: " + Util.GetGitHash()).WithAppendDescription("\nContext: " + context)
+      this.WithAppendDescription("\n\nVersion: " + XLAuthenticatorNet.Support.Util.GetAssemblyVersion())
+        .WithAppendDescription("\nGit Hash: " + XLAuthenticatorNet.Support.Util.GetGitHash()).WithAppendDescription("\nContext: " + context)
         .WithAppendDescription("\nOS: " + Environment.OSVersion)
         .WithAppendDescription("\n64bit? " + Environment.Is64BitProcess)
         .WithAppendDescription("\nLanguage: " + App.Settings.Language);
@@ -521,9 +517,10 @@ public partial class CustomMessageBox : Window {
     /// <param name="exitOnCloseMode">The exit on close mode</param>
     /// <returns>The builder</returns>
     internal static Builder NewFrom(Exception exc, string context, ExitOnCloseModes exitOnCloseMode = ExitOnCloseModes.DontExitOnClose) {
+      var exceptionText = exc.ToString();
       Builder builder = new Builder().WithText(_errorExplanation).WithExitOnClose(exitOnCloseMode)
-        .WithImage(MessageBoxImage.Error).WithShowHelpLinks().WithShowDiscordLink().WithShowNewGitHubIssue()
-        .WithAppendDescription(exc.ToString()).WithAppendSettingsDescription(context);
+                                     .WithImage(MessageBoxImage.Error).WithShowHelpLinks().WithShowDiscordLink().WithShowNewGitHubIssue()
+                                     .WithAppendDescription(exceptionText).WithAppendSettingsDescription(context);
       if (exitOnCloseMode == ExitOnCloseModes.ExitOnClose) {
         builder.WithButtons(MessageBoxButton.YesNo).WithRestartButton().WithExitButton();
       }
@@ -538,11 +535,13 @@ public partial class CustomMessageBox : Window {
     /// <param name="exitOnCloseMode">The exit on close mode</param>
     /// <returns>The builder</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    internal static Builder NewFromUnexpectedException(Exception exc, string context, ExitOnCloseModes exitOnCloseMode = ExitOnCloseModes.DontExitOnClose) =>
-      NewFrom(exc, context, exitOnCloseMode)
-        .WithAppendTextFormatted(Loc.Localize("UnexpectedErrorSummary", "Unexpected error has occurred. ({0})"),
-          exc.Message).WithAppendText("\n")
-        .WithAppendText(Loc.Localize("UnexpectedErrorActionable", "Please report this error."));
+    internal static Builder NewFromUnexpectedException(Exception exc, string context, ExitOnCloseModes exitOnCloseMode = ExitOnCloseModes.DontExitOnClose) {
+      var unexpectedErrorSummary = Loc.Localize("UnexpectedErrorSummary", "Unexpected error has occurred. ({0})");
+      var unexpectedErrorActionable = Loc.Localize("UnexpectedErrorActionable", "Please report this error.");
+      return Builder.NewFrom(exc, context, exitOnCloseMode)
+             .WithAppendTextFormatted(unexpectedErrorSummary, exc.Message).WithAppendText("\n")
+             .WithAppendText(unexpectedErrorActionable);
+    }
 
     /// <summary>
     /// Shows the assuming dispatcher thread
@@ -552,23 +551,24 @@ public partial class CustomMessageBox : Window {
     /// <returns>The message box result</returns>
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal MessageBoxResult ShowAssumingDispatcherThread() {
-      DefaultResult = DefaultResult != MessageBoxResult.None
-        ? DefaultResult
-        : Buttons switch {
+      this.DefaultResult = this.DefaultResult != MessageBoxResult.None
+        ? this.DefaultResult
+        : this.Buttons switch {
           MessageBoxButton.OK => MessageBoxResult.OK,
           MessageBoxButton.OKCancel => MessageBoxResult.OK,
           MessageBoxButton.YesNoCancel => MessageBoxResult.Yes,
           MessageBoxButton.YesNo => MessageBoxResult.Yes,
-          _ => throw new NotImplementedException(),
+          _ => throw new NotSupportedException(),
         };
-      CancelResult = CancelResult != MessageBoxResult.None
-        ? CancelResult
-        : Buttons switch {
+
+      this.CancelResult = this.CancelResult != MessageBoxResult.None
+        ? this.CancelResult
+        : this.Buttons switch {
           MessageBoxButton.OK => MessageBoxResult.OK,
           MessageBoxButton.OKCancel => MessageBoxResult.Cancel,
           MessageBoxButton.YesNoCancel => MessageBoxResult.Cancel,
           MessageBoxButton.YesNo => MessageBoxResult.No,
-          _ => throw new NotImplementedException(),
+          _ => throw new NotSupportedException(),
         };
       var res = new CustomMessageBox(this);
       res.ShowDialog();
@@ -581,13 +581,13 @@ public partial class CustomMessageBox : Window {
     /// <returns>The message box result</returns>
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal MessageBoxResult ShowInNewThread() {
-      MessageBoxResult? res = null;
-      var newWindowThread = new Thread(() => res = ShowAssumingDispatcherThread());
+      MessageBoxResult? result = null;
+      var newWindowThread = new Thread(() => result = this.ShowAssumingDispatcherThread());
       newWindowThread.SetApartmentState(ApartmentState.STA);
       newWindowThread.IsBackground = true;
       newWindowThread.Start();
       newWindowThread.Join();
-      return res.GetValueOrDefault(CancelResult);
+      return result ?? this.CancelResult;
     }
 
     /// <summary>
@@ -596,28 +596,28 @@ public partial class CustomMessageBox : Window {
     /// <returns>The result</returns>
     internal MessageBoxResult Show() {
       MessageBoxResult result;
-      if (ParentWindow is not null) {
+      if (this.ParentWindow is not null) {
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-        if (System.Windows.Threading.Dispatcher.CurrentDispatcher == ParentWindow.Dispatcher) {
-          result = ShowAssumingDispatcherThread();
+        if (System.Windows.Threading.Dispatcher.CurrentDispatcher == this.ParentWindow.Dispatcher) {
+          result = this.ShowAssumingDispatcherThread();
         } else {
-          result = ParentWindow.Dispatcher.Invoke(ShowAssumingDispatcherThread);
+          result = this.ParentWindow.Dispatcher.Invoke(this.ShowAssumingDispatcherThread);
         }
       }
       else {
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
         if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA) {
-          result = ShowAssumingDispatcherThread();
+          result = this.ShowAssumingDispatcherThread();
         } else {
-          result = Application.Current.Dispatcher.Invoke(ShowAssumingDispatcherThread);
+          result = Application.Current.Dispatcher.Invoke(this.ShowAssumingDispatcherThread);
         }
       }
 
       // ReSharper disable once InvertIf
-      if (ExitOnCloseMode == ExitOnCloseModes.ExitOnClose) {
-        Log.CloseAndFlush();
+      if (this.ExitOnCloseMode == ExitOnCloseModes.ExitOnClose) {
+        Serilog.Log.CloseAndFlush();
         if (result == MessageBoxResult.Yes && Process.GetCurrentProcess().MainModule is {} mainModule) {
-          Process.Start(mainModule.FileName, string.Join(" ", Environment.GetCommandLineArgs().Skip(1).Select(x => EncodeParameterArgument(x))));
+          Process.Start(mainModule.FileName, string.Join(' ', Environment.GetCommandLineArgs().Skip(1).Select(item => EncodeParameterArgument(item))));
         }
 
         Environment.Exit(-1);
@@ -639,8 +639,7 @@ public partial class CustomMessageBox : Window {
   /// <param name="parentWindow">The parent window</param>
   /// <returns>The message box result</returns>
   [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Global")]
-  internal static MessageBoxResult Show(string text, string caption, MessageBoxButton buttons = MessageBoxButton.OK,
-    MessageBoxImage image = MessageBoxImage.Asterisk, bool showHelpLinks = true, bool showDiscordLink = true, Window? parentWindow = null) {
+  internal static MessageBoxResult Show(string text, string caption, MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.Asterisk, bool showHelpLinks = true, bool showDiscordLink = true, Window? parentWindow = null) {
     return new Builder().WithCaption(caption).WithText(text).WithButtons(buttons).WithImage(image)
       .WithShowHelpLinks(showHelpLinks).WithShowDiscordLink(showDiscordLink).WithParentWindow(parentWindow).Show();
   }
@@ -656,7 +655,10 @@ public partial class CustomMessageBox : Window {
   /// <returns>The bool</returns>
   [SuppressMessage("ReSharper", "UnusedMember.Global")]
   internal static bool AssertOrShowError(bool condition, string context, bool fatal = false, Window? parentWindow = null) {
-    if (condition) return false;
+    if (condition) {
+      return false;
+    }
+
     try {
       throw new InvalidOperationException("Assertion failure.");
     } catch (Exception e) {
@@ -677,7 +679,11 @@ public partial class CustomMessageBox : Window {
   /// <param name="force">The force</param>
   /// <returns>The string</returns>
   private static string EncodeParameterArgument(string argument, bool force = false) {
-    if (!force && argument.Length > 0 && argument.IndexOfAny(" \t\n\v\"".ToCharArray()) == -1) return argument;
+    var searchChars = SearchValues.Create(" \t\n\v\"");
+    if (!force && argument.Length > 0 && argument.AsSpan().IndexOfAny(searchChars) == -1) {
+      return argument;
+    }
+
     var quoted = new StringBuilder(argument.Length * 2);
     quoted.Append('"');
     var numberBackslashes = 0;
@@ -687,7 +693,7 @@ public partial class CustomMessageBox : Window {
           numberBackslashes++;
           continue;
         case '"':
-          quoted.Append('\\', numberBackslashes * 2 + 1);
+          quoted.Append('\\', (numberBackslashes * 2) + 1);
           break;
         default:
           quoted.Append('\\', numberBackslashes);

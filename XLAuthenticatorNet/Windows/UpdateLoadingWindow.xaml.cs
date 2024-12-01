@@ -13,25 +13,27 @@ public partial class UpdateLoadingWindow : Window  {
   /// <summary>
   /// Gets the value of the model
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Local")]
-  private UpdateLoadingWindowViewModel Model => (this.DataContext as UpdateLoadingWindowViewModel)!;
+  [SuppressMessage("ReSharper", "UnusedMember.Local"),
+   SuppressMessage("CodeQuality", "IDE0051:Remove unused private members")]
+  private UpdateLoadingWindowViewModel Model
+    => (this.DataContext as UpdateLoadingWindowViewModel)!;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="UpdateLoadingWindow"/> class
   /// </summary>
   internal UpdateLoadingWindow() {
-    InitializeComponent();
+    this.InitializeComponent();
     this.DataContext = new UpdateLoadingWindowViewModel(this);
-    MouseMove += UpdateLoadingWindow_OnMouseMove;
+    this.MouseMove += this.OnMouseMove;
   }
 
   /// <summary>
   /// Updates the loading window on mouse move using the specified sender
   /// </summary>
   /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void UpdateLoadingWindow_OnMouseMove(object? sender, MouseEventArgs e) {
-    if (e.LeftButton == MouseButtonState.Pressed) {
+  /// <param name="event">The </param>
+  private void OnMouseMove(object? sender, MouseEventArgs @event) {
+    if (@event.LeftButton == MouseButtonState.Pressed) {
       this.DragMove();
     }
   }

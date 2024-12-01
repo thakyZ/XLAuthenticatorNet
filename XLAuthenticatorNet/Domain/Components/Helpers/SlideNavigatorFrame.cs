@@ -5,7 +5,17 @@ namespace XLAuthenticatorNet.Domain.Components.Helpers;
 /// <summary>
 /// The slide navigator frame class
 /// </summary>
-internal class SlideNavigatorFrame {
+internal sealed class SlideNavigatorFrame {
+  /// <summary>
+  /// Gets the value of the slide index
+  /// </summary>
+  internal int SlideIndex { get; }
+
+  /// <summary>
+  /// Gets the value of the setup slide
+  /// </summary>
+  internal Action SetupSlide { get; }
+
   /// <summary>
   /// Initializes a new instance of the <see cref="SlideNavigatorFrame"/> class
   /// </summary>
@@ -15,13 +25,4 @@ internal class SlideNavigatorFrame {
     this.SlideIndex = slideIndex;
     this.SetupSlide = setupSlide;
   }
-
-  /// <summary>
-  /// Gets the value of the slide index
-  /// </summary>
-  internal int SlideIndex { get; }
-  /// <summary>
-  /// Gets the value of the setup slide
-  /// </summary>
-  internal Action SetupSlide { get; }
 }

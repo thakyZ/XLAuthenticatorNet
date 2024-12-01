@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
-using Serilog;
 using XLAuthenticatorNet.Models.ViewModel;
 
 namespace XLAuthenticatorNet.Windows;
@@ -34,14 +33,14 @@ public partial class ChangelogWindow : Window {
   /// </summary>
   /// <param name="prerelease">The prerelease</param>
   internal ChangelogWindow(bool prerelease) {
-    InitializeComponent();
-    _prerelease = prerelease;
+    this.InitializeComponent();
+    this._prerelease = prerelease;
     this.DataContext = new ChangelogWindowViewModel(this);
 
-    Activate();
-    Topmost = true;
-    Topmost = false;
-    Focus();
+    this.Activate();
+    this.Topmost = true;
+    this.Topmost = false;
+    this.Focus();
   }
 
   /// <summary>
@@ -58,7 +57,7 @@ public partial class ChangelogWindow : Window {
   public new void Show() {
     SystemSounds.Asterisk.Play();
     base.Show();
-    LoadChangelog();
+    this.LoadChangelog();
   }
 
   /// <summary>
@@ -66,7 +65,7 @@ public partial class ChangelogWindow : Window {
   /// </summary>
   public new void ShowDialog() {
     base.ShowDialog();
-    LoadChangelog();
+    this.LoadChangelog();
   }
 
   /// <summary>
@@ -75,21 +74,32 @@ public partial class ChangelogWindow : Window {
   /// <exception cref="JsonException">Failed to parse data from uri \"{_META_URL}\".</exception>
   private void LoadChangelog() {
     // ReSharper disable once AsyncVoidLambda
-    Task.Run(action: async () => {
+    _ = Task.Run(async () => {
       try {
-        using var client = new HttpClient();
-        ReleaseMeta? response = JsonConvert.DeserializeObject<ReleaseMeta>(await client.GetStringAsync(_META_URL));
-        if (response is null) {
-          throw new JsonException($"Failed to parse data from uri \"{_META_URL}\".");
-        }
-        Dispatcher.Invoke(() => this.Model.ChangelogText = _prerelease ? response.PrereleaseVersion.Changelog : response.ReleaseVersion.Changelog);
+        using var    client   = new HttpClient();
+        ReleaseMeta response = JsonConvert.DeserializeObject<ReleaseMeta>(await client.GetStringAsync(_META_URL)) ?? throw new JsonException($"Failed to parse data from uri \"{_META_URL}\".");
+
+        _ = this.Dispatcher.InvokeAsync(() => this.Model.ChangelogText = this._prerelease ? response.PrereleaseVersion.Changelog : response.ReleaseVersion.Changelog);
       } catch (Exception ex) {
-        Log.Error(ex, "Could not get changelog");
-        Dispatcher.Invoke(callback: () => {
-          this.Model.ChangelogText = this.Model.ChangelogLoadingErrorLabel;
-        });
+        Logger.Error(ex, "Could not get changelog");
+        _ = this.Dispatcher.InvokeAsync(() => this.Model.ChangelogText = this.Model.ChangelogLoadingErrorLabel);
       }
-    });
+    })
+#if DEBUG
+    .ContinueWith((Task result) => {
+      Logger.Debug("Task [{0}] {1}: {2}={3}, {4}={5}, {6}={7}, {8}={9}",
+        result.Id, nameof(LoadChangelog),
+        nameof(Task.IsCanceled), result.IsCanceled,
+        nameof(Task.IsCompleted), result.IsCompleted,
+        nameof(Task.IsCompletedSuccessfully), result.IsCompletedSuccessfully,
+        nameof(Task.IsFaulted), result.IsFaulted
+      );
+      if (result.Exception is not null) {
+        Logger.Error(result.Exception, "Failed on method {0}", nameof(LoadChangelog));
+      }
+    })
+#endif
+    ;
   }
 
   /// <summary>
