@@ -170,6 +170,27 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   }
 #endregion Account Selection Properties
 
+#region Language Selection Properties
+  /// <summary>
+  /// Gets the value of the current account name
+  /// </summary>
+  [SuppressMessage("ReSharper", "UnusedMember.Global")]
+  public string CurrentLanguageName => App.Settings.Language.GetName() ?? "NULL";
+
+  /// <summary>
+  /// The language selection button content
+  /// </summary>
+  private object? _languageSelectionButtonContent;
+
+  /// <summary>
+  /// Gets or sets the value of the language selection button content
+  /// </summary>
+  public object? LanguageSelectionButtonContent {
+    get => this._languageSelectionButtonContent;
+    set => this.SetProperty(ref this._languageSelectionButtonContent, value);
+  }
+#endregion Language Selection Properties
+
 #region Commands
   /// <summary>
   /// Gets the value of the Settings Back Command
@@ -314,7 +335,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   });
 #endregion Commands
 
-#region Switch Account Row Caluclations
+#region Switch Account Row Calculations
   /// <summary>
   /// The grid actual height
   /// </summary>
@@ -433,8 +454,8 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
 #endif
   #endregion Constructors
 
-  #region Internal Methods
-  #region Override Methods
+#region Internal Methods
+#region Override Methods
   /// <summary>
   /// Sets the property using the specified member
   /// </summary>
@@ -538,7 +559,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Refreshes the data on this view model.
   /// </summary>
-  /// <param name="updatePopupContent">A boolean determine whether to update the update popup content.</param>
+  /// <param name="updatePopupContent">A boolean determine whether to update the update pop-up content.</param>
   /// <param name="updateOTPKeyContent">A boolean determine whether to update the update OTP key content.</param>
   /// <param name="updateLauncherIPContent">A boolean determine whether to update the update launcher IP content.</param>
   /// <param name="updateLabels">A boolean determine whether to update all the labels.</param>

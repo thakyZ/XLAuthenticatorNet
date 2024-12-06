@@ -67,7 +67,7 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
       your data, but it would help a lot if you could send me a short email with your operating system, why you use
       XL Authenticator .NET and, if needed, any criticism or things we can do better. Your email will be deleted
       immediately after evaluation and I won't ever contact you.\n\nThank you very much for using XL Authenticator .NET!
-      """.CompactMultilineString());
+      """.CompactRawString());
 
   /// <summary>
   /// Gets the value of the changelog thanks label
@@ -134,12 +134,7 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
       string? wine = EnvironmentSettings.IsWine ? "Yes" : "No";
 
       // ReSharper disable once UseStringInterpolation
-      var emailString = ResourceHelpers.GetFromResources<string>("email_to");
-      if (emailString is not null) {
-        Process.Start(string.Format(CultureInfo.InvariantCulture, emailString, os, lang, wine));
-      } else {
-        Logger.Warning("Failed to get resource by key 'email_to'.");
-      }
+      Process.Start(string.Format(CultureInfo.InvariantCulture, Util.GetEmailUri(), os, lang, wine));
     });
 
   /// <summary>

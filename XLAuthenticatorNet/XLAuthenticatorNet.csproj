@@ -26,15 +26,16 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <ImplicitUsings>disable</ImplicitUsings>
     <NoWarn>$(NoWarn);AD0001;CODEGENCS003</NoWarn>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <DefineConstants>TRACE;DEBUG;XL_NOAUTOUPDATE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'ReleaseNoUpdate'">
@@ -47,6 +48,7 @@
     <EmbeddedResource Include="$(ProjectDir)Resources\Loc\xl\*.json" />
     <EmbeddedResource Include="Resources\logo.png" CopyToOutputDirectory="Never" LogicalName="logo" />
     <None Remove="$(ProjectDir)Resources\xlauth_icon.ico" />
+    <None Remove="XLAuthenticatorNet.ruleset" />
     <EmbeddedResource Include="$(ProjectDir)Resources\xlauth_icon.ico" CopyToOutputDirectory="Never" LogicalName="xlauth_icon" />
     <None Include="$(ProjectDir)App.config" Condition="Exists('$(ProjectDir)App.config')" />
   </ItemGroup>
@@ -60,7 +62,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Otp.NET" Version="1.4.0" />
     <PackageReference Include="Serilog" Version="4.1.0" />
+    <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3" />
     <PackageReference Include="Serilog.Enrichers.Sensitive" Version="1.7.3" />
+    <PackageReference Include="Serilog.Enrichers.ShortTypeName" Version="1.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
@@ -78,9 +82,10 @@
   </ItemGroup>
 
   <ItemGroup Label="Build Tools">
-    <PackageReference Include="CodegenCS.DotNet" Version="3.5.0" />
-    <PackageReference Include="CodegenCS.SourceGenerator" Version="3.5.2" />
+    <PackageReference Include="CodegenCS.DotNet" Version="3.5.0" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
+    <PackageReference Include="CodegenCS.SourceGenerator" Version="3.5.2" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
     <PackageReference Include="MSBuildGitHash" Version="2.0.2" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" Condition="'$(BuildHash)' == ''" />
+    <PackageReference Include="DotEnvGenerator" Version="0.1.0" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
   </ItemGroup>
   
   <ItemGroup Label="Analyzers">
@@ -88,10 +93,14 @@
     <PackageReference Include="Meziantou.Analyzer" Version="2.0.182" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
+    <CodeAnalysisDictionary Include="$(ProjectDir)XLAuthenticatorNet.ruleset" />
   </ItemGroup>
 
   <ItemGroup Label="Assembly Metadata" Condition="'$(BuildHash)' == ''">
-    <AssemblyMetadataCommand Include="BuildOrigin" Command="@echo off &amp; echo $(GITHUB_REPOSITORY)" />
+    <AssemblyMetadataCommand Include="BuildOrigin">
+      <Command>echo $(GITHUB_REPOSITORY)</Command>
+      <ValidationRegex>^https:\/\/github.com\/\w+\/\w+$</ValidationRegex>
+    </AssemblyMetadataCommand>
     <AssemblyMetadataCommand Include="GitHash" Command="git describe --long --always --dirty --abbrev=8" />
   </ItemGroup>
 
@@ -119,5 +128,7 @@
   <ItemGroup Label="Code Generator">
     <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="CodegenCSOutput" />
     <AdditionalFiles Include="$(ProjectDir)Generate\LoggerTemplate.csx" CodegenCSOutput="File" />
+    <AdditionalFiles Include="$(ProjectDir)example.env" Condition="!Exists('$(ProjectDir).env')" />
+    <AdditionalFiles Include="$(ProjectDir).env" Condition="Exists('$(ProjectDir).env')" />
   </ItemGroup>
 </Project>

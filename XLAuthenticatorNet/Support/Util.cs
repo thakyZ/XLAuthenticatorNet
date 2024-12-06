@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Windows;
+using Env = DotEnv.Generated.Environment;
 
 namespace XLAuthenticatorNet.Support;
 
@@ -90,4 +91,10 @@ internal static class Util {
     }
 #endif
   }
+
+  internal static string GetEmailUri()
+    => new StringBuilder().Append("mailto:").Append(Env.EmailToEmail.EncodeUriComponent())
+      .Append("?subject=").Append(Env.EmailToSubject.EncodeUriComponent())
+      .Append("&body=").Append(Env.EmailToBody.EncodeUriComponent())
+      .ToString();
 }

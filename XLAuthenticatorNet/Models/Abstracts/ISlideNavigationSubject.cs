@@ -1,4 +1,4 @@
-namespace XLAuthenticatorNet.Domain.Components.Helpers;
+namespace XLAuthenticatorNet.Abstracts;
 
 /// <summary>
 /// The slide navigation subject interface

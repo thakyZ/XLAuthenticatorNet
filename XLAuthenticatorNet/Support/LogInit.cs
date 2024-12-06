@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using CommandLine;
 using Serilog.Enrichers.Sensitive;
 using Serilog;
+using Serilog.Enrichers.ShortTypeName;
 
 namespace XLAuthenticatorNet.Support;
 
@@ -48,6 +49,8 @@ public static class LogInit {
     config.MinimumLevel.ControlledBy(Logger.LoggingLevelSwitch);
 #endif
 
+    config.Enrich.WithShortTypeName();
+    config.Enrich.WithDemystifiedStackTraces();
     config.Enrich.FromLogContext();
     config.Enrich.WithSensitiveDataMasking(options => options.MaskingOperators = [ new UserPathMaskingOperator() ]);
 

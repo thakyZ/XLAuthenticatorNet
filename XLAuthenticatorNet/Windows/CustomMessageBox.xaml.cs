@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Diagnostics;
 using System.Media;
 using System.Threading;
 using System.Windows;
@@ -10,6 +9,7 @@ using CheapLoc;
 using MaterialDesignThemes.Wpf;
 using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Models.ViewModel;
+using Process = System.Diagnostics.Process;
 
 namespace XLAuthenticatorNet.Windows;
 
@@ -84,7 +84,7 @@ public sealed partial class CustomMessageBox : Window {
         (builder.DefaultResult switch {
           MessageBoxResult.OK => this.OKButton,
           MessageBoxResult.Cancel => this.CancelButton,
-          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<System.Windows.Controls.Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
+          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
         }).Focus();
         break;
       case MessageBoxButton.YesNoCancel:
@@ -96,7 +96,7 @@ public sealed partial class CustomMessageBox : Window {
           MessageBoxResult.Yes => this.YesButton,
           MessageBoxResult.No => this.NoButton,
           MessageBoxResult.Cancel => this.CancelButton,
-          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<System.Windows.Controls.Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
+          _ => ExceptionExtensions.ThrowEnumOutOfRangeException<Button, MessageBoxResult>(nameof(builder.DefaultResult), builder.DefaultResult),
         }).Focus();
         break;
       case MessageBoxButton.YesNo:

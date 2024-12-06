@@ -1,9 +1,8 @@
 using System;
 using System.ComponentModel;
 using System.Windows;
-using XLAuthenticatorNet.Models.Abstracts;
 
-namespace XLAuthenticatorNet.Domain.Components.Helpers;
+namespace XLAuthenticatorNet.Models.Abstracts;
 
 /// <summary>
 /// The view model interface
@@ -12,8 +11,8 @@ namespace XLAuthenticatorNet.Domain.Components.Helpers;
 /// <seealso cref="INotifyPropertyChanged"/>
 /// <seealso cref="IDisposable"/>
 internal interface IViewModel<out TFrameworkElement> : IReloadableControl, INotifyPropertyChanged, IDisposable where TFrameworkElement : FrameworkElement {
-    /// <summary>
-    /// Gets the value of the parent
-    /// </summary>
-    internal TFrameworkElement Parent { get; }
+  /// <summary>
+  /// Gets the value of the parent
+  /// </summary>
+  internal TFrameworkElement Parent { get; }
 }

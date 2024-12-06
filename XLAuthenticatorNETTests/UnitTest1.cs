@@ -15,7 +15,6 @@ public class UnitTest1 {
     var result = TestLoggingClass.Run();
     Assert.IsTrue(result, "Failed to run");
   }
-
 }
 
 public static class Logger {

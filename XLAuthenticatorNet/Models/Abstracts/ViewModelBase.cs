@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using XLAuthenticatorNet.Domain.Components.Helpers;
+
 using XLAuthenticatorNet.Extensions;
 using XLAuthenticatorNet.Models.ViewModel;
 

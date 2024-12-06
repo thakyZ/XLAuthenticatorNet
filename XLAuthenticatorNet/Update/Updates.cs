@@ -22,6 +22,9 @@ namespace XLAuthenticatorNet.Update;
 /// </summary>
 internal sealed partial class Updates : IDisposable {
 #region Events
+#if DEBUG
+  [SuppressMessage("Compiler", "CS0067:An event was declared but never used in the class in which it was declared.")]
+#endif
   internal event EventHandler<BooleanEventArgs>? UpdateCheckFinished;
 #endregion Events
 

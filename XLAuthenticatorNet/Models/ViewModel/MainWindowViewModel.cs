@@ -1,8 +1,7 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Windows.Input;
 using CheapLoc;
 using MaterialDesignThemes.Wpf.Transitions;
+using XLAuthenticatorNet.Abstracts;
 using XLAuthenticatorNet.Dialogs;
 using XLAuthenticatorNet.Domain.Components.Helpers;
 using XLAuthenticatorNet.Models.Abstracts;
@@ -22,14 +21,17 @@ internal sealed class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNav
   /// Gets the value of the title
   /// </summary>
   public string Title => Loc.Localize(nameof(MainWindow) + nameof(this.Title), "XIVLauncher Authenticator");
+
   /// <summary>
   /// The slide navigator
   /// </summary>
   private readonly SlideNavigator _slideNavigator;
+
   /// <summary>
   /// The active slide index
   /// </summary>
   private int _activeSlideIndex;
+
   /// <summary>
   /// Gets or sets the value of the active slide index
   /// </summary>
@@ -37,6 +39,7 @@ internal sealed class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNav
     get => this._activeSlideIndex;
     set => this.SetProperty(ref this._activeSlideIndex, value);
   }
+
   /// <summary>
   /// Gets the value of the slides
   /// </summary>

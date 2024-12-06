@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="XLAuthenticatorNet.Dialogs.LauncherIPDialog"
+<UserControl x:Class="XLAuthenticatorNet.Dialogs.LauncherIPDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,30 +6,26 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:validation="clr-namespace:XLAuthenticatorNet.Domain.Validation"
              xmlns:viewModel="clr-namespace:XLAuthenticatorNet.Models.ViewModel"
-             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModel:LauncherIPDialogViewModel}"
              Background="{DynamicResource MaterialDesignPaper}"
              FontFamily="{materialDesign:MaterialDesignFont}"
-             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
              TextElement.FontWeight="Medium"
-             d:DataContext="{d:DesignInstance Type=viewModel:LauncherIPDialogViewModel}">
-  <StackPanel Margin="16"
-              Orientation="Vertical">
-    <TextBlock Text="{Binding Title}"
-               Style="{StaticResource MaterialDesignLabelLargeTextBlock}" />
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             mc:Ignorable="d">
+  <StackPanel Margin="16" Orientation="Vertical">
+    <TextBlock Style="{StaticResource MaterialDesignLabelLargeTextBlock}" Text="{Binding Title}" />
     <TextBox Margin="0,6,0,0"
              FontSize="18"
              Style="{StaticResource MaterialDesignTextBox}">
       <TextBox.Text>
-        <Binding Path="LauncherIPValue"
-                 UpdateSourceTrigger="PropertyChanged">
+        <Binding Path="LauncherIPValue" UpdateSourceTrigger="PropertyChanged">
           <Binding.ValidationRules>
             <validation:IPValidationRule ValidatesOnTargetUpdated="True" />
           </Binding.ValidationRules>
         </Binding>
       </TextBox.Text>
     </TextBox>
-    <StackPanel Margin="0,16,0,0"
-                Orientation="Horizontal">
+    <StackPanel Margin="0,16,0,0" Orientation="Horizontal">
       <Button Command="{Binding SubmitLauncherIPDialog}"
               Content="{Binding SubmitButtonLabel}"
               IsDefault="True"

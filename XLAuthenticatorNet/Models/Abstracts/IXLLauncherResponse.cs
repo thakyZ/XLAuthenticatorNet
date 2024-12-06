@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace XLAuthenticatorNet.Config;
+namespace XLAuthenticatorNet.Models.Abstracts;
 
 /// <summary>
 /// The ixl launcher response interface

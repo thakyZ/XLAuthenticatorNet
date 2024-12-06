@@ -5,55 +5,55 @@ namespace XLAuthenticatorNet.Support;
 /// </summary>
 public enum Language {
     /// <summary>
-    /// The japanese language
+    /// Specifies to use the Japanese language
     /// </summary>
     Japanese,
     /// <summary>
-    /// The english language
+    /// Specifies to use the English language
     /// </summary>
     English,
     /// <summary>
-    /// The german language
+    /// Specifies to use the German language
     /// </summary>
     German,
     /// <summary>
-    /// The french language
+    /// Specifies to use the French language
     /// </summary>
     French,
     /// <summary>
-    /// The italian language
+    /// Specifies to use the Italian language
     /// </summary>
     Italian,
     /// <summary>
-    /// The spanish language
+    /// Specifies to use the Spanish language
     /// </summary>
     Spanish,
     /// <summary>
-    /// The portuguese language
+    /// Specifies to use the Portuguese language
     /// </summary>
     Portuguese,
     /// <summary>
-    /// The korean language
+    /// Specifies to use the Korean language
     /// </summary>
     Korean,
     /// <summary>
-    /// The norwegian language
+    /// Specifies to use the Norwegian language
     /// </summary>
     Norwegian,
     /// <summary>
-    /// The russian language
+    /// Specifies to use the Russian language
     /// </summary>
     Russian,
     /// <summary>
-    /// The simplified chinese language
+    /// Specifies to use the Simplified Chinese language
     /// </summary>
     SimplifiedChinese,
     /// <summary>
-    /// The traditional chinese language
+    /// Specifies to use the Traditional Chinese language
     /// </summary>
     TraditionalChinese,
     /// <summary>
-    /// The swedish language
+    /// Specifies to use the Swedish language
     /// </summary>
     Swedish,
 }
