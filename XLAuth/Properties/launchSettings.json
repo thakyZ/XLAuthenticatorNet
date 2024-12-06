@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "XLAuth": {
+      "commandName": "Project",
+      "hotReloadEnabled": false,
+      "nativeDebugging": true
+    }
+  }
+}

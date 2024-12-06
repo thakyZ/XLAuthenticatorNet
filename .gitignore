@@ -98,6 +98,9 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
+# Generated files
+*.g.cs
+
 # Chutzpah Test files
 _Chutzpah*
 
@@ -396,11 +399,14 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-/.idea/.idea.XLAuthenticatorNet/.idea/.gitignore
-/.idea/.idea.XLAuthenticatorNet/.idea/codeStyles/codeStyleConfig.xml
-/.idea/.idea.XLAuthenticatorNet/.idea/encodings.xml
-/.idea/.idea.XLAuthenticatorNet/.idea/indexLayout.xml
-/.idea/.idea.XLAuthenticatorNet/.idea/codeStyles/Project.xml
-/.idea/.idea.XLAuthenticatorNet/.idea/inspectionProfiles/Project_Default.xml
-/.idea/.idea.XLAuthenticatorNet/.idea/dictionaries/thaky.xml
-/.idea/.idea.XLAuthenticatorNet/.idea/vcs.xml
+/.idea/.idea.XLAuth/.idea/.gitignore
+/.idea/.idea.XLAuth/.idea/codeStyles/codeStyleConfig.xml
+/.idea/.idea.XLAuth/.idea/encodings.xml
+/.idea/.idea.XLAuth/.idea/indexLayout.xml
+/.idea/.idea.XLAuth/.idea/codeStyles/Project.xml
+/.idea/.idea.XLAuth/.idea/inspectionProfiles/Project_Default.xml
+/.idea/.idea.XLAuth/.idea/dictionaries/thaky.xml
+/.idea/.idea.XLAuth/.idea/vcs.xml
+
+# Environment Variables
+.env

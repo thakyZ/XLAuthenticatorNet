@@ -1,4 +1,4 @@
-﻿name: build.yml
+name: build.yml
 on:
   push:
     branches:
@@ -15,7 +15,7 @@ on:
 
 env:
   REPO_OWNER: thakyz
-  REPO_NAME:  XLAuthenticatorNET
+  REPO_NAME:  XLAuth
 
 jobs:
   build:
