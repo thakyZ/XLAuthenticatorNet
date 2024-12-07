@@ -1,9 +1,10 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace XLAuth.Extensions;
+
+/// <summary>
+/// An extension class for the <see cref="Exception" /> type.
+/// </summary>
 internal static class ExceptionExtensions {
   /// <summary>
   /// Throws an <see cref="ArgumentOutOfRangeException" /> if a enum that was parsed out of range.
@@ -15,7 +16,6 @@ internal static class ExceptionExtensions {
   /// <returns>Always <see langword="null" />.</returns>
   [DoesNotReturn]
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  [SuppressMessage("Class Design", "AV1008:Class should not be static", Justification = "Isn't supposed to actually be an extension, just a util method.")]
   public static TOut ThrowEnumOutOfRangeException<TOut, TEnum>(string variableName, TEnum? value, string? message = null) where TEnum : Enum {
     throw new ArgumentOutOfRangeException(variableName, value, message);
   }

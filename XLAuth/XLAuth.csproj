@@ -61,7 +61,7 @@
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Otp.NET" Version="1.4.0" />
-    <PackageReference Include="Serilog" Version="4.1.0" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3" />
     <PackageReference Include="Serilog.Enrichers.Sensitive" Version="1.7.3" />
     <PackageReference Include="Serilog.Enrichers.ShortTypeName" Version="1.1.0" />
@@ -89,10 +89,15 @@
   </ItemGroup>
   
   <ItemGroup Label="Analyzers">
-    <PackageReference Include="DotNetAnalyzers.DocumentationAnalyzers.Unstable" Version="1.0.0.59" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
-    <PackageReference Include="Meziantou.Analyzer" Version="2.0.182" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers;BuildTransitive" />
+    <PackageReference Include="IDisposableAnalyzers" Version="4.0.8" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="AsyncFixer" Version="1.6.0" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="SmartAnalyzers.MultithreadingAnalyzer" Version="1.1.31" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="Blowin.CleanCode" Version="2.6.0" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="DotNetAnalyzers.DocumentationAnalyzers.Unstable" Version="1.0.0.59" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.182" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.12.9" PrivateAssets="All" IncludeAssets="Runtime;Build;Native;ContentFiles;Analyzers" />
     <CodeAnalysisDictionary Include="$(ProjectDir)XLAuth.ruleset" />
   </ItemGroup>
 

@@ -22,9 +22,6 @@ namespace XLAuth.Update;
 /// </summary>
 internal sealed partial class Updates : IDisposable {
 #region Events
-#if DEBUG
-  [SuppressMessage("Compiler", "CS0067:An event was declared but never used in the class in which it was declared.")]
-#endif
   internal event EventHandler<BooleanEventArgs>? UpdateCheckFinished;
 #endregion Events
 
@@ -127,14 +124,13 @@ internal sealed partial class Updates : IDisposable {
   /// <exception cref="LeaseAcquisitionException">Thrown if the lease was failed to be retrieved.</exception>
   /// <returns>A task containing the update result</returns>
   private async Task<UpdateResult> LeaseUpdateManagerAsync(bool prerelease) {
-    using var client = new HttpClient();
-    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("XIVLauncher", Util.GetGitHash()));
-    client.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-Track",       prerelease ? _TRACK_PRERELEASE : _TRACK_RELEASE);
-    client.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-LV",          "0");
-    client.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-HaveVersion", Util.GetAssemblyVersion());
-    client.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-FirstStart",  App.Settings.VersionUpgradeLevel == 0 ? "yes" : "no");
-    client.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-HaveWine",    EnvironmentSettings.IsWine ? "yes" : "no");
-    HttpResponseMessage response = await client.GetAsync(_LEASE_META_URL).ConfigureAwait(false);
+    App.HttpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("XIVLauncher", Util.GetGitHash()));
+    App.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-Track",       prerelease ? _TRACK_PRERELEASE : _TRACK_RELEASE);
+    App.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-LV",          "0");
+    App.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-HaveVersion", Util.GetAssemblyVersion());
+    App.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-FirstStart",  App.Settings.VersionUpgradeLevel == 0 ? "yes" : "no");
+    App.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-XL-HaveWine",    EnvironmentSettings.IsWine ? "yes" : "no");
+    using HttpResponseMessage response = await App.HttpClient.GetAsync(_LEASE_META_URL).ConfigureAwait(false);
     response.EnsureSuccessStatusCode();
     if (response.Headers.TryGetValues("X-XL-Canary", out IEnumerable<string>? values) && values.FirstOrDefault()?.Equals("yes", StringComparison.OrdinalIgnoreCase) == true) {
       Support.Logger.Information("Updates: Received canary track lease!");
@@ -159,20 +155,24 @@ internal sealed partial class Updates : IDisposable {
   /// <summary>
   /// Gets the error news as a fallback.
   /// </summary>
-  /// <returns>A task containing the error news data</returns>
+  /// <returns>A task containing the <see cref="ErrorNewsData" /> or <see langword="null" />.</returns>
   private static async Task<ErrorNewsData?> GetErrorNewsAsync() {
     ErrorNewsData? newsData = null;
+
     try {
       const string NEWS_URL = "https://gist.githubusercontent.com/thakyZ/66c27c66ab3f87a36f9682655960df09/raw/neko-gaming-news.txt";
-      using var client = new HttpClient();
-      client.Timeout = TimeSpan.FromSeconds(10);
-      string text = await client.GetStringAsync(NEWS_URL).ConfigureAwait(false);
+      App.HttpClient.Timeout = TimeSpan.FromSeconds(10);
+      string text = await App.HttpClient.GetStringAsync(NEWS_URL).ConfigureAwait(false);
       newsData = JsonConvert.DeserializeObject<ErrorNewsData>(text);
     } catch (Exception newsEx) {
       Support.Logger.Error(newsEx, "Could not get error news");
     }
 
-    return DateTimeOffset.UtcNow.ToUnixTimeSeconds() > newsData?.ShowUntil ? null : newsData;
+    if (!(DateTimeOffset.UtcNow.ToUnixTimeSeconds() > newsData?.ShowUntil)) {
+      return newsData;
+    }
+
+    return default;
   }
 
   /// <summary>
@@ -180,50 +180,25 @@ internal sealed partial class Updates : IDisposable {
   /// </summary>
   /// <param name="downloadPrerelease">The download pre-release</param>
   /// <param name="changelogWindow">The changelog window</param>
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Design", "MA0051:Method is too long", Justification = "I know this is large but it needs to be.")]
   internal async Task RunAsync(bool downloadPrerelease, ChangelogWindow? changelogWindow) {
     // GitHub requires TLS 1.2, we need to hard code this for Windows 7
     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
     try {
       UpdateResult updateResult = await this.LeaseUpdateManagerAsync(downloadPrerelease).ConfigureAwait(false);
       UpdateLease = updateResult.Lease;
+#if DEBUG
       // Log feature flags
       try {
         var flags = string.Join(", ", Enum.GetValues(typeof(LeaseFeatureFlags)).Cast<LeaseFeatureFlags>().Where(f => UpdateLease.Flags.HasFlag(f)).Select(f => f.ToString()));
         Support.Logger.Information("Feature flags: {Flags}", flags);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         Support.Logger.Error(ex, "Could not log feature flags");
       }
+#endif
 
       this._updateManager = updateResult.Manager;
       VelopackApp.Build()
-        .WithAfterInstallFastCallback((SemanticVersion _) => this.CreateShortcutForThisExe(updateResult))
-        .WithAfterUpdateFastCallback((SemanticVersion _) => this.CreateShortcutForThisExe(updateResult))
-        .WithBeforeUninstallFastCallback((SemanticVersion _) => {
-          this.RemoveShortcutForThisExe(updateResult);
-          if (CustomMessageBox.Show(Loc.Localize("UninstallQuestion", "Sorry to see you go!\nDo you want to delete all of your saved settings, plugins and passwords?"), "XIVLauncher", MessageBoxButton.YesNo, MessageBoxImage.Question, showHelpLinks: false, showDiscordLink: false) != MessageBoxResult.Yes) {
-            return;
-          }
-
-          try {
-            foreach (TOTPAccount account in App.AccountManager.Accounts) {
-              account.Token = null;
-              App.AccountManager.RemoveAccount(account);
-            }
-          } catch (Exception ex) {
-            Support.Logger.Error(ex, "Uninstall: Could not delete passwords");
-          }
-
-          try {
-            // Let's just give this a shot, probably not going to work 100% but
-            // there's not really much we can do about it right now
-            Directory.Delete(Paths.RoamingPath, recursive: true);
-          } catch (Exception ex) {
-            Support.Logger.Error(ex, "Uninstall: Could not delete roaming directory");
-          }
-        }).Run();
+        .WithBeforeUninstallFastCallback((SemanticVersion _) => Updates.HandleBeforeUninstall()).Run();
       UpdateInfo? newRelease = await this._updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
       if (newRelease is not null) {
         if (changelogWindow is null) {
@@ -279,41 +254,39 @@ internal sealed partial class Updates : IDisposable {
     // Reset security protocol after updating
     ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
   }
-#endregion Tasks
+  #endregion Tasks
 
   /// <summary>
   /// Checks if <see cref="Updates.UpdateLease" /> has a <see cref="LeaseFeatureFlags" /> using the specified flag.
   /// </summary>
   /// <param name="flag">The flag to check</param>
   /// <returns><see langword="true" /> if the <see cref="Updates.UpdateLease" /> has the flag; otherwise <see langword="false" /></returns>
-  internal static bool HaveFeatureFlag(LeaseFeatureFlags flag)
+  internal static bool HasFeatureFlag(LeaseFeatureFlags flag)
     => UpdateLease?.Flags.HasFlag(flag) == true;
 
   /// <summary>
-  /// Removes the shortcut on the Operating System for this application.
+  /// Wrapper for the method <see cref="VelopackApp.WithBeforeUninstallFastCallback" /> in type <see cref="VelopackApp" />.
   /// </summary>
-  /// <param name="result">The instance of the <see cref="UpdateResult" /> used to check the application's statuses.</param>
-  [SuppressMessage("Performance", "CA1822:Mark members as static")]
-  private void RemoveShortcutForThisExe(UpdateResult result) {
-    if (!result.Manager.IsPortable && result.Manager.IsInstalled) {
-      /*
-       * Disabled due to being obsolete, the library handles this automatically.
-      this.Shortcuts?.RemoveShortcutForThisExe();
-       */
+  private static void HandleBeforeUninstall() {
+    if (CustomMessageBox.Show(Loc.Localize("UninstallQuestion", "Sorry to see you go!\nDo you want to delete all of your saved settings, plugins and passwords?"), "XIVLauncher", MessageBoxButton.YesNo, MessageBoxImage.Question, showHelpLinks: false, showDiscordLink: false) != MessageBoxResult.Yes) {
+      return;
     }
-  }
 
-  /// <summary>
-  /// Creates the shortcut on the Operating System for this application.
-  /// </summary>
-  /// <param name="result">The instance of the <see cref="UpdateResult" /> used to check the application's statuses.</param>
-  [SuppressMessage("Performance", "CA1822:Mark members as static")]
-  private void CreateShortcutForThisExe(UpdateResult result) {
-    if (!result.Manager.IsPortable) {
-      /*
-       * Disabled due to being obsolete, the library handles this automatically.
-      this.Shortcuts?.CreateShortcutForThisExe();
-       */
+    try {
+      foreach (TOTPAccount account in App.AccountManager.Accounts) {
+        account.Token = null;
+        App.AccountManager.RemoveAccount(account);
+      }
+    } catch (Exception ex) {
+      Support.Logger.Error(ex, "Uninstall: Could not delete passwords");
+    }
+
+    try {
+      // Let's just give this a shot, probably not going to work 100% but
+      // there's not really much we can do about it right now
+      Directory.Delete(Paths.RoamingPath, recursive: true);
+    } catch (Exception ex) {
+      Support.Logger.Error(ex, "Uninstall: Could not delete roaming directory");
     }
   }
 
@@ -343,8 +316,6 @@ internal sealed partial class Updates : IDisposable {
   /// <summary>
   /// Disposes of this instance
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Keeping here for safekeeping")]
   public void Dispose() {
     // With Velopack the UpdateManager is not type of IDisposable.
     //this._updateManager?.Dispose();

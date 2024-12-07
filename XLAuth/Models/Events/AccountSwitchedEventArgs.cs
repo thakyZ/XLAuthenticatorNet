@@ -12,7 +12,6 @@ internal sealed class AccountSwitchedEventArgs : EventArgs {
   /// <summary>
   /// Gets the value of the old account
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   internal TOTPAccount? OldAccount { get; }
 
   /// <summary>

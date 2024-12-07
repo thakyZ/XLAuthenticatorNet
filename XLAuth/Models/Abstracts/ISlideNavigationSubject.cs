@@ -1,4 +1,4 @@
-namespace XLAuth.Abstracts;
+namespace XLAuth.Models.Abstracts;
 
 /// <summary>
 /// The slide navigation subject interface

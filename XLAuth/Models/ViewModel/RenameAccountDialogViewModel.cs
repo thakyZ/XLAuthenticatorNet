@@ -42,8 +42,6 @@ internal sealed class RenameAccountDialogViewModel : ViewModelBase<RenameAccount
   /// <summary>
   /// Gets the value of the cancel rename account dialog
   /// </summary>
-  [SuppressMessage("Performance", "CA1822:Mark members as static"),
-   SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
   public ICommand CancelRenameAccountDialog => new CommandImpl(() => DialogHost.CloseDialogCommand.Execute(new DialogResult<string>(MessageBoxResult.Cancel), target: null));
 
   /// <summary>
@@ -53,9 +51,6 @@ internal sealed class RenameAccountDialogViewModel : ViewModelBase<RenameAccount
   internal RenameAccountDialogViewModel(RenameAccountDialog parent) : base(parent) {}
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public RenameAccountDialogViewModel() {}
 #endif
 }

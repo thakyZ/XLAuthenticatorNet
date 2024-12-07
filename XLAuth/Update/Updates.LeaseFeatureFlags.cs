@@ -8,7 +8,6 @@ internal sealed partial class Updates {
   /// The lease feature flags enum
   /// </summary>
   [Flags]
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
   internal enum LeaseFeatureFlags {
     /// <summary>
     /// Specifies no feature flags

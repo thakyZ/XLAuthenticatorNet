@@ -20,7 +20,7 @@ public static class LogInit {
     ParserResult<LogOptions>? result = null;
 
     try {
-      var parser = new Parser(config => config.IgnoreUnknownArguments = true);
+      using var parser = new Parser(config => config.IgnoreUnknownArguments = true);
       result = parser.ParseArguments<LogOptions>(args);
 #if DEBUG
     } catch {

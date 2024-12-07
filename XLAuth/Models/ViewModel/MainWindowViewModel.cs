@@ -1,7 +1,6 @@
 using System.Windows.Input;
 using CheapLoc;
 using MaterialDesignThemes.Wpf.Transitions;
-using XLAuth.Abstracts;
 using XLAuth.Dialogs;
 using XLAuth.Domain.Components.Helpers;
 using XLAuth.Models.Abstracts;
@@ -70,9 +69,6 @@ internal sealed class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNav
   }
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public MainWindowViewModel() {
     this.Slides = [];
     this._slideNavigator = new SlideNavigator(this, [..this.Slides]);

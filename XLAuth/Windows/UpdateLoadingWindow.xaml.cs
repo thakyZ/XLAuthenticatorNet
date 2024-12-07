@@ -10,13 +10,11 @@ namespace XLAuth.Windows;
 /// </summary>
 /// <seealso cref="Window"/>
 public partial class UpdateLoadingWindow : Window  {
-  /// <summary>
-  /// Gets the value of the model
-  /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Local"),
-   SuppressMessage("CodeQuality", "IDE0051:Remove unused private members")]
-  private UpdateLoadingWindowViewModel Model
-    => (this.DataContext as UpdateLoadingWindowViewModel)!;
+  ///// <summary>
+  ///// Gets the value of the model
+  ///// </summary>
+  //private UpdateLoadingWindowViewModel Model
+  //  => (this.DataContext as UpdateLoadingWindowViewModel)!;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="UpdateLoadingWindow"/> class

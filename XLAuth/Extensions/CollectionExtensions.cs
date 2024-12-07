@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Windows.Documents;
 
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// The collection extensions class
+/// An extension class for the <see cref="ICollection{T}" />, <see cref="IEnumerable{T}" />, <see cref="List{T}" />, <see cref="ObservableCollection{T}" /> type.
 /// </summary>
 internal static class CollectionExtensions {
   /// <summary>
@@ -86,19 +80,21 @@ internal static class CollectionExtensions {
     }
   }
 
-//  /// <summary>
-//  /// A foreach loop as func function.
-//  /// </summary>
-//  /// <typeparam name="TSource">The type of the enumerable.</typeparam>
-//  /// <param name="enumerable">The enumerable to loop through</param>
-//  /// <param name="func">The function to use on every iteration</param>
-//  [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-//  private static void Each<TSource>(this IEnumerable<TSource> enumerable, Action<TSource> func) {
-//    for (var index = 0; enumerable.Skip(index).Any(); index++) {
-//      var item = enumerable.ElementAt(index);
-//      func(item);
-//    }
-//  }
+  /*
+  /// <summary>
+  /// A foreach loop as func function.
+  /// </summary>
+  /// <typeparam name="TSource">The type of the enumerable.</typeparam>
+  /// <param name="enumerable">The enumerable to loop through</param>
+  /// <param name="func">The function to use on every iteration</param>
+  [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+  private static void Each<TSource>(this IEnumerable<TSource> enumerable, Action<TSource> func) {
+    for (var index = 0; enumerable.Skip(index).Any(); index++) {
+      var item = enumerable.ElementAt(index);
+      func(item);
+    }
+  }
+  */
 
   /// <summary>
   /// Merges two lists into a single dictionary.
@@ -109,7 +105,6 @@ internal static class CollectionExtensions {
   /// <param name="values">The lust of values</param>
   /// <returns>The two lists combined into a dictionary.</returns>
   [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-  [SuppressMessage("Member Design", "AV1130:Return type in method signature should be an interface to an unchangeable collection", Justification = "The whole point is to allow it to still be modifiable.")]
   internal static IDictionary<TKey, TValue> Merge<TKey, TValue>(this IEnumerable<TKey> keys, IEnumerable<TValue> values) where TKey : notnull {
     Dictionary<TKey, TValue> dic = [];
     keys.Each((key, index) => {

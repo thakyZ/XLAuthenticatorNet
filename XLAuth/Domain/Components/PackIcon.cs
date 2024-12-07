@@ -29,8 +29,6 @@ internal sealed class PackIcon : Control {
   /// <summary>
   /// The kind property changed callback
   /// </summary>
-  [SuppressMessage("ReSharper", "InconsistentNaming"),
-   SuppressMessage("Style", "IDE1006:Naming Styles")]
   internal static readonly DependencyProperty KindProperty = DependencyProperty.Register(nameof(Kind),
     typeof(PackIconKind), typeof(PackIcon), new PropertyMetadata(default(PackIconKind), PackIcon.KindPropertyChangedCallback));
 
@@ -38,9 +36,9 @@ internal sealed class PackIcon : Control {
   /// Kinds the property changed callback using the specified dependency object
   /// </summary>
   /// <param name="dependencyObject">The dependency object</param>
-  /// <param name="dependencyPropertyChangedEventArgs">The dependency property changed event args</param>
+  /// <param name="eventArgs">The dependency property changed event args</param>
   private static void KindPropertyChangedCallback(DependencyObject dependencyObject,
-    DependencyPropertyChangedEventArgs dependencyPropertyChangedEventArgs) =>
+    DependencyPropertyChangedEventArgs eventArgs) =>
     ((PackIcon)dependencyObject).UpdateData();
 
   /// <summary>
@@ -54,15 +52,11 @@ internal sealed class PackIcon : Control {
   /// <summary>
   /// The property metadata
   /// </summary>
-  [SuppressMessage("ReSharper", "InconsistentNaming"),
-   SuppressMessage("Style", "IDE1006:Naming Styles")]
   private static readonly DependencyPropertyKey DataPropertyKey = DependencyProperty.RegisterReadOnly(nameof(Data), typeof(string), typeof(PackIcon), new PropertyMetadata(""));
 
   /// <summary>
   /// The dependency property
   /// </summary>
-  [SuppressMessage("ReSharper", "InconsistentNaming"),
-   SuppressMessage("Style", "IDE1006:Naming Styles")]
   internal static readonly DependencyProperty DataProperty = DataPropertyKey.DependencyProperty;
 
   /// <summary>

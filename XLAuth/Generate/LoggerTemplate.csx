@@ -22,7 +22,7 @@ public class LoggerTemplate
     writer.WriteLine(string.Empty);
     writer.WriteLine("namespace XLAuth.Support;");
     writer.WriteLine(string.Empty);
-    writer.WriteLine("[SuppressMessage(\"CodeQuality\", \"Serilog004:Constant MessageTemplate verifier\")]");
+    writer.WriteLine("#pragma warning disable Serilog004 // Constant MessageTemplate verifier");
     writer.WriteLine("public partial class Logger {");
     foreach ((string name, string level) in this.Methods) {
       writer.WriteLine(this.GenerateClass(name, level));

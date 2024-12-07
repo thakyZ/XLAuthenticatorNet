@@ -126,8 +126,6 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the text value of the OK button label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string OKButtonLabel
     => Loc.Localize(nameof(this.OKButtonLabel), "OK");
 #endregion
@@ -155,8 +153,6 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the text value of the cancel button label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string CancelButtonLabel
     => Loc.Localize("CancelButtonLabel", "Cancel");
 #endregion
@@ -184,8 +180,6 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the text value of the yes button label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string YesButtonLabel => Loc.Localize("YesButtonLabel", "Yes");
 #endregion
 
@@ -211,8 +205,6 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the text value of the no button label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string NoButtonLabel => Loc.Localize("NoButtonLabel", "No");
 #endregion
 
@@ -233,15 +225,11 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the value of the report issue command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand ReportIssueCommand => new CommandImpl(() => {});
 
   /// <summary>
   /// Gets the text value of the report issue label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string ReportIssueLabel => Loc.Localize("ReportIssueLabel", "New GitHub Issue");
 #endregion
 
@@ -262,15 +250,11 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the value of the open FAQ command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand OpenFAQCommand => new CommandImpl(() => {});
 
   /// <summary>
   /// Gets the text value of the open FAQ label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string OpenFAQLabel => Loc.Localize("OpenFaqLabel", "Open FAQ");
 #endregion
 
@@ -291,15 +275,11 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the value of the join discord button command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand JoinDiscordButtonCommand => new CommandImpl(() => {});
 
   /// <summary>
   /// Gets the text value of the join discord button label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string JoinDiscordButtonLabel => Loc.Localize(nameof(this.JoinDiscordButtonLabel), "Join Discord");
 #endregion
 
@@ -315,8 +295,6 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   /// <summary>
   /// Gets the text value of the copy message text label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string CopyMessageTextLabel => Loc.Localize("CopyMessageTextLabel", "Copy Message");
 #endregion
 #endregion
@@ -329,9 +307,6 @@ internal sealed class CustomMessageBoxViewModel : ViewModelBase<CustomMessageBox
   internal CustomMessageBoxViewModel(CustomMessageBox parent) : base (parent) {}
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public CustomMessageBoxViewModel() {}
 #endif
 }

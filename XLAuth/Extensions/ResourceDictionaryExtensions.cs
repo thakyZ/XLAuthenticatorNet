@@ -1,15 +1,11 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// The resource dictionary extensions class
+/// An extension class for the <see cref="ResourceDictionary" /> type.
 /// </summary>
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 internal static class ResourceDictionaryExtensions {
   /// <summary>
   /// Returns the list using the specified resource dictionary

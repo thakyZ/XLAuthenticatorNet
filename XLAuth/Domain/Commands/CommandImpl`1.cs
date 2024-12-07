@@ -31,8 +31,7 @@ internal sealed class CommandImpl<TSource> : ICommand where TSource : notnull {
   /// </summary>
   /// <param name="execute">The execute</param>
   /// <param name="canExecute">The can execute</param>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-  internal CommandImpl(Action<TSource?> execute, Predicate<object?> canExecute) {
+  private CommandImpl(Action<TSource?> execute, Predicate<object?> canExecute) {
     this._execute = execute;
     this._canExecute = canExecute;
   }
@@ -63,9 +62,6 @@ internal sealed class CommandImpl<TSource> : ICommand where TSource : notnull {
   /// <summary>
   /// Refreshes this instance
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   internal void Refresh()
     => CommandManager.InvalidateRequerySuggested();
 }

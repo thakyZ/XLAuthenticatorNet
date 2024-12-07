@@ -11,6 +11,7 @@ using XLAuth.Config;
 using XLAuth.Dialogs;
 using XLAuth.Domain;
 using XLAuth.Domain.Commands;
+using XLAuth.Extensions;
 using XLAuth.Models.Abstracts;
 using XLAuth.Models.Events;
 using XLAuth.Windows;
@@ -45,7 +46,6 @@ internal sealed class MainControlViewModel : ViewModelBase<MainControl> {
   /// <summary>
   /// Gets the value of the current account name
   /// </summary>
-  [SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string CurrentAccountName => App.AccountManager.CurrentAccount?.Name ?? "NULL";
   /// <summary>
   /// The OTP time left
@@ -73,14 +73,17 @@ internal sealed class MainControlViewModel : ViewModelBase<MainControl> {
   /// Gets the value of the logo
   /// </summary>
   public ImageSource Logo { get; } = MainControlViewModel.LoadLogo();
+
   /// <summary>
   /// Gets the value of the message queue
   /// </summary>
   public SnackbarMessageQueue? MessageQueue { get; }
+
   /// <summary>
   /// Gets or sets the value of the failed to send OTP key count
   /// </summary>
   private static int FailedToSendOTPKeyCount { get; set; }
+
   /// <summary>
   /// Gets or sets the value of the sending TOTP key
   /// </summary>
@@ -89,20 +92,35 @@ internal sealed class MainControlViewModel : ViewModelBase<MainControl> {
   /// <summary>
   /// Gets the value of the open settings
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand OpenSettings => new CommandImpl(() => {
-    (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData(updatePopupContent: true);
+    (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData(RefreshPart.UpdatePopupContent);
     NavigationCommands.ShowSettingsCommand.Execute(this, null!);
   });
 
   /// <summary>
   /// Gets the value of the resend OTP key command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static"),
-   SuppressMessage("Performance", "CS1998:Async method lacks 'await' operators and will run synchronously")]
-  public ICommand ResendOTPKeyCommand => new AsyncCommandImpl(async () => {
+  public ICommand ResendOTPKeyCommand => new AsyncCommandImpl(this.SendTOTPAsync);
+
+  /// <summary>
+  /// Gets the value of the copy OTP key
+  /// </summary>
+  public ICommand CopyOTPKey => new CommandImpl(() => this.MessageQueue?.Enqueue(Loc.Localize(nameof(this.CopyOTPKey), "Copied OTP key to clipboard")));
+
+  /// <summary>
+  /// Initializes a new instance of the <see cref="MainControlViewModel"/> class
+  /// </summary>
+  /// <param name="mainContent">The main content</param>
+  internal MainControlViewModel(MainControl mainContent) : base(mainContent) {
+    App.AccountManager.AccountSwitched += this.OnSwitchAccount;
+    this.MessageQueue = new SnackbarMessageQueue(new TimeSpan(0, 0, 5), this.Parent.Dispatcher);
+  }
+
+#if DEBUG
+  public MainControlViewModel() {}
+#endif
+
+  private async Task SendTOTPAsync() {
     if (SendingTOTPKey) {
       return;
     }
@@ -144,39 +162,13 @@ internal sealed class MainControlViewModel : ViewModelBase<MainControl> {
     }
 
     SendingTOTPKey = false;
-  });
-
-  /// <summary>
-  /// Gets the value of the copy OTP key
-  /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
-  public ICommand CopyOTPKey => new CommandImpl(() => this.MessageQueue?.Enqueue(Loc.Localize(nameof(this.CopyOTPKey), "Copied OTP key to clipboard")));
-
-  /// <summary>
-  /// Initializes a new instance of the <see cref="MainControlViewModel"/> class
-  /// </summary>
-  /// <param name="mainContent">The main content</param>
-  internal MainControlViewModel(MainControl mainContent) : base(mainContent) {
-    App.AccountManager.AccountSwitched += this.OnSwitchAccount;
-    this.MessageQueue = new SnackbarMessageQueue(new TimeSpan(0, 0, 5), this.Parent.Dispatcher);
   }
 
-#if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
-  public MainControlViewModel() {}
-#endif
-
-  /// <summary>
-  /// Refreshes the data using the specified update OTP
-  /// </summary>
-  /// <param name="updateOTP">The update OTP</param>
-  internal void RefreshData(bool updateOTP = false) {
-    base.RefreshData();
+  /// <inheritdoc cref="XLAuth.Models.Abstracts.IReloadableControl.RefreshData(RefreshPart)"/>
+  public override void RefreshData(RefreshPart part) {
+    base.RefreshData(part);
     // ReSharper disable once InvertIf
-    if (updateOTP && App.AccountManager.CurrentAccount is not null) {
+    if (part.Contains(RefreshPart.UpdateOTP) && App.AccountManager.CurrentAccount is not null) {
       this.CurrentTOTP ??= App.AccountManager.CurrentAccount.CreateTOTP();
 
       if (this.CurrentTOTP is not null) {
@@ -205,7 +197,7 @@ internal sealed class MainControlViewModel : ViewModelBase<MainControl> {
   /// <param name="e">The </param>
   private void OnSwitchAccount(object? _, AccountSwitchedEventArgs e) {
     this.NotifyPropertyChanged(nameof(this.CurrentAccountName));
-    (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData();
+    (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData(RefreshPart.UpdateAll);
     if (e.NewAccount is not null) {
       this.CurrentTOTP = e.NewAccount.CreateTOTP();
     }

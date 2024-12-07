@@ -1,9 +1,7 @@
-using System;
-
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// Extension methods for the type of <cee langword="double" />.
+/// An extension class for the <see langword="double" /> type.
 /// </summary>
 internal static class DoubleExtensions {
   /// <summary>

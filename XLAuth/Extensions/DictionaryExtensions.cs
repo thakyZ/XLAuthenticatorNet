@@ -1,12 +1,10 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// The dictionary extensions class
+/// An extension class for the <see cref="Dictionary{TKey, TValue}" /> type.
 /// </summary>
 internal static class DictionaryExtensions {
   /// <summary>
@@ -14,7 +12,6 @@ internal static class DictionaryExtensions {
   /// </summary>
   /// <param name="resourceDictionary">The resource dictionary</param>
   /// <returns>The dictionary</returns>
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
   [MethodImpl(MethodImplOptions.AggressiveOptimization)]
   internal static Dictionary<object, object?> ToNativeDictionary(this ResourceDictionary resourceDictionary) {
     Dictionary<object, object?> dictionary = [];

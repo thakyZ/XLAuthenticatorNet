@@ -23,9 +23,7 @@ internal sealed class FadeWipe : ITransitionWipe {
     /// <summary>
     /// Duration of the animation
     /// </summary>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
-     SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
-    internal TimeSpan Duration { get; set; } = TimeSpan.FromSeconds(0.5);
+    private TimeSpan Duration { get; } = TimeSpan.FromSeconds(0.5);
 
     /// <summary>
     /// Wipes the from slide

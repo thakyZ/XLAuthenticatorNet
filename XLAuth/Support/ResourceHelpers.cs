@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -14,7 +12,7 @@ namespace XLAuth.Support;
 /// <summary>
 /// The resource helpers class
 /// </summary>
-internal sealed class ResourceHelpers : IDisposable {
+internal sealed partial class ResourceHelpers : IDisposable {
   /// <summary>
   /// Gets a resource from the assembly with the specified type parameter and using the specified resource name
   /// </summary>
@@ -35,7 +33,7 @@ internal sealed class ResourceHelpers : IDisposable {
       using Stream? stream1 = stream;
       using var reader = new StreamReader(stream1);
       string output = reader.ReadToEnd();
-      return _instance.Cache.GetOrAdd(resourceName, (_, value) => value, (output, type)).Value as TOut
+      return Singletons.Get<ResourceHelpers>()._cache.GetOrAdd(new(resourceName, type), (_, value) => value, output) as TOut
           ?? throw new InvalidOperationException("Failed to get or add cached blank bitmap image.");
     }
 
@@ -66,42 +64,29 @@ internal sealed class ResourceHelpers : IDisposable {
   /// </summary>
   /// <returns>A blank bitmap image.</returns>
   internal static BitmapSource GetBlankBitmap() {
-    var bitmap = new Bitmap(1, 1, PixelFormat.Alpha);
+    using var bitmap = new Bitmap(1, 1, PixelFormat.Alpha);
     var transparent = Color.FromArgb(0, 0, 0, 0);
     bitmap.SetPixel(0, 0, transparent);
     var bitmapHandle = bitmap.GetHbitmap();
     var emptyOptions = BitmapSizeOptions.FromEmptyOptions();
     BitmapSource output = Imaging.CreateBitmapSourceFromHBitmap(bitmapHandle, nint.Zero, Int32Rect.Empty, emptyOptions);
-    return _instance.Cache.GetOrAdd("blank_bitmap", (_, value) => value, (output, output.GetType())).Value as BitmapSource
+    return Singletons.Get<ResourceHelpers>()._cache.GetOrAdd(new("blank_bitmap", typeof(BitmapSource)), (_, value) => value, output) as BitmapSource
         ?? throw new InvalidOperationException("Failed to get or add cached blank bitmap image.");
   }
 
 #region Internal Members
 #region Private Fields
   /// <summary>
-  /// Specifies an instance of this class.
-  /// </summary>
-  private static ResourceHelpers _instance = null!;
-  /// <summary>
   /// Specifies if this class has been disposed of or not.
   /// </summary>
   private bool _isDisposed;
-#endregion Private Fields
-#region Private Properties
+  #endregion Private Fields
+  #region Private Properties
   /// <summary>
   /// Gets the concurrent dictionary for caching resources.
   /// </summary>
-  [SuppressMessage("Compiler", "CA1822:Mark member as static")]
-  private ConcurrentDictionary<string, (object? Value, Type Type)> Cache => [];
+  private readonly ConcurrentDictionary<ResourceHelperKey, object?> _cache = new();
 #endregion Private Properties
-
-#region Initializer
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
-  internal void Init() {
-    _instance = new ResourceHelpers();
-  }
-#endregion Initializer
 
 #region IDisposable Implementations
   /// <summary>
@@ -112,9 +97,15 @@ internal sealed class ResourceHelpers : IDisposable {
     if (!this._isDisposed) {
       if (disposing) {
         // NOTE: Dispose of unmanaged resources here.
+        foreach (object? value in this._cache.Values) {
+          // Only dispose the disposable objects that we own
+          if (value is IDisposable disposable) {
+            disposable.Dispose();
+          }
+        }
+        this._cache.Clear();
       }
 
-      this.Cache.Clear();
       // NOTE: Dispose of managed resources here.
       this._isDisposed = true;
     }
@@ -130,14 +121,6 @@ internal sealed class ResourceHelpers : IDisposable {
     this.Dispose(disposing: false);
   }
 
-  /// <summary>
-  /// Unloads (disposes) of the instance of <see cref="ResourceHelpers"/>.
-  /// </summary>
-  [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract")]
-  internal static void Unload() {
-    // Null check just in case if this class was never initiated.
-    _instance?.Dispose();
-  }
-  #endregion IDisposable Implementations
-  #endregion Internal Members
+#endregion IDisposable Implementations
+#endregion Internal Members
 }

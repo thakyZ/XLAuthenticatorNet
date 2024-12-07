@@ -5,7 +5,6 @@ namespace XLAuth.Domain;
 /// <summary>
 /// The OTP key response enum
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
 internal enum OTPKeyResponse {
   /// <summary>
   /// The success OTP key response

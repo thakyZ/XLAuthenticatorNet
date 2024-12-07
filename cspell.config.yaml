@@ -1,0 +1,22 @@
+version: "0.2"
+ignorePaths:
+- cspell.config.yaml
+dictionaries:
+- en_US
+- companies
+- softwareTerms
+- misc
+- powershell
+- csharp
+- fonts
+- filetypes
+words:
+- TOTP            # Timed-One Time Password Abbreviation
+- OTP             # One Time Password Abbreviation
+- XLAuth          # Project short name
+- XLAuthenticator # Project full name
+- Deutsch         # The name of the lanuage German in German
+- Français        # The name of the lanuage French in French
+- localizables
+ignoreWords: []
+import: []

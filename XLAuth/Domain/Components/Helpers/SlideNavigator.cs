@@ -1,5 +1,5 @@
 using MaterialDesignThemes.Wpf.Transitions;
-using XLAuth.Abstracts;
+using XLAuth.Models.Abstracts;
 
 namespace XLAuth.Domain.Components.Helpers;
 
@@ -58,8 +58,7 @@ internal sealed class SlideNavigator {
   /// </summary>
   /// <param name="slideIndex">The slide index</param>
   /// <param name="setupSlide">The setup slide</param>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-  internal void GoTo(int slideIndex, Action setupSlide) {
+  private void GoTo(int slideIndex, Action setupSlide) {
     if (this._currentPositionNode is null) {
       this._currentPositionNode = new LinkedListNode<SlideNavigatorFrame>(new SlideNavigatorFrame(slideIndex, setupSlide));
       this._historyLinkedList.AddLast(this._currentPositionNode);

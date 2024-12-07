@@ -39,8 +39,6 @@ internal sealed class OTPKeyDialogViewModel : ViewModelBase<OTPKeyDialog> {
   /// <summary>
   /// Gets the value of the cancel OTP key dialog
   /// </summary>
-  [SuppressMessage("Performance", "CA1822:Mark members as static"),
-   SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
   public ICommand CancelOTPKeyDialog => new CommandImpl(() => DialogHost.CloseDialogCommand.Execute(new DialogResult<SecureString>(MessageBoxResult.Cancel), target: null));
 
   /// <summary>
@@ -52,9 +50,6 @@ internal sealed class OTPKeyDialogViewModel : ViewModelBase<OTPKeyDialog> {
   }
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public OTPKeyDialogViewModel() {}
 #endif
 }

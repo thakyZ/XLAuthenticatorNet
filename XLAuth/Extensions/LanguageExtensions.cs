@@ -1,7 +1,7 @@
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// The language extensions class
+/// An extension class for the <see cref="Language" /> type.
 /// </summary>
 internal static class LanguageExtensions {
   /// <summary>
@@ -71,7 +71,6 @@ internal static class LanguageExtensions {
   /// <param name="_">The language parameter (unused)</param>
   /// <param name="code">The code</param>
   /// <returns>The language</returns>
-  [SuppressMessage("Roslynator", "RCS1175:Unused 'this' parameter", Justification = "<Pending>")]
   internal static Language GetLangFromTwoLetterIso(this Language? _, string code)
     => GetLangCodes().FirstOrDefault(langCode => langCode.Value.Equals(code, StringComparison.OrdinalIgnoreCase)).Key; // Default language (en) if default.
 
@@ -80,7 +79,6 @@ internal static class LanguageExtensions {
   /// </summary>
   /// <param name="lanuage">The language parameter</param>
   /// <returns>The localized language name in the specified language.</returns>
-  [SuppressMessage("Roslynator", "RCS1175:Unused 'this' parameter", Justification = "<Pending>")]
   internal static string GetName(this Language? lanuage)
     => GetLangNames().FirstOrDefault(keyValuePair => keyValuePair.Key.Equals(lanuage)).Value; // Default language (en) if default.
 }

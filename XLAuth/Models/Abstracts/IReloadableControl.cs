@@ -5,7 +5,9 @@ namespace XLAuth.Models.Abstracts;
 /// </summary>
 internal interface IReloadableControl {
   /// <summary>
-  /// Refreshes the data
+  /// Allows ViewModels to be reloaded from outside.
+  /// <remarks><para>NOTE: May be able to be used maliciously since this method uses reflection.</para></remarks>
   /// </summary>
-  internal void RefreshData();
+  /// <param name="part">Flags to represent which parts of the model/view to refresh.</param>
+  internal void RefreshData(RefreshPart part);
 }

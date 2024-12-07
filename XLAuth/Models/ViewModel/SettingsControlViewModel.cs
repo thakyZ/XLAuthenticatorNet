@@ -28,8 +28,6 @@ namespace XLAuth.Models.ViewModel;
 /// The settings control view model class
 /// </summary>
 /// <seealso cref="ViewModelBase{SettingsControl}"/>
-[SuppressMessage("Performance", "CA1822:Mark members as static"),
- SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> {
 #region Binding Properties
 #region Localization
@@ -57,10 +55,12 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// Gets the value of the OTP label
   /// </summary>
   public string YourOTPLabel => Loc.Localize(nameof(this.YourOTPLabel), "Your OTP:");
+
   /// <summary>
   /// Gets the value of the OTP label
   /// </summary>
   public string SaveSettingsButtonLabel => Loc.Localize(nameof(this.SaveSettingsButtonLabel), "Save");
+
   /// <summary>
   /// Gets the value of the close app after sending check box label
   /// </summary>
@@ -86,7 +86,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets or sets the value of the launcher IP text
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   public object? LauncherIPText {
     get => this._launcherIPText;
     set => this.SetProperty(ref this._launcherIPText, value);
@@ -100,7 +99,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets or sets the value of the launcher IP color
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   public Brush LauncherIPColor {
     get => this._launcherIPColor;
     set => this.SetProperty(ref this._launcherIPColor, value);
@@ -114,7 +112,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets or sets the value of the is registered text
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   public string IsRegisteredText {
     get => this._isRegisteredText;
     set => this.SetProperty(ref this._isRegisteredText, value);
@@ -125,7 +122,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets the value of the current account name
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
   public string CurrentAccountName => App.AccountManager.CurrentAccount?.Name ?? "NULL";
 
   /// <summary>
@@ -136,7 +132,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets or sets the value of the popup content
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("ReSharper", "UnusedMember.Global")]
   public object PopupContent {
     get => this._popupContent;
     set => this.SetProperty(ref this._popupContent, value);
@@ -150,7 +145,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets or sets the value of the is registered color
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("ReSharper", "UnusedMember.Global")]
   public Brush IsRegisteredColor {
     get => this._isRegisteredColor;
     set => this.SetProperty(ref this._isRegisteredColor, value);
@@ -174,7 +168,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets the value of the current account name
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
   public string CurrentLanguageName => App.Settings.Language.GetName() ?? "NULL";
 
   /// <summary>
@@ -195,7 +188,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets the value of the Settings Back Command
   /// </summary>
-  public ICommand SettingsBack => new CommandImpl(() => this.Parent.CloseAndCancelSettings());
+  public ICommand SettingsBack => new CommandImpl(() => this.Parent.CancelSettingChanges());
 
   /// <summary>
   /// Gets the value of the Save Settings Command
@@ -221,7 +214,9 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets the value of the set OTP key dialog command
   /// </summary>
-  public ICommand SetOtpKeyDialogCommand => new AsyncCommandImpl(async () => {
+  public ICommand SetOtpKeyDialogCommand => new AsyncCommandImpl(this.SetOtpKeyDialogAsync);
+
+  private async Task SetOtpKeyDialogAsync() {
     var     view    = new OTPKeyDialog();
     object? @object = await DialogHost.Show(view, "OTPKeyDialogHost").ConfigureAwait(false);
 
@@ -237,12 +232,14 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
 
     this.SetOTPKey(!result.Value.IsNullOrEmptyOrWhiteSpace());
     App.AccountManager.UpdateCurrentAccount(result.Value);
-  });
+  }
 
   /// <summary>
   /// Gets the value of the set launcher IP dialog command
   /// </summary>
-  public ICommand SetLauncherIPDialogCommand => new AsyncCommandImpl(async () => {
+  public ICommand SetLauncherIPDialogCommand => new AsyncCommandImpl(this.SetLauncherIPDialogAsync);
+
+  private async Task SetLauncherIPDialogAsync() {
     var     view    = new LauncherIPDialog();
     object? @object = await DialogHost.Show(view, "LauncherIPDialogHost").ConfigureAwait(false);
 
@@ -258,13 +255,14 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
 
     this.SetIP(result.Value);
     App.AccountManager.UpdateCurrentAccount(result.Value);
-  });
+  }
 
   /// <summary>
   /// Gets the value of the add account command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
-  public ICommand AddAccountCommand => new AsyncCommandImpl(async () => {
+  public ICommand AddAccountCommand => new AsyncCommandImpl(this.AddAccountAsync);
+
+  private async Task AddAccountAsync() {
     var     view    = new AddAccountDialog();
     object? @object = await DialogHost.Show(view, "AddAccountDialogHost").ConfigureAwait(false);
 
@@ -281,13 +279,14 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     var account = App.AccountManager.AddAccount(result.Value);
     App.AccountManager.SwitchAccount(account.Id);
     this.Parent.ReloadSettings();
-  });
+  }
 
   /// <summary>
   /// Gets the value of the rename account command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
-  public ICommand RenameAccountCommand => new AsyncCommandImpl<Guid>(async (Guid id) => {
+  public ICommand RenameAccountCommand { get; }
+
+  private async Task RenameAccountAsync(Guid id) {
     var     view    = new RenameAccountDialog();
     object? @object = await DialogHost.Show(view, "RenameAccountDialogHost").ConfigureAwait(false);
 
@@ -302,21 +301,21 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     }
 
     App.AccountManager.RenameAccount(id, result.Value);
-    this.RefreshData(updatePopupContent: true);
+    this.RefreshData(RefreshPart.UpdatePopupContent);
     this.Parent.ReloadSettings();
-  });
+  }
 
   /// <summary>
   /// Gets the value of the switch account command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
-  public ICommand SwitchAccountCommand => new CommandImpl<Guid>((Guid accountId) => App.AccountManager.SwitchAccount(accountId));
+  public ICommand SwitchAccountCommand { get; } = new CommandImpl<Guid>(App.AccountManager.SwitchAccount);
 
   /// <summary>
   /// Gets the value of the delete account command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
-  public ICommand DeleteAccountCommand => new AsyncCommandImpl<Guid>(async (Guid id) => {
+  public ICommand DeleteAccountCommand { get; }
+
+  private async Task DeleteAccountAsync(Guid id) {
     var     view    = new DeleteAccountDialog();
     object? @object = await DialogHost.Show(view, "DeleteAccountDialogHost").ConfigureAwait(false);
 
@@ -331,11 +330,11 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     }
 
     App.AccountManager.RemoveAccount(id);
-    this.RefreshData(updatePopupContent: true);
-  });
-#endregion Commands
+    this.RefreshData(RefreshPart.UpdatePopupContent);
+  }
+  #endregion Commands
 
-#region Switch Account Row Calculations
+  #region Switch Account Row Calculations
   /// <summary>
   /// The grid actual height
   /// </summary>
@@ -357,7 +356,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets or sets the value of the button margin
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
   public Thickness ButtonMargin {
     get => this._buttonMargin;
     set => this.SetProperty(ref this._buttonMargin, value);
@@ -384,7 +382,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Gets or sets the value of the button icon margin
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
   public Thickness ButtonIconMargin {
     get => this._buttonIconMargin;
     set => this.SetProperty(ref this._buttonIconMargin, value);
@@ -415,14 +412,13 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     get => this._accountSelectionButtonActualWidth;
     set => this.SetProperty(ref this._accountSelectionButtonActualWidth, value);
   }
-#endregion Switch Account Row Caluclations
+#endregion Switch Account Row Calculations
 
 #region Disposable Collections
   /// <summary>
   /// Gets the value of the dispose of size changed
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global"), SuppressMessage("Performance", "CA1822:Mark members as static")]
-  private Dictionary<string, FrameworkElement> DisposeOfSizeChanged => [];
+  private Dictionary<string, FrameworkElement> DisposeOfSizeChanged { get; } = [];
 #endregion Disposable Collections
 #endregion Binding Properties
 
@@ -443,13 +439,16 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     this.NotifyPropertyChanged(nameof(this.CurrentAccountName));
     App.AccountManager.AccountSwitched += this.AccountManager_OnAccountSwitched;
     App.AccountManager.ReloadTriggered += this.AccountManager_OnReloadTriggered;
+    this.DeleteAccountCommand = new AsyncCommandImpl<Guid>(this.DeleteAccountAsync);
+    this.RenameAccountCommand = new AsyncCommandImpl<Guid>(this.RenameAccountAsync);
   }
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"), SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."), SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public SettingsControlViewModel() {
     this.SetIP(arg: null);
     this.SetOTPKey(value: false);
+    this.DeleteAccountCommand = new AsyncCommandImpl<Guid>(this.DeleteAccountAsync);
+    this.RenameAccountCommand = new AsyncCommandImpl<Guid>(this.RenameAccountAsync);
   }
 #endif
   #endregion Constructors
@@ -464,7 +463,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <param name="value">The value</param>
   /// <param name="propertyName">The property name</param>
   /// <returns>The bool</returns>
-  [SuppressMessage("Design", "MA0051:Method is too long", Justification = "80 out of 60 maximum lines, good enough.")]
   protected override bool SetProperty<T>(ref T member, T value, [CallerMemberName] string propertyName = "") {
     switch (propertyName) {
       case "OTPKey":
@@ -556,32 +554,25 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   }
   #endregion Dispose Methods
 
-  /// <summary>
-  /// Refreshes the data on this view model.
-  /// </summary>
-  /// <param name="updatePopupContent">A boolean determine whether to update the update pop-up content.</param>
-  /// <param name="updateOTPKeyContent">A boolean determine whether to update the update OTP key content.</param>
-  /// <param name="updateLauncherIPContent">A boolean determine whether to update the update launcher IP content.</param>
-  /// <param name="updateLabels">A boolean determine whether to update all the labels.</param>
-  [SuppressMessage("Maintainability", "AV1564:Parameter in public or internal member is of type bool or bool?")]
-  internal void RefreshData(bool updatePopupContent = false, bool updateOTPKeyContent = false, bool updateLauncherIPContent = false, bool updateLabels = false) {
-    base.RefreshData();
+  /// <inheritdoc cref="XLAuth.Models.Abstracts.IReloadableControl.RefreshData(RefreshPart)"/>
+  public override void RefreshData(RefreshPart part) {
+    base.RefreshData(part);
 
-    if (updatePopupContent) {
+    if (part.Contains(RefreshPart.UpdatePopupContent)) {
       this.UpdatePopupContent();
     }
 
-    if (updateLabels) {
+    if (part.Contains(RefreshPart.UpdateLabels)) {
       this.UpdateLabels();
     }
 
     // ReSharper disable once InvertIf
     if (App.AccountManager.CurrentAccount is not null) {
-      if (updateOTPKeyContent) {
+      if (part.Contains(RefreshPart.UpdateOTPKeyContent)) {
         this.SetOTPKey(App.AccountManager.CurrentAccount.Token is not null);
       }
 
-      if (updateLauncherIPContent) {
+      if (part.Contains(RefreshPart.UpdateLauncherIPContent)) {
         this.SetIP(App.AccountManager.CurrentAccount.LauncherIpAddress);
       }
     }
@@ -596,7 +587,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <param name="sender">The sender</param>
   /// <param name="e">The </param>
   private void AccountManager_OnReloadTriggered(object? sender, EventArgs e) {
-    this.RefreshData(updatePopupContent: true, updateOTPKeyContent: true, updateLauncherIPContent: true, updateLabels: true);
+    this.RefreshData(RefreshPart.UpdatePopupContent | RefreshPart.UpdateOTPKeyContent | RefreshPart.UpdateLauncherIPContent | RefreshPart.UpdateLabels);
   }
 
   /// <summary>
@@ -606,7 +597,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <param name="e">The </param>
   private void AccountManager_OnAccountSwitched(object? sender, AccountSwitchedEventArgs e) {
     this.NotifyPropertyChanged(nameof(this.CurrentAccountName));
-    (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData();
+    (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData(RefreshPart.UpdateAll);
 
     // ReSharper disable once InvertIf
     if (e.NewAccount is not null) {
@@ -648,7 +639,6 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// Updates the pop-up content
   /// </summary>
   // TODO: See if this can be condensed.
-  [SuppressMessage("Design", "MA0051:Method is too long", Justification = "This is heavy I know.")]
   private void UpdatePopupContent() {
 #region StackPanel Outer
     this.Parent.AccountSelectionButton.SizeChanged += this.AccountSelectionButtonActualWidth_SizeChanged;
@@ -662,9 +652,9 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
       CanVerticallyScroll = false,
       Resources = new ResourceDictionary {
         {
-          typeof(ScrollViewer), new Style(typeof(ScrollViewer), App.GetStyle("MaterialDesignScrollViewer"))
+          typeof(ScrollViewer), new Style(typeof(ScrollViewer), Util.GetStyle("MaterialDesignScrollViewer"))
         }, {
-          typeof(ScrollBar), new Style(typeof(ScrollBar), App.GetStyle("MaterialDesignScrollBarMinimal"))
+          typeof(ScrollBar), new Style(typeof(ScrollBar), Util.GetStyle("MaterialDesignScrollBarMinimal"))
         },
       },
     };
@@ -696,7 +686,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
 
     var addAccountButton = new Button {
       Content = stackPanelButton,
-      Foreground = App.GetBrush("MaterialDesign.Brush.Foreground"),
+      Foreground = Util.GetBrush("MaterialDesign.Brush.Foreground"),
       HorizontalAlignment = HorizontalAlignment.Stretch,
     };
 
@@ -746,7 +736,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
         VerticalContentAlignment = VerticalAlignment.Bottom,
         CommandParameter = account.Id,
         Content = account.Name,
-        Foreground = App.GetBrush("MaterialDesign.Brush.Foreground"),
+        Foreground = Util.GetBrush("MaterialDesign.Brush.Foreground"),
       };
 
       BindingOperations.SetBinding(accountButton, ButtonBase.CommandProperty, new Binding {
@@ -771,7 +761,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
         HorizontalContentAlignment = HorizontalAlignment.Center,
         VerticalContentAlignment = VerticalAlignment.Top,
         CommandParameter = account.Id,
-        Foreground = App.GetBrush("MaterialDesign.Brush.Foreground"),
+        Foreground = Util.GetBrush("MaterialDesign.Brush.Foreground"),
       };
 
       BindingOperations.SetBinding(renameAccountButton, ButtonBase.CommandProperty, new Binding {
@@ -836,7 +826,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
         HorizontalContentAlignment = HorizontalAlignment.Center,
         VerticalContentAlignment = VerticalAlignment.Top,
         CommandParameter = account.Id,
-        Foreground = App.GetBrush("MaterialDesign.Brush.Foreground"),
+        Foreground = Util.GetBrush("MaterialDesign.Brush.Foreground"),
       };
 
       BindingOperations.SetBinding(deleteAccountButton, ButtonBase.CommandProperty, new Binding {
@@ -902,7 +892,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
 
 #region Divider
     var divider = new Rectangle {
-      Fill = App.GetBrush("MaterialDesign.Brush.Foreground"),
+      Fill = Util.GetBrush("MaterialDesign.Brush.Foreground"),
       Height = 1,
     };
 
@@ -935,7 +925,7 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     try {
       Logger.Debug("Checking IP: {0}", args);
       // ReSharper disable once SuggestVarOrType_SimpleTypes
-      ConfiguredTaskAwaitable<PingReply>.ConfiguredTaskAwaiter pongTask = new Ping().SendPingAsync(args).ConfigureAwait(true).GetAwaiter();
+      ConfiguredTaskAwaitable<PingReply>.ConfiguredTaskAwaiter pongTask = App.Ping.SendPingAsync(args).ConfigureAwait(true).GetAwaiter();
 
       pongTask.UnsafeOnCompleted(() => {
         try {
@@ -962,8 +952,8 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     this.Parent.CreditsBlock.Inlines.Add("By NekoBoiNick, see ");
 
     var licenses = new Hyperlink {
-      Foreground = App.GetBrush("MaterialDesign.Brush.Primary.Light"),
-      Style = App.GetStyle("MaterialDesignCaptionHyperlink"),
+      Foreground = Util.GetBrush("MaterialDesign.Brush.Primary.Light"),
+      Style = Util.GetStyle("MaterialDesignCaptionHyperlink"),
       NavigateUri = new Uri("https://github.com/thakyz/XLAuth/master/LICENSE"),
     };
 
@@ -972,8 +962,8 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
     this.Parent.CreditsBlock.Inlines.Add(" and ");
 
     var github = new Hyperlink {
-      Foreground = App.GetBrush("MaterialDesign.Brush.Primary.Light"),
-      Style = App.GetStyle("MaterialDesignCaptionHyperlink"),
+      Foreground = Util.GetBrush("MaterialDesign.Brush.Primary.Light"),
+      Style = Util.GetStyle("MaterialDesignCaptionHyperlink"),
       NavigateUri = new Uri("https://github.com/thakyz/XLAuth"),
     };
 
@@ -987,13 +977,13 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// </summary>
   /// <param name="value">The value</param>
   private void SetOTPKey(bool value) {
-    if (value) {
-      this.IsRegisteredText = Loc.Localize("OTPKeyIsRegisteredNo", "Yes");
-      this.IsRegisteredColor = new SolidColorBrush(Colors.LimeGreen);
-    } else {
+    if (!value) {
       this.IsRegisteredText = Loc.Localize("OTPKeyIsRegisteredNo", "No");
       this.IsRegisteredColor = new SolidColorBrush(Colors.Red);
+      return;
     }
+    this.IsRegisteredText = Loc.Localize("OTPKeyIsRegisteredNo", "Yes");
+    this.IsRegisteredColor = new SolidColorBrush(Colors.LimeGreen);
   }
 
   /// <summary>

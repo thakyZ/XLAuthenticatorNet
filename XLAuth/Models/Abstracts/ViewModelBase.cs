@@ -14,6 +14,11 @@ namespace XLAuth.Models.Abstracts;
 /// <typeparam name="TFrameworkElement">A framework element to derive from.</typeparam>
 internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFrameworkElement> where TFrameworkElement : FrameworkElement {
   /// <summary>
+  /// Determines whether this class has been disposed.
+  /// </summary>
+  private bool _isDisposed;
+
+  /// <summary>
   /// The parent element.
   /// </summary>
   private readonly TFrameworkElement? _parent;
@@ -50,7 +55,6 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// <summary>
   /// The changed type enum
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedType.Global"), SuppressMessage("ReSharper", "UnusedMember.Global")]
   internal enum ChangedType {
     /// <summary>
     /// The text changed type
@@ -71,7 +75,6 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// <param name="propertyName">Name of the property used to notify listeners.  This
   /// value is optional and can be provided automatically when invoked from compilers
   /// that support <see cref="CallerMemberNameAttribute"/>.</param>
-  [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Global")]
   protected virtual bool SetProperty<TProperty>(ref TProperty member, TProperty value, [CallerMemberName] string propertyName = "") {
     if (EqualityComparer<TProperty>.Default.Equals(member, value)) {
       return false;
@@ -98,11 +101,8 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
     }
   }
 
-  /// <summary>
-  /// Allows ViewModels to be reloaded from outside.
-  /// <remarks><para>NOTE: May be able to be used maliciously since this method uses reflection.</para></remarks>
-  /// </summary>
-  public virtual void RefreshData() {
+  /// <inheritdoc cref="XLAuth.Models.Abstracts.IReloadableControl.RefreshData(RefreshPart)"/>
+  public virtual void RefreshData(RefreshPart part) {
     Type type = this.GetType();
 
     if (!type.IsSubclassOfRawGeneric(typeof(ViewModelBase<>))) {
@@ -131,7 +131,6 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// <summary>
   /// Releases the managed resources
   /// </summary>
-  [SuppressMessage("ReSharper", "VirtualMemberNeverOverridden.Global")]
   protected virtual void ReleaseManagedResources() {}
 
   /// <summary>
@@ -139,9 +138,13 @@ internal abstract class ViewModelBase<TFrameworkElement> : IViewModel<TFramework
   /// </summary>
   /// <param name="disposing">The disposing</param>
   private void Dispose(bool disposing) {
-    this.ReleaseUnmanagedResources();
-    if (disposing) {
-      this.ReleaseManagedResources();
+    if (!_isDisposed) {
+      if (disposing) {
+        this.ReleaseManagedResources();
+      }
+
+      this.ReleaseUnmanagedResources();
+      this._isDisposed = true;
     }
   }
 

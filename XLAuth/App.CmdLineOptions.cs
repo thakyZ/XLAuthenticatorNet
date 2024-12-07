@@ -10,8 +10,6 @@ public partial class App {
   /// <summary>
   /// The cmd line options class
   /// </summary>
-  [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global"),
-   SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
   public class CmdLineOptions {
     /// <summary>
     /// Gets or sets the value of the roaming path

@@ -21,7 +21,6 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
   /// <summary>
   /// Gets the value of the title
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
   public string Title
     => Loc.Localize(nameof(ChangelogWindow) + nameof(this.Title), "Changelog");
 
@@ -58,8 +57,6 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
   /// <summary>
   /// Gets the value of the email info text
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string EmailInfoText
     => Loc.Localize(nameof(this.EmailInfoText),
       """
@@ -72,8 +69,6 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
   /// <summary>
   /// Gets the value of the changelog thanks label
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public string ChangelogThanksLabel => Loc.Localize("ChangelogThanks", "XL Authenticator .NET is free, open-source software supported by a variety of people from all over the world.\nThank you for sticking around!");
 #endregion Localizations
 
@@ -103,22 +98,18 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
     get => this._changelogText;
     set => this.SetProperty(ref this._changelogText, value);
   }
-#endregion Text Properties
+  #endregion Text Properties
 
-#region Commands
+  #region Commands
   /// <summary>
   /// Gets the value of the join discord button command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand JoinDiscordButtonCommand
     => new CommandImpl(SupportLinks.OpenDiscord);
 
   /// <summary>
   /// Gets the value of the send email button command
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand SendEmailButtonCommand
     => new CommandImpl(() => {
       // Try getting the Windows 10 "build", e.g. 1909
@@ -134,7 +125,7 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
       string? wine = EnvironmentSettings.IsWine ? "Yes" : "No";
 
       // ReSharper disable once UseStringInterpolation
-      Process.Start(string.Format(CultureInfo.InvariantCulture, Util.GetEmailUri(), os, lang, wine));
+      Util.StartProcessDetached(string.Format(CultureInfo.InvariantCulture, Util.GetEmailUri(), os, lang, wine));
     });
 
   /// <summary>
@@ -153,9 +144,6 @@ internal sealed class ChangelogWindowViewModel : ViewModelBase<ChangelogWindow> 
   internal ChangelogWindowViewModel(ChangelogWindow parent) : base(parent) {}
 
 #if DEBUG
-//[SuppressMessage("ReSharper", "UnusedMember.Global"),
-// SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-// SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public ChangelogWindowViewModel() {}
 #endif
 #endregion Constructors

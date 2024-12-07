@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -6,40 +5,42 @@ using System.Security;
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// The secure string extensions class
+/// An extension class for the <see cref="SecureString" /> type.
 /// </summary>
 internal static class SecureStringExtensions {
   /// <summary>
-  /// Returns the plain text using the specified secure string
+  /// Returns the plain text <see langword="string" /> using the specified <see cref="SecureString" />.
   /// </summary>
-  /// <param name="secureString">The secure string</param>
-  /// <returns>The string</returns>
+  /// <param name="secureString">The <see cref="SecureString" /> to query.</param>
+  /// <returns>The raw secured <see langword="string" />.</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  internal static string ToPlainText(this SecureString secureString) => new NetworkCredential("", secureString).Password;
+  internal static string ToPlainText(this SecureString secureString)
+    => new NetworkCredential("", secureString).Password;
 
   /// <summary>
-  /// Ises the null or empty using the specified secure string
+  /// Indicates whether the specified <see cref="SecureString" />'s value is <see langword="null"/> or an empty string ("").
   /// </summary>
-  /// <param name="secureString">The secure string</param>
-  /// <returns>The bool</returns>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+  /// <param name="secureString">The <see cref="SecureString" /> to test.</param>
+  /// <returns><see langword="true"/> if the <paramref name="value" /> parameter is <see langword="null"/> or an empty string (""); otherwise, <see langword="false"/>.</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  internal static bool IsNullOrEmpty(this SecureString? secureString) => secureString is null || new NetworkCredential("", secureString).Password.IsNullOrEmpty();
+  internal static bool IsNullOrEmpty([NotNullWhen(false)] this SecureString? secureString)
+    => secureString?.ToPlainText().IsNullOrEmpty() != false;
 
   /// <summary>
-  /// Ises the null or white space using the specified secure string
+  /// Indicates whether a specified <see cref="SecureString" />'s value is <see langword="null"/>, empty, or consists only of white-space characters.
   /// </summary>
-  /// <param name="secureString">The secure string</param>
-  /// <returns>The bool</returns>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+  /// <param name="secureString">The <see cref="SecureString" /> to test.</param>
+  /// <returns><see langword="true"/> if the value parameter is <see langword="null"/> or <see cref="string.Empty"/>, or if <paramref name="value" /> consists exclusively of white-space characters.</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  internal static bool IsNullOrWhiteSpace(this SecureString? secureString) => secureString is null || new NetworkCredential("", secureString).Password.IsNullOrWhiteSpace();
+  internal static bool IsNullOrWhiteSpace([NotNullWhen(false)] this SecureString? secureString)
+    => secureString?.ToPlainText().IsNullOrWhiteSpace() != false;
 
   /// <summary>
-  /// Ises the null or empty or white space using the specified secure string
+  /// Indicates whether a specified <see cref="SecureString" />'s value is <see langword="null"/>, empty, or consists only of white-space characters.
   /// </summary>
-  /// <param name="secureString">The secure string</param>
-  /// <returns>The bool</returns>
+  /// <param name="secureString">The <see cref="SecureString" /> to test.</param>
+  /// <returns><see langword="true"/> if the value parameter is <see langword="null"/> or <see cref="string.Empty"/>, or if <paramref name="value" /> consists exclusively of white-space characters.</returns>
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
-  internal static bool IsNullOrEmptyOrWhiteSpace(this SecureString? secureString) => secureString.IsNullOrEmpty() || secureString.IsNullOrWhiteSpace();
+  internal static bool IsNullOrEmptyOrWhiteSpace([NotNullWhen(false)] this SecureString? secureString)
+    => secureString?.ToPlainText().IsNullOrEmptyOrWhiteSpace() != false;
 }

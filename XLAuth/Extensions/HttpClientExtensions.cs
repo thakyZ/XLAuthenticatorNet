@@ -1,15 +1,12 @@
-using System;
-using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// The HTTP client extensions class
+/// An extension class for the <see cref="HttpClient" /> type.
 /// </summary>
 internal static class HttpClientExtensions {
   /// <summary>
@@ -23,7 +20,7 @@ internal static class HttpClientExtensions {
   /// <exception cref="HttpRequestException">Response status code does not indicate success: {(int)response.StatusCode} ({response.StatusCode}).</exception>
   /// <returns>A task containing the</returns>
   internal static async Task<TOut?> GetFromJsonAsync<TOut>(this HttpClient httpClient, string url, JsonSerializerSettings serializerSettings, CancellationToken cancellationToken = default) where TOut : class {
-    var response = await httpClient.GetAsync(new Uri(url), cancellationToken).ConfigureAwait(false);
+    using var response = await httpClient.GetAsync(new Uri(url), cancellationToken).ConfigureAwait(false);
 
     if (response.StatusCode != HttpStatusCode.OK) {
       throw new HttpRequestException($"Response status code does not indicate success: {string.Create(CultureInfo.InvariantCulture, $"{(int)response.StatusCode}")} ({response.StatusCode}).");

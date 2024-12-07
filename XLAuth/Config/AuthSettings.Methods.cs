@@ -1,72 +1,19 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
-using Serilog.Events;
-using XLAuth.Config.Converters;
-using XLAuth.Domain;
 using XLAuth.Extensions;
-using XLAuth.Support;
 
 namespace XLAuth.Config;
 
 /// <summary>
 /// The auth settings class
 /// </summary>
-/// <seealso cref="IEquatable{AuthSettingsV1}"/>
+/// <seealso cref="IEquatable{AuthSettings}"/>
+/// <seealso cref="IEquatable{object}"/>
 [Serializable]
-[SuppressMessage("Naming", "AV1704:Identifier contains one or more digits in its name")]
-internal sealed class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
-#region Program Settings
-
-  /// <summary>
-  /// Gets or sets the value of the close app
-  /// </summary>
-  [JsonProperty("close_app")]
-  internal bool CloseApp { get; set; }
-
-  /// <summary>
-  /// Gets or sets the value of the current account id
-  /// </summary>
-  [JsonProperty("current_account"), JsonConverter(typeof(GuidJsonConverter))]
-  internal Guid CurrentAccountID { get; set; } = Guid.Empty;
-
-  /// <summary>
-  /// Gets or sets the value of the language
-  /// </summary>
-  [JsonProperty("language")]
-  internal Language? Language { get; set; }
-
-  /// <summary>
-  /// Gets or sets the value of the version upgrade level
-  /// </summary>
-  [JsonProperty("version_upgrade_level")]
-  internal int VersionUpgradeLevel { get; set; }
-
-  /// <summary>
-  /// Gets or sets the value of the accept language
-  /// </summary>
-  [JsonProperty("accept_language")]
-  internal string AcceptLanguage { get; set; } = ((Language?)null).GetLocalizationCode();
-
-  /// <summary>
-  /// Gets or sets the value of the log level
-  /// </summary>
-  [JsonProperty("log_level")]
-  internal LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
-
-  /// <summary>
-  /// Gets or sets the value of the unique id cache enabled
-  /// </summary>
-  [JsonProperty("unique_id_cache_enabled")]
-  internal bool UniqueIdCacheEnabled { get; set; }
-#endregion Program Settings
-
+internal sealed partial class AuthSettings : IEquatable<AuthSettings>, IEquatable<object> {
   internal event EventHandler? ReloadTriggered;
 
   internal void NotifyReloadTriggered([CallerMemberName] string caller = "") {
@@ -75,17 +22,16 @@ internal sealed class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
   }
 
   /// <summary>
-  /// Test if one instance of <see cref="AuthSettingsV1"/> is equal to the other.
+  /// Test if one instance of <see cref="AuthSettings"/> is equal to the other.
   /// </summary>
-  /// <param name="other">The other <see cref="AuthSettingsV1"/>.</param>
+  /// <param name="other">The other <see cref="AuthSettings"/>.</param>
   /// <returns>The bool</returns>
-  public bool Equals(AuthSettingsV1? other)
+  public bool Equals(AuthSettings? other)
     => other is not null
        && this.CloseApp == other.CloseApp
        && this.CurrentAccountID.Equals(other.CurrentAccountID)
        && this.Language == other.Language
        && this.VersionUpgradeLevel == other.VersionUpgradeLevel
-       && string.Equals(this.AcceptLanguage, other.AcceptLanguage, StringComparison.Ordinal)
        && this.LogLevel == other.LogLevel;
 
   /// <summary>
@@ -97,21 +43,20 @@ internal sealed class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
     => obj is not null
        && (ReferenceEquals(this, obj)
            || (obj.GetType() == this.GetType()
-           && this.Equals((AuthSettingsV1)obj)));
+           && this.Equals((AuthSettings)obj)));
 
   /// <summary>
   /// Gets the hash code
   /// </summary>
   /// <returns>The int</returns>
-  [SuppressMessage("ReSharper", "BaseObjectGetHashCodeCallInGetHashCode")]
   public override int GetHashCode() => base.GetHashCode();
 
   /// <summary>
   /// Uses the commandline arguments
   /// </summary>
   /// <returns>The auth settings</returns>
-  private AuthSettingsV1 UseCommandlineArguments() {
-    var type = typeof(AuthSettingsV1);
+  private AuthSettings UseCommandlineArguments() {
+    var type = typeof(AuthSettings);
     PropertyInfo[] properties = type.GetProperties();
     var cliArgs = Environment.GetCommandLineArgs();
     List<ArgumentPair> arguments = ArgumentParser.ParseArguments(cliArgs);
@@ -159,23 +104,18 @@ internal sealed class AuthSettingsV1 : IEquatable<AuthSettingsV1> {
   /// </summary>
   /// <param name="path">The path</param>
   /// <returns>The output</returns>
-  internal static AuthSettingsV1 Load(string path = "") {
+  internal static AuthSettings Load(string path = "") {
     if (path.IsNullOrEmptyOrWhiteSpace()) {
       path = Path.Combine(Paths.RoamingPath, "authConfigV1.json");
     }
 
     if (!File.Exists(path)) {
-        new AuthSettingsV1().Save(path);
+        new AuthSettings().Save(path);
     }
 
     using var file = File.OpenText(path);
     var jsonText = file.ReadToEnd();
-    var output = (JsonConvert.DeserializeObject<AuthSettingsV1>(jsonText, App.SerializerSettings) ?? new AuthSettingsV1()).UseCommandlineArguments();
 
-    if (string.IsNullOrEmpty(output.AcceptLanguage)) {
-      output.AcceptLanguage = ApiHelpers.GenerateAcceptLanguage();
-    }
-
-    return output;
+    return (JsonConvert.DeserializeObject<AuthSettings>(jsonText, Util.SerializerSettings) ?? new AuthSettings()).UseCommandlineArguments();
   }
 }

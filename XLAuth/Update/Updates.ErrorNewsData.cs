@@ -7,7 +7,6 @@ internal sealed partial class Updates {
   /// <summary>
   /// The error news data class
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
   internal sealed class ErrorNewsData {
     /// <summary>
     /// Gets or sets the value of the show until

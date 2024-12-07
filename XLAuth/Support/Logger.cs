@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using Serilog.Events;
 using XLAuth.Extensions;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace XLAuth.Support;
 
@@ -55,7 +56,6 @@ public partial class Logger : IDisposable {
   /// <param name="propertyValues">Objects positionally formatted into the message template.</param>
   /// <example><c>Log.Error(ex, "Failed {ErrorCount} records.", brokenRecords.Length);</c></example>
   [MessageTemplateFormatMethod("messageTemplate")]
-  [SuppressMessage("CodeQuality", "Serilog004:Constant MessageTemplate verifier")]
   public static void ErrorDialog(Exception? exception, string messageTemplate, params object?[]? propertyValues) {
     Logger.Error(exception, messageTemplate, propertyValues);
 
@@ -68,15 +68,38 @@ public partial class Logger : IDisposable {
       var currentActivity = Activity.Current;
       var logEvent = new LogEvent(DateTimeOffset.Now, LogEventLevel.Error, exception, parsedTemplate, boundProperties, currentActivity?.TraceId ?? default, currentActivity?.SpanId ?? default);
       var message = logEvent.GetMessage();
-      CustomMessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+      if (App.UseFullExceptionHandler && exception is not null) {
+        CustomMessageBox.Builder.NewFrom(exception, "XLAuth Error", CustomMessageBox.ExitOnCloseModes.DontExitOnClose).WithAppendText(message).Show();
+      } else {
+        MessageBox.Show(message, "XLAuth Error", MessageBoxButton.OK, MessageBoxImage.Error);
+      }
     }
   }
 
   /// <summary>
   /// An instance of <see cref="Microsoft.Extensions.Logging.ILogger" /> to provide fallback logging to this class via <see cref="Microsoft.Extensions.Logging" />.
   /// </summary>
-  private static MicrosoftILogger MicrosoftFallbackContext
-    => new SerilogLoggerFactory(Log.Logger).CreateLogger(nameof(XLAuth) + "-Fallback");
+  private static MicrosoftILogger MicrosoftFallbackContext { get; } = Logger.GetMicrosoftILogger(nameof(XLAuth) + "-Fallback");
+
+  /// <summary>
+  /// Creates an instance of a backup <see cref="Microsoft.Extensions.Logging.ILogger" /> instance.
+  /// </summary>
+  /// <param name="name">The name of the new logger.</param>
+  /// <returns>A new instance of <see cref="Microsoft.Extensions.Logging.ILogger" />.</returns>
+  private static MicrosoftILogger GetMicrosoftILogger(string name) {
+    using var factory = new SerilogLoggerFactory(Log.Logger);
+    return factory.CreateLogger(name);
+  }
+
+  /// <summary>
+  /// Creates an instance of a backup <see cref="Microsoft.Extensions.Logging.ILogger" /> instance.
+  /// </summary>
+  /// <param name="type">The type of the new logger.</param>
+  /// <returns>A new instance of <see cref="Microsoft.Extensions.Logging.ILogger" />.</returns>
+  private static MicrosoftILogger GetMicrosoftILogger(Type type) {
+    using var factory = new SerilogLoggerFactory(Log.Logger);
+    return factory.CreateLogger(type);
+  }
 
   internal static MicrosoftILogger GetMicrosoftContext(int backwards = 2) {
     try {
@@ -87,6 +110,7 @@ public partial class Logger : IDisposable {
         SerilogContext.Error("Declaring type in stack trace couldn't find the frame {0}.", backwards);
         return MicrosoftFallbackContext;
       }
+
       if (!frame.HasMethod()) {
         SerilogContext.Error("Declaring type in stack trace couldn't find the method on frame {0}.", backwards);
         return MicrosoftFallbackContext;
@@ -106,7 +130,7 @@ public partial class Logger : IDisposable {
         return MicrosoftFallbackContext;
       }
 
-      return new SerilogLoggerFactory(Log.Logger).CreateLogger(type);
+      return GetMicrosoftILogger(type);
     } catch (Exception exception) {
       SerilogContext.Error(exception, "Failed at Logger.GetContext");
       return MicrosoftFallbackContext;

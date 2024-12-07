@@ -1,25 +1,98 @@
 name: build.yml
+
 on:
   push:
     branches:
-      - master
-      - dev
-  label:
+      - main
+    paths-ignore:
+      - .github
+      - misc
+      - '**.md'
+      - LICENSE
+      - '**.yaml'
+      - .gitignore
+      - .editorconfig
+      - '**.ps1'
+      - '**.DotSettings'
+      - '**.ruleset'
+  release:
     types:
-      - created
+      - published
   pull_request:
-    branches:
-      - dev
     types:
-      - assigned
+      - review_requested
 
 env:
   REPO_OWNER: thakyz
-  REPO_NAME:  XLAuth
+  REPO_NAME:  dotnet-xlauth
 
 jobs:
+  pre-build:
+    name: Pre-Build
+    runs-on: ubuntu-latest
+    steps: []
+      # - name: Determine Build Type
+      #   shell: pwsh
+      #   run: |
+      #     Write-Output -InputObject 'DEBUG=${{ (github.event_name == 'pull_request' && github.event.requested_team.name.lowercase == 'nekogaming' && github.event.pull_request.user.name.lowercase != 'thakyz') || github.event_name == 'push' && contains(github.event.commits.message.lowercase, '[build]') }}' >> $env:GITHUB_ENV;
+      #     Write-Output -InputObject 'RELEASE=${{ github.event_name == 'release' }}' >> $env:GITHUB_ENV;
+      #     Write-Output -InputObject "TAG=${{ github.event_name == 'release' && github.event.release.tag_name || 'NONE' }}" >> $env:GITHUB_ENV;
+      #     Write-Output -InputObject "Configuration=$(If(${{ github.env.DEBUG }}-eq$True){'DEBUG'}ElseIf(${{ github.env.RELEASE }}-eq$True){'RELEASE'}Else{'NONE'})" >> $env:GITHUB_ENV;
   build:
-    if: false
+    if: ${{ contains(github.env, 'Configuration') && github.env.Configuration != 'NONE' }}
     name: Build
     needs:
-      -
+      pre-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: [ "8.0.x" ]
+    steps: []
+      # - name: Checkout
+      #   uses: actions/checkout@v4
+      # - name: Setup dotnet ${{ matrix.dotnet-version }}
+      #   uses: actions/setup-dotnet@v3
+      #   with:
+      #     dotnet-version: ${{ matrix.dotnet-version }}
+      # - name: Install dependencies
+      #   run: dotnet restore ${{ github.workspace }}/XLAuth.sln --configuration ${{ github.env.Configuration }} --platform 'Any CPU'
+      # - name: Build
+      #   shell: pwsh
+      #   run: dotnet build ${{ github.workspace }}/XLAuth.sln --configuration ${{ github.env.Configuration }} --platform 'Any CPU'
+      # - name: Test with dotNet CLI
+      #   shell: pwsh
+      #   run: dotnet test ${{ github.workspace }}/XLAuth.sln --configuration ${{ github.env.Configuration }} --platform 'Any CPU'
+      # - name: Upload Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   id: upload-artifacts
+      #   if: ${{ contains(github.env, 'TAG') && github.env.TAG.lowercase != 'NONE' && contains(github.env, 'RELEASE') && github.env.RELEASE.lowercase == 'true' }}
+      #   with:
+      #     name: XLAuth-win-${{ github.env.TAG }}.zip
+      #     path: ${{ github.workspace }}\bin
+      #     if-no-files-found: 'error'
+      #     retention-days: 1
+      #     compression-level: 6
+  release:
+    if: ${{ contains(github.env, 'RELEASE') && github.env.RELEASE.lowercase == 'true' }}
+    name: Release
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps: []
+      # - name: Download Artifacts
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     github-token: ${{ github.token }}
+      #     path: ${{ github.workspace }}
+      #     pattern:
+      #     run-id: upload-artifacts
+      # - name: Upload to Release
+      #   uses: JasonEtco/upload-to-release@v0.1.1
+      #   if: ${{ contains(github.env, 'TAG') && github.env.TAG.lowercase != 'NONE' }}
+      #   with:
+      #     name: XLAuth-win-${{ github.env.TAG }}.zip application/zip
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
+
+
+

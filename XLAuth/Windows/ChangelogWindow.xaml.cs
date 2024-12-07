@@ -17,7 +17,6 @@ public partial class ChangelogWindow : Window {
   /// <summary>
   /// Gets the value of the model
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Local")]
   private ChangelogWindowViewModel Model => (this.DataContext as ChangelogWindowViewModel)!;
   /// <summary>
   /// The prerelease
@@ -76,8 +75,7 @@ public partial class ChangelogWindow : Window {
     // ReSharper disable once AsyncVoidLambda
     _ = Task.Run(async () => {
       try {
-        using var    client   = new HttpClient();
-        ReleaseMeta response = JsonConvert.DeserializeObject<ReleaseMeta>(await client.GetStringAsync(_META_URL)) ?? throw new JsonException($"Failed to parse data from uri \"{_META_URL}\".");
+        ReleaseMeta response = JsonConvert.DeserializeObject<ReleaseMeta>(await App.HttpClient.GetStringAsync(_META_URL)) ?? throw new JsonException($"Failed to parse data from uri \"{_META_URL}\".");
 
         _ = this.Dispatcher.InvokeAsync(() => this.Model.ChangelogText = this._prerelease ? response.PrereleaseVersion.Changelog : response.ReleaseVersion.Changelog);
       } catch (Exception ex) {
@@ -87,6 +85,7 @@ public partial class ChangelogWindow : Window {
     })
 #if DEBUG
     .ContinueWith((Task result) => {
+      // Disable BCC4003
       Logger.Debug("Task [{0}] {1}: {2}={3}, {4}={5}, {6}={7}, {8}={9}",
         result.Id, nameof(LoadChangelog),
         nameof(Task.IsCanceled), result.IsCanceled,

@@ -35,14 +35,10 @@ internal sealed class DeleteAccountDialogViewModel : ViewModelBase<DeleteAccount
   /// <summary>
   /// Gets the value of the submit delete account dialog
   /// </summary>
-  [SuppressMessage("Performance", "CA1822:Mark members as static"),
-   SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
   public ICommand SubmitDeleteAccountDialog => new CommandImpl(() => DialogHost.CloseDialogCommand.Execute(new DialogResult<bool>(MessageBoxResult.Yes, value: true), target: null));
   /// <summary>
   /// Gets the value of the cancel delete account dialog
   /// </summary>
-  [SuppressMessage("Performance", "CA1822:Mark members as static"),
-   SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
   public ICommand CancelDeleteAccountDialog => new CommandImpl(() => DialogHost.CloseDialogCommand.Execute(new DialogResult<bool>(MessageBoxResult.No), target: null));
 
   /// <summary>
@@ -54,9 +50,6 @@ internal sealed class DeleteAccountDialogViewModel : ViewModelBase<DeleteAccount
   }
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public DeleteAccountDialogViewModel() {
     this.DeleteMessageLabel = string.Format(CultureInfo.InvariantCulture, Loc.Localize(nameof(this.DeleteMessageLabel), "Are you sure you want to delete this account?\n\"{0}\""), App.AccountManager.CurrentAccount?.Name ?? "null");
   }

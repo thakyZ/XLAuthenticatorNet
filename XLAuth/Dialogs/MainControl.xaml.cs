@@ -40,7 +40,7 @@ public partial class MainControl : UserControl {
   /// </summary>
   private void UpdateProgressBarTheme() {
     try {
-      Theme? theme = App.GetTheme();
+      Theme? theme = Util.GetTheme();
       if (theme is null || this._progressBarThemes.Count == 2) {
         return;
       }
@@ -75,12 +75,9 @@ public partial class MainControl : UserControl {
     }
   }
 
-  /// <summary>
-  /// Refreshes the data using the specified update OTP
-  /// </summary>
-  /// <param name="updateOTP">The update OTP</param>
-  internal void RefreshData(bool updateOTP = false) {
-    this.ViewModel.RefreshData(updateOTP);
+  /// <inheritdoc cref="XLAuth.Models.Abstracts.IReloadableControl.RefreshData(RefreshPart)"/>
+  internal void RefreshData(RefreshPart part) {
+    this.ViewModel.RefreshData(part);
     this.UpdateProgressBarTheme();
   }
 

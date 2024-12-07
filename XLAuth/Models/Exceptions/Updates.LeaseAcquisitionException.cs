@@ -8,7 +8,6 @@ internal sealed partial class Updates {
   /// The lease acquisition exception class
   /// </summary>
   /// <seealso cref="Exception"/>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   public sealed class LeaseAcquisitionException : Exception {
     /// <summary>
     /// Initializes a new instance of the <see cref="LeaseAcquisitionException"/> class

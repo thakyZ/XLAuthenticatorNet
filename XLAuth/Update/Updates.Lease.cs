@@ -7,8 +7,6 @@ internal sealed partial class Updates {
   /// <summary>
   /// The lease class
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global"),
-   SuppressMessage("ReSharper", "UnusedMember.Global")]
   internal sealed class Lease {
     /// <summary>
     /// Gets or sets the value indicated if the lease was successful.

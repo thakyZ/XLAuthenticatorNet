@@ -12,6 +12,9 @@ using XLAuth.Extensions;
 using XLAuth.Windows;
 using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 using XLAuth.Models.Events;
+using System.Net.Http;
+using System.Net.NetworkInformation;
+using Microsoft.Extensions.DependencyInjection;
 
 #if !XL_NOAUTOUPDATE
 using XLAuth.Update;
@@ -26,7 +29,7 @@ public partial class App : Application {
   /// <summary>
   /// Gets or sets the value of the settings
   /// </summary>
-  internal static AuthSettingsV1 Settings { get; private set; } = null!;
+  internal static AuthSettings Settings { get; private set; } = null!;
 
   /// <summary>
   /// Gets the value of the account manager
@@ -39,14 +42,23 @@ public partial class App : Application {
   private static CmdLineOptions? CommandLine { get; set; }
 
   /// <summary>
-  /// Gets or sets settings value indicated if no OTP key is pushed upon the app opening.
+  /// Gets a value indicated if no OTP key is pushed upon the app opening.
   /// </summary>
   internal static bool GlobalIsDisableAutoSendOTP { get; private set; } = false;
 
   /// <summary>
+  /// Gets the instance of an <see cref="HttpClient" /> for the whole app to use.
+  /// </summary>
+  internal static HttpClient HttpClient { get; } = new();
+
+  /// <summary>
+  /// Gets the instance of an <see cref="Ping" /> for the whole app to use.
+  /// </summary>
+  internal static Ping Ping { get; } = new();
+
+  /// <summary>
   /// Gets or sets the value of the account picker width
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
   internal static int? AccountPickerWidth { get; set; }
 
   /// <summary>
@@ -65,53 +77,14 @@ public partial class App : Application {
 #endif
 
   /// <summary>
-  /// Gets or sets the value of the use full exception handler
+  /// Gets or sets a <see langword="bool" /> which determines whether the use the full exception handler.
   /// </summary>
-  private bool UseFullExceptionHandler { get; set; }
+  internal static bool UseFullExceptionHandler { get; set; }
 
+  /// <summary>
+  /// Gets the instance of the <see cref="Application" /> icon.
+  /// </summary>
   public static ImageSource? Icon { get; } = ResourceHelpers.LoadAppIcon();
-
-  /// <summary>
-  /// Gets the value of the serializer settings
-  /// </summary>
-  internal static JsonSerializerSettings SerializerSettings => new() {
-    Formatting = Formatting.Indented,
-    Error = (object? _, ErrorEventArgs args) => {
-      Logger.Error(args.ErrorContext.Error, "Error while serializing accounts in accounts file.");
-      args.ErrorContext.Handled = true;
-    },
-    Culture = CultureInfo.InvariantCulture,
-    MaxDepth = 10,
-    DefaultValueHandling = DefaultValueHandling.Populate,
-    ConstructorHandling = ConstructorHandling.Default,
-  };
-
-  /// <summary>
-  /// Finds the child by name using the specified parent
-  /// </summary>
-  /// <param name="parent">The parent</param>
-  /// <param name="controlName">The control name</param>
-  /// <returns>The dependency object</returns>
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
-  internal static DependencyObject? FindChildByName(DependencyObject parent, string controlName) {
-    int count = VisualTreeHelper.GetChildrenCount(parent);
-
-    for (var index = 0; index < count; index++) {
-      DependencyObject myChild = VisualTreeHelper.GetChild(parent, index);
-
-      if (myChild is FrameworkElement element && element.Name?.Equals(controlName, StringComparison.OrdinalIgnoreCase) == true) {
-        return element;
-      }
-
-      DependencyObject? findResult = App.FindChildByName(myChild, controlName);
-
-      if (findResult is not null) {
-        return findResult;
-      }
-    }
-
-    return null;
-  }
 
   /// <summary>
   /// Initializes settings new instance of the <see cref="App"/> class
@@ -127,209 +100,31 @@ public partial class App : Application {
 #endif
   }
 
-  /// <summary>
-  /// Gets the config path using the specified prefix
-  /// </summary>
-  /// <param name="prefix">The prefix</param>
-  /// <returns>The string</returns>
-  private static string GetConfigPath(string prefix) => Path.Combine(Paths.RoamingPath, $"{prefix}ConfigV1.json");
-
-  /// <summary>
-  /// Gets the style impl using the specified key
-  /// </summary>
-  /// <param name="key">The key</param>
-  /// <exception cref="Exception">Could not find style with key, \"{key}\".</exception>
-  /// <returns>The style</returns>
-  private Style GetStyleInternal(string key) {
-    if (this.FindResource(key) is Style style) {
-      return style;
+  /// <inheritdoc cref="XLAuth.Models.Abstracts.IReloadableControl.RefreshData(RefreshPart)"/>
+  internal static void RefreshData(RefreshPart part) {
+    if (Application.Current is not App app) {
+      throw new Exception("Application.Current is not typeof App.");
     }
 
-    throw new Exception($"Could not find style with key, \"{key}\".");
-  }
-
-  /// <summary>
-  /// Gets the style using the specified key
-  /// </summary>
-  /// <param name="key">The key</param>
-  /// <exception cref="Exception">Failed to get Style.</exception>
-  /// <returns>The output</returns>
-  internal static Style GetStyle(string key) {
-    return ((Current as App)?.GetStyleInternal(key)) ?? throw new Exception("Failed to get Style.");
-  }
-
-  /// <summary>
-  /// Gets the brush impl using the specified key
-  /// </summary>
-  /// <param name="key">The key</param>
-  /// <param name="type">The type</param>
-  /// <exception cref="Exception">Could not find brush with key, \"{key}\".</exception>
-  /// <returns>The brush</returns>
-  private Brush GetBrushInternal(string key, Type? type = null) {
-    if (this.TryFindResource(key) is Brush brush1) {
-      return brush1;
-    }
-
-    if (this.Resources.FindName(key) is Brush brush2) {
-      return brush2;
-    }
-
-    if (this.Resources.MergedDictionaries.Where(resourceDictionary => resourceDictionary.FindName(key) is not null).Select(resourceDictionary => resourceDictionary.FindName(key)).FirstOrDefault() is Brush brush3) {
-      return brush3;
-    }
-
-    if (new DynamicResourceExtension(key).ProvideValue(serviceProvider: null) is Brush brush4) {
-      return brush4;
-    }
-
-    if (type is not null && new ServiceProviders().GetService(type) is IServiceProvider provider && new StaticResourceExtension(key).ProvideValue(provider) is Brush brush5) {
-      return brush5;
-    }
-
-#if DEBUG
-    foreach (KeyValuePair<object, object?> brushKey in this.Resources.MergedDictionaries.SelectMany(resourceDictionary => resourceDictionary.ToList()).Where(keyValuePair => keyValuePair.Value is Brush)) {
-      Logger.Debug("brushKey.Key:   {0}", brushKey.Key);
-      Logger.Debug("brushKey.Value: {0}", brushKey.Value);
-    }
-#endif
-    throw new Exception($"Could not find brush with key, \"{key}\".");
-  }
-
-  /// <summary>
-  /// Gets the brush using the specified key
-  /// </summary>
-  /// <param name="key">The key</param>
-  /// <param name="type">The type</param>
-  /// <exception cref="Exception">Failed to get Brush.</exception>
-  /// <returns>The output</returns>
-  [SuppressMessage("Maintainability", "AV1551:Method overload should call another overload")]
-  internal static Brush GetBrush(string key, Type? type = null) {
-    Brush? output = (Current as App)?.GetBrushInternal(key, type);
-
-    if (output is not Brush) {
-      throw new Exception("Failed to get Brush.");
-    }
-
-    return output;
-  }
-
-  /// <summary>
-  /// Gets the brush impl using the specified assembly
-  /// </summary>
-  /// <param name="assembly">The assembly</param>
-  /// <param name="color">The color</param>
-  /// <param name="isPrimary">The is primary</param>
-  /// <param name="key">The key</param>
-  /// <exception cref="Exception">Could not find brush with key, \"{key}\".</exception>
-  /// <exception cref="Exception">Could not find resource with uri, \"{uri}\".</exception>
-  /// <returns>The brush</returns>
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
-  private Brush GetMaterialDesignBrushInternal(string assembly, string color, bool isPrimary, string key) {
-    var brushUrl = string.Format(CultureInfo.InvariantCulture, "/{0};component/Themes/{0}.{1}.{2}.xaml", assembly, color, isPrimary ? "Primary" : "Secondary");
-    var uri = new Uri(brushUrl, UriKind.RelativeOrAbsolute);
-    ResourceDictionary? output;
-
-    if (this.Resources.MergedDictionaries.All((ResourceDictionary resourceDictionary) => resourceDictionary.Source != uri)) {
-      output = new ResourceDictionary {
-        Source = uri,
-      };
-
-      this.Resources.MergedDictionaries.Add(output);
-    } else {
-      output = this.Resources.MergedDictionaries.FirstOrDefault((ResourceDictionary resourceDictionary) => resourceDictionary.Source == uri);
-    }
-
-    if (output is null) {
-      throw new Exception($"Could not find resource with uri, \"{uri}\".");
-    }
-
-    if (output.FindName(key) is Brush brush) {
-      return brush;
-    }
-
-    throw new Exception($"Could not find brush with key, \"{key}\".");
-  }
-
-  /// <summary>
-  /// Gets the brush using the specified assembly
-  /// </summary>
-  /// <param name="assembly">The assembly</param>
-  /// <param name="color">The color</param>
-  /// <param name="isPrimary">The is primary</param>
-  /// <param name="key">The key</param>
-  /// <exception cref="Exception">Failed to get Brush.</exception>
-  /// <returns>The output</returns>
-  internal static Brush GetMaterialDesignBrush(string assembly, string color, bool isPrimary, string key) {
-    Brush? output = (Current as App)?.GetMaterialDesignBrushInternal(assembly, color, isPrimary, key);
-
-    if (output is not Brush) {
-      throw new Exception("Failed to get Brush.");
-    }
-
-    return output;
-  }
-
-  /// <summary>
-  /// Gets the theme impl
-  /// </summary>
-  /// <returns>The theme</returns>
-  private Theme? GetThemeImpl() {
-    try {
-      return this.Resources.GetTheme();
-    } catch (Exception exception) {
-      Logger.Error(exception, "Failed to get theme.");
-
-      return null;
-    }
-  }
-
-  /// <summary>
-  /// Gets the theme
-  /// </summary>
-  /// <returns>The theme</returns>
-  internal static Theme? GetTheme() {
-    return (Current as App)?.GetThemeImpl();
-  }
-
-  /// <summary>
-  /// Refreshes the data impl using the specified all
-  /// </summary>
-  /// <param name="all">The all</param>
-  /// <param name="updatePopupContent">The update popup content</param>
-  /// <param name="updateOTP">The update OTP</param>
-  private void RefreshDataImpl(bool all = false, bool updatePopupContent = false, bool updateOTP = false) {
-    if (this.MainWindow is not MainWindow mainWindow) {
+    if (app.MainWindow is not MainWindow mainWindow) {
       return;
     }
 
-    mainWindow.SettingsControl.RefreshData(updatePopupContent: updatePopupContent || all);
-    mainWindow.MainContent.RefreshData(updateOTP: updateOTP || all);
-  }
-
-  /// <summary>
-  /// Refreshes the data using the specified all
-  /// </summary>
-  /// <param name="all">The all</param>
-  /// <param name="updatePopupContent">The update popup content</param>
-  /// <param name="updateOTP">The update OTP</param>
-  internal static void RefreshData(bool all = false, bool updatePopupContent = false, bool updateOTP = false) {
-    (Current as App)?.RefreshDataImpl(all, updatePopupContent, updateOTP);
-  }
-
-  /// <summary>
-  /// Reloads the settings impl
-  /// </summary>
-  private void ReloadSettingsImpl() {
-    if (this.MainWindow is MainWindow mainWindow) {
-      mainWindow.SettingsControl.ReloadSettings();
-    }
+    mainWindow.SettingsControl.RefreshData(part);
+    mainWindow.MainContent.RefreshData(part);
   }
 
   /// <summary>
   /// Reloads the settings
   /// </summary>
   internal static void ReloadSettings() {
-    (Current as App)?.ReloadSettingsImpl();
+    if (Application.Current is not App app) {
+      throw new Exception("Application.Current is not typeof App.");
+    }
+
+    if (app.MainWindow is MainWindow mainWindow) {
+      mainWindow.SettingsControl.ReloadSettings();
+    }
   }
 
   /// <summary>
@@ -338,7 +133,7 @@ public partial class App : Application {
   /// <param name="finishUp">The event args if we should finish up and start the main window.</param>
   private void OnUpdateCheckFinished(object? server, BooleanEventArgs finishUp) {
     this.Dispatcher?.Invoke(() => {
-      this.UseFullExceptionHandler = true;
+      App.UseFullExceptionHandler = true;
 #if !XL_NOAUTOUPDATE
       this.UpdateLoadingWindow?.Hide();
 #endif
@@ -355,7 +150,6 @@ public partial class App : Application {
   /// </summary>
   /// <param name="sender">The sender</param>
   /// <param name="event">The </param>
-  [SuppressMessage("Design", "MA0051:Method is too long", Justification = "Startup method always the heaviest.")]
   private void OnStartup(object? sender, StartupEventArgs @event) {
     // HW rendering commonly causes issues with material design, so we turn it off by default for now
     try {
@@ -367,16 +161,13 @@ public partial class App : Application {
     }
 
     try {
-      var logOutput = Path.Combine(Paths.RoamingPath, "output.log");
-      LogInit.Setup(logOutput, Environment.GetCommandLineArgs());
+      LogInit.Setup(Path.Combine(Paths.RoamingPath, "output.log"), Environment.GetCommandLineArgs());
 #if !DEBUG
       AppDomain.CurrentDomain.UnhandledException += EarlyInitExceptionHandler;
       TaskScheduler.UnobservedTaskException += TaskSchedulerOnUnobservedTaskException;
 #endif
       Logger.Information("========================================================");
-      var assemblyVersion = Util.GetAssemblyVersion();
-      var gitHash = Util.GetGitHash();
-      Logger.Information("Starting a session(v{Version} - {Hash})", assemblyVersion, gitHash);
+      Logger.Information("Starting a session(v{Version} - {Hash})", Util.GetAssemblyVersion(), Util.GetGitHash());
     } catch (Exception exception) {
       CustomMessageBox.Show($"Could not set up logging. Please report this error.\n\n{exception.Message}", "XIVLauncher", MessageBoxButton.OK, MessageBoxImage.Error);
     }
@@ -384,7 +175,7 @@ public partial class App : Application {
     try {
       var helpWriter = new StringWriter();
 
-      var parser = new Parser(config => {
+      using var parser = new Parser(config => {
         config.HelpWriter = helpWriter;
         config.IgnoreUnknownArguments = true;
       });
@@ -415,13 +206,14 @@ public partial class App : Application {
     }
 
     try {
-      Settings = App.SetupSettingsImpl();
+      Settings = AuthSettings.Load();
     } catch (Exception exception) {
       Logger.Error(exception, "Failed to setup settings.");
-      var configPath = App.GetConfigPath("auth");
+      var configPath = Util.GetConfigPath();
       File.Delete(configPath);
-      Settings = App.SetupSettingsImpl();
+      Settings = AuthSettings.Load();
     }
+    Logger.LoggingLevelSwitch.MinimumLevel = Settings.LogLevel;
 
 #if !LOC_FORCEFALLBACKS
     try {
@@ -504,17 +296,6 @@ public partial class App : Application {
   }
 
   /// <summary>
-  /// Setup the settings impl
-  /// </summary>
-  /// <returns>The output</returns>
-  private static AuthSettingsV1 SetupSettingsImpl() {
-    var output = AuthSettingsV1.Load();
-    Logger.LoggingLevelSwitch.MinimumLevel = output.LogLevel;
-
-    return output;
-  }
-
-  /// <summary>
   /// Triggered when the <see cref="App" /> exits.
   /// </summary>
   /// <param name="sender">The sender</param>
@@ -558,7 +339,7 @@ public partial class App : Application {
     this.Dispatcher.Invoke(() => {
       Logger.Error((Exception)e.ExceptionObject, "Unhandled exception");
 
-      if (UseFullExceptionHandler) {
+      if (App.UseFullExceptionHandler) {
         CustomMessageBox.Builder.NewFrom((Exception)e.ExceptionObject, "Unhandled", CustomMessageBox.ExitOnCloseModes.ExitOnClose).WithAppendText("\n\nError during early initialization. Please report this error.\n\n" + e.ExceptionObject).Show();
       } else {
         MessageBox.Show("Error during early initialization. Please report this error.\n\n" + e.ExceptionObject, "XIVLauncher Error", MessageBoxButton.OK, MessageBoxImage.Error);

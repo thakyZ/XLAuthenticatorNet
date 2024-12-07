@@ -49,8 +49,6 @@ internal sealed class AddAccountDialogViewModel : ViewModelBase<AddAccountDialog
   /// <summary>
   /// Gets the value of the cancel add account dialog
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public ICommand CancelAddAccountDialog
     => new CommandImpl(() => DialogHost.CloseDialogCommand.Execute(new DialogResult<string>(MessageBoxResult.Cancel), target: null));
 
@@ -61,9 +59,6 @@ internal sealed class AddAccountDialogViewModel : ViewModelBase<AddAccountDialog
   internal AddAccountDialogViewModel(AddAccountDialog parent) : base(parent) {}
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public AddAccountDialogViewModel() {}
 #endif
 }

@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Serilog.Events;
 
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// Extension methods for <see cref="LogEvent" />
+/// An extension class for the <see cref="LogEvent" /> type.
 /// </summary>
 internal static class LogEventExtensions {
   public static string GetMessage(this LogEvent logEvent) {

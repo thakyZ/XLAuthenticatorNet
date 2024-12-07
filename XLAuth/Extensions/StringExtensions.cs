@@ -1,15 +1,11 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security;
-using System.Text;
 
 namespace XLAuth.Extensions;
 
 /// <summary>
-/// Extension methods for the type <see langword="string" />.
+/// An extension class for the <see langword="string" /> type.
 /// </summary>
 internal static class StringExtensions {
   /// <summary>
@@ -67,7 +63,6 @@ internal static class StringExtensions {
   /// </summary>
   /// <param name="value">The <see langword="string"/> to test.</param>
   /// <returns><see langword="true"/> if the <paramref name="value" /> parameter is <see langword="null"/> or an empty string (""); otherwise, <see langword="false"/>.</returns>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   internal static bool IsNullOrEmpty([NotNullWhen(false)] this string? value)
     => string.IsNullOrEmpty(value);
@@ -77,7 +72,6 @@ internal static class StringExtensions {
   /// </summary>
   /// <param name="value">The <see langword="string"/> to test.</param>
   /// <returns><see langword="true"/> if the value parameter is <see langword="null"/> or <see cref="string.Empty"/>, or if <paramref name="value" /> consists exclusively of white-space characters.</returns>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   internal static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? value)
     => string.IsNullOrWhiteSpace(value);

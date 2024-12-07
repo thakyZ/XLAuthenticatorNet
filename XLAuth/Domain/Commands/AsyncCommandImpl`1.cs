@@ -33,8 +33,7 @@ internal sealed class AsyncCommandImpl<TSource> : ICommand {
   /// </summary>
   /// <param name="execute">The execute</param>
   /// <param name="canExecute">The can execute</param>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-  internal AsyncCommandImpl(Func<TSource?, Task> execute, Predicate<TSource?> canExecute) {
+  private AsyncCommandImpl(Func<TSource?, Task> execute, Predicate<TSource?> canExecute) {
     this._execute = execute;
     this._canExecute = canExecute;
   }
@@ -59,16 +58,23 @@ internal sealed class AsyncCommandImpl<TSource> : ICommand {
   /// Executes the command with the given parameter
   /// </summary>
   /// <param name="parameter">The parameter</param>
-  [SuppressMessage("ReSharper", "AsyncVoidMethod")]
-  public async void Execute(object? parameter)
-    => await this._execute((TSource?)parameter);
+  public void Execute(object? parameter) {
+    _ = ExecuteAsync(parameter).ContinueWith((Task task) => {
+      if (task.Exception is Exception exception)
+        Logger.Error(exception, "Task failed on an async command.");
+    });
+  }
+
+  /// <summary>
+  /// Executes the command with the given parameter
+  /// </summary>
+  /// <param name="parameter">The parameter</param>
+  public Task ExecuteAsync(object? parameter)
+    => this._execute((TSource?)parameter);
 
   /// <summary>
   /// Refreshes this instance
   /// </summary>
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   internal void Refresh()
     => CommandManager.InvalidateRequerySuggested();
 }

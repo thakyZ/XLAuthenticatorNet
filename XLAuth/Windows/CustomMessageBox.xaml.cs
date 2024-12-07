@@ -40,8 +40,6 @@ public sealed partial class CustomMessageBox : Window {
   /// </summary>
   /// <param name="builder">The builder</param>
   /// <exception cref="ArgumentOutOfRangeException">Thrown if </exception>
-  [SuppressMessage("Usage",  "CA2208:Instantiate argument exceptions correctly"),
-   SuppressMessage("Design", "MA0051:Method is too long", Justification = "This is an initializer for a new window so whatever if it's too long.")]
   private CustomMessageBox(Builder builder) {
     this._result = builder.CancelResult;
     this.InitializeComponent();
@@ -215,12 +213,10 @@ public sealed partial class CustomMessageBox : Window {
     /// <summary>
     /// The restart button
     /// </summary>
-    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     internal bool RestartButton { get; private set; }
     /// <summary>
     /// The exit button
     /// </summary>
-    [SuppressMessage("ReSharper", "NotAccessedField.Global")]
     internal bool ExitButton { get; private set; }
     /// <summary>
     /// The top most
@@ -229,7 +225,6 @@ public sealed partial class CustomMessageBox : Window {
     /// <summary>
     /// The dont exit on close
     /// </summary>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal ExitOnCloseModes ExitOnCloseMode { get; private set; } = ExitOnCloseModes.DontExitOnClose;
     /// <summary>
     /// The show help links
@@ -253,12 +248,6 @@ public sealed partial class CustomMessageBox : Window {
     internal bool OverrideTopMostFromParentWindow { get; private set; } = true;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Builder"/> class
-    /// </summary>
-    [SuppressMessage("ReSharper", "EmptyConstructor")]
-    internal Builder() { }
-
-    /// <summary>
     /// Adds the text using the specified text
     /// </summary>
     /// <param name="text">The text</param>
@@ -274,7 +263,6 @@ public sealed partial class CustomMessageBox : Window {
     /// <param name="format">The format</param>
     /// <param name="args">The args</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithTextFormatted(string format, params object[] args) {
       this.Text = string.Format(format, args);
       return this;
@@ -296,7 +284,6 @@ public sealed partial class CustomMessageBox : Window {
     /// <param name="format">The format</param>
     /// <param name="args">The args</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithAppendTextFormatted(string format, params object[] args) {
       this.Text = (this.Text ?? string.Empty) + string.Format(format, args);
       return this;
@@ -317,7 +304,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="description">The description</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithDescription(string description) {
       this.Description = description;
       return this;
@@ -328,7 +314,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="description">The description</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithAppendDescription(string description) {
       this.Description = (this.Description ?? "") + description;
       return this;
@@ -349,7 +334,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="result">The result</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithDefaultResult(MessageBoxResult result) {
       this.DefaultResult = result;
       return this;
@@ -360,7 +344,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="result">The result</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithCancelResult(MessageBoxResult result) {
       this.CancelResult = result;
       return this;
@@ -381,7 +364,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="topMost">The top most</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithTopMost(bool topMost = true) {
       this.TopMost = topMost;
       return this;
@@ -392,7 +374,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="exitOnCloseMode">The exit on close mode</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithExitOnClose(ExitOnCloseModes exitOnCloseMode = ExitOnCloseModes.ExitOnClose) {
       this.ExitOnCloseMode = exitOnCloseMode;
       return this;
@@ -423,7 +404,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="showNewGitHubIssue">The show new git hub issue</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithShowNewGitHubIssue(bool showNewGitHubIssue = true) {
       this.ShowNewGitHubIssue = showNewGitHubIssue;
       return this;
@@ -445,7 +425,6 @@ public sealed partial class CustomMessageBox : Window {
     /// <param name="window">The window</param>
     /// <param name="overrideTopMost">The override top most</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithParentWindow(Window? window, bool overrideTopMost) {
       this.ParentWindow = window;
       this.OverrideTopMostFromParentWindow = overrideTopMost;
@@ -465,7 +444,6 @@ public sealed partial class CustomMessageBox : Window {
     /// Adds the exit button
     /// </summary>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Local")]
     private Builder WithExitButton() {
       this.ExitButton = true;
       return this;
@@ -475,7 +453,6 @@ public sealed partial class CustomMessageBox : Window {
     /// Adds the exception text
     /// </summary>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal Builder WithExceptionText() =>
       this.WithText(Loc.Localize("ErrorExplanation",
         """
@@ -488,10 +465,9 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="context">The context</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal Builder WithAppendSettingsDescription(string context) {
-      this.WithAppendDescription("\n\nVersion: " + XLAuth.Support.Util.GetAssemblyVersion())
-        .WithAppendDescription("\nGit Hash: " + XLAuth.Support.Util.GetGitHash()).WithAppendDescription("\nContext: " + context)
+      this.WithAppendDescription("\n\nVersion: " + Util.GetAssemblyVersion())
+        .WithAppendDescription("\nGit Hash: " + Util.GetGitHash()).WithAppendDescription("\nContext: " + context)
         .WithAppendDescription("\nOS: " + Environment.OSVersion)
         .WithAppendDescription("\n64bit? " + Environment.Is64BitProcess)
         .WithAppendDescription("\nLanguage: " + App.Settings.Language);
@@ -506,7 +482,6 @@ public sealed partial class CustomMessageBox : Window {
     /// </summary>
     /// <param name="text">The text</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal static Builder NewFrom(string text) => new Builder().WithText(text);
 
     /// <summary>
@@ -534,7 +509,6 @@ public sealed partial class CustomMessageBox : Window {
     /// <param name="context">The context</param>
     /// <param name="exitOnCloseMode">The exit on close mode</param>
     /// <returns>The builder</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal static Builder NewFromUnexpectedException(Exception exc, string context, ExitOnCloseModes exitOnCloseMode = ExitOnCloseModes.DontExitOnClose) {
       var unexpectedErrorSummary = Loc.Localize("UnexpectedErrorSummary", "Unexpected error has occurred. ({0})");
       var unexpectedErrorActionable = Loc.Localize("UnexpectedErrorActionable", "Please report this error.");
@@ -549,7 +523,6 @@ public sealed partial class CustomMessageBox : Window {
     /// <exception cref="NotImplementedException"></exception>
     /// <exception cref="NotImplementedException"></exception>
     /// <returns>The message box result</returns>
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     internal MessageBoxResult ShowAssumingDispatcherThread() {
       this.DefaultResult = this.DefaultResult != MessageBoxResult.None
         ? this.DefaultResult
@@ -579,7 +552,6 @@ public sealed partial class CustomMessageBox : Window {
     /// Shows the in new thread
     /// </summary>
     /// <returns>The message box result</returns>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal MessageBoxResult ShowInNewThread() {
       MessageBoxResult? result = null;
       var newWindowThread = new Thread(() => result = this.ShowAssumingDispatcherThread());
@@ -617,7 +589,7 @@ public sealed partial class CustomMessageBox : Window {
       if (this.ExitOnCloseMode == ExitOnCloseModes.ExitOnClose) {
         Serilog.Log.CloseAndFlush();
         if (result == MessageBoxResult.Yes && Process.GetCurrentProcess().MainModule is {} mainModule) {
-          Process.Start(mainModule.FileName, string.Join(' ', Environment.GetCommandLineArgs().Skip(1).Select(item => EncodeParameterArgument(item))));
+          Util.StartProcessDetached(mainModule.FileName, string.Join(' ', Environment.GetCommandLineArgs().Skip(1).Select(item => EncodeParameterArgument(item))));
         }
 
         Environment.Exit(-1);
@@ -638,7 +610,6 @@ public sealed partial class CustomMessageBox : Window {
   /// <param name="showDiscordLink">The show discord link</param>
   /// <param name="parentWindow">The parent window</param>
   /// <returns>The message box result</returns>
-  [SuppressMessage("ReSharper", "UnusedMethodReturnValue.Global")]
   internal static MessageBoxResult Show(string text, string caption, MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.Asterisk, bool showHelpLinks = true, bool showDiscordLink = true, Window? parentWindow = null) {
     return new Builder().WithCaption(caption).WithText(text).WithButtons(buttons).WithImage(image)
       .WithShowHelpLinks(showHelpLinks).WithShowDiscordLink(showDiscordLink).WithParentWindow(parentWindow).Show();
@@ -653,7 +624,6 @@ public sealed partial class CustomMessageBox : Window {
   /// <param name="parentWindow">The parent window</param>
   /// <exception cref="InvalidOperationException">Assertion failure.</exception>
   /// <returns>The bool</returns>
-  [SuppressMessage("ReSharper", "UnusedMember.Global")]
   internal static bool AssertOrShowError(bool condition, string context, bool fatal = false, Window? parentWindow = null) {
     if (condition) {
       return false;

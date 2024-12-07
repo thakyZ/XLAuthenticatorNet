@@ -6,8 +6,6 @@ namespace XLAuth.Domain.Components.Helpers;
 /// <summary>
 /// The navigation commands class
 /// </summary>
-[SuppressMessage("ReSharper", "InconsistentNaming"),
- SuppressMessage("Style", "IDE1006:Naming Styles")]
 internal static class NavigationCommands {
   /// <summary>
   /// The routed command

@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using CheapLoc;
+
+using XLAuth.Extensions;
 using XLAuth.Models.Abstracts;
 using XLAuth.Windows;
 
@@ -32,8 +34,6 @@ internal sealed class UpdateLoadingWindowViewModel : ViewModelBase<UpdateLoading
   /// <summary>
   /// Gets the value of the auto login disclaimer visibility
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global"),
-   SuppressMessage("Performance", "CA1822:Mark members as static")]
   public Visibility AutoLoginDisclaimerVisibility
     => App.Settings.CloseApp ? Visibility.Visible : Visibility.Collapsed;
 
@@ -71,22 +71,16 @@ internal sealed class UpdateLoadingWindowViewModel : ViewModelBase<UpdateLoading
     return output;
   }
 
-  /// <summary>
-  /// Refreshes the data using the specified update auto login disclaimer visibility
-  /// </summary>
-  /// <param name="updateAutoLoginDisclaimerVisibility">The update auto login disclaimer visibility</param>
-  internal void RefreshData(bool updateAutoLoginDisclaimerVisibility = false) {
-    base.RefreshData();
+  /// <inheritdoc cref="XLAuth.Models.Abstracts.IReloadableControl.RefreshData(RefreshPart)"/>
+  public override void RefreshData(RefreshPart part) {
+    base.RefreshData(part);
 
-    if (updateAutoLoginDisclaimerVisibility) {
+    if (part.Contains(RefreshPart.UpdateAutoLoginDisclaimerVisibility)) {
       this.NotifyPropertyChanged(nameof(this.AutoLoginDisclaimerVisibility));
     }
   }
 
 #if DEBUG
-  [SuppressMessage("ReSharper", "UnusedMember.Global"),
-   SuppressMessage("Compiler", "CS8618:Non-nullable variable must contain a non-null value when exiting constructor."),
-   SuppressMessage("Compiler", "CS9264:Non-nullable property must contain a non-null value when exiting constructor.")]
   public UpdateLoadingWindowViewModel() {}
 #endif
 }

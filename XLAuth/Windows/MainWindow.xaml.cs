@@ -86,7 +86,7 @@ public partial class MainWindow : Window {
   /// <param name="sender">The sender</param>
   /// <param name="event">The </param>
   private void DispatcherTimer_Tick(object? sender, EventArgs @event) {
-    this.MainContent.RefreshData(updateOTP: true);
+    this.MainContent.RefreshData(RefreshPart.UpdateOTP);
   }
 
   /// <summary>

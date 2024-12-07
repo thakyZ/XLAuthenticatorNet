@@ -369,6 +369,18 @@ dotnet_naming_style.upper_case_begins_with_underscore.capitalization = all_upper
 
 #### DotNET Analyzer Preferences ####
 
+# CA1200: Avoid using cref tags with a prefix
+dotnet_diagnostic.CA1200.severity = suggestion
+
+# IDE0045: Convert to conditional expression
+dotnet_diagnostic.IDE0045.severity = none
+
+# IDE0046: Convert to conditional expression
+dotnet_diagnostic.IDE0046.severity = none
+
+# SYSLIB1090: 'GeneratedComInterfaceType' does not support the 'ComInterfaceType' value supplied to 'InterfaceTypeAttribute' on the same type.
+dotnet_diagnostic.SYSLIB1090.severity = error
+
 # AV1500: Member or local function contains too many statements
 dotnet_diagnostic.AV1500.severity = none
 
@@ -393,32 +405,23 @@ dotnet_diagnostic.AV1535.severity = none
 # AV1210: Catch a specific exception instead of Exception, SystemException or ApplicationException
 dotnet_diagnostic.AV1210.severity = none
 
-# IDE0046: Convert to conditional expression
-dotnet_diagnostic.IDE0046.severity = none
-
 # MA0026: Fix TODO comment
 dotnet_diagnostic.MA0026.severity = none
 
 # MA0055: Do not use finalizer
 dotnet_diagnostic.MA0055.severity = none
 
-# MA0041: Make property static (deprecated, use CA1822 instead)
+# MA0041: Make property (deprecated, use CA1822 instead)
 dotnet_diagnostic.MA0041.severity = none
 
-# MA0038: Make method static (deprecated, use CA1822 instead)
+# MA0038: Make method (deprecated, use CA1822 instead)
 dotnet_diagnostic.MA0038.severity = none
-
-# IDE0045: Convert to conditional expression
-dotnet_diagnostic.IDE0045.severity = none
 
 # IDE0045: Analyzer option is obsolete
 dotnet_diagnostic.ROS0002.severity = none
 
 # ROS0003: Analyzer requires config option to be specified
 dotnet_diagnostic.ROS0003.severity = suggestion
-
-# SYSLIB1090: 'GeneratedComInterfaceType' does not support the 'ComInterfaceType' value supplied to 'InterfaceTypeAttribute' on the same type.
-dotnet_diagnostic.SYSLIB1090.severity = error
 
 # Serilog001: Exception not passed as first argument
 dotnet_diagnostic.Serilog001.severity = warning
@@ -444,5 +447,20 @@ dotnet_diagnostic.Serilog007.severity = warning
 # Serilog008: Contextual loggers use the correct context verifier
 dotnet_diagnostic.Serilog008.severity = warning
 
-# CA1200: Avoid using cref tags with a prefix
-dotnet_diagnostic.CA1200.severity = suggestion
+# BCC2000: The method has a coherent cognitive complexity.
+dotnet_diagnostic.BCC2000.severity = none
+
+# BCC2006: Type is long
+dotnet_diagnostic.BCC2006.severity = none
+
+# BCC2007: Large number of fields in type
+dotnet_diagnostic.BCC2007.severity = none
+
+# BCC2009: Method is long
+dotnet_diagnostic.BCC2009.severity = none
+
+# BCC4002: Expression shouldn't contain magic value
+dotnet_diagnostic.BCC4002.severity = none
+
+# BCC4004: Hollow type name
+dotnet_diagnostic.BCC4004.severity = none

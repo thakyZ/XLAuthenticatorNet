@@ -55,20 +55,24 @@ internal sealed class AccountManager {
   /// </summary>
   internal AccountManager() {
     this.Accounts = [..AccountManager.Load()];
-    this.Accounts.CollectionChanged += this.AccountsOnCollectionChanged;
+    this.Accounts.CollectionChanged += this.OnCollectionChanged;
   }
 
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <param name="caller"></param>
   internal void OnReloadTriggered([CallerMemberName] string caller = "") {
     var eventArgs = new PropertyChangedEventArgs(caller);
     this.ReloadTriggered?.Invoke(this, eventArgs);
   }
 
   /// <summary>
-  /// Accountses the collection changed using the specified sender
+  /// Handles if the Accounts collection is changed.
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="event">The </param>
-  private void AccountsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs @event) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="NotifyCollectionChangedEventArgs" /> event args.</param>
+  private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs @event) {
     this.OnReloadTriggered();
   }
 
@@ -116,11 +120,13 @@ internal sealed class AccountManager {
   /// <param name="saveAsCurrent">The save as current</param>
   internal void SwitchAccount(TOTPAccount? account, bool saveAsCurrent) {
     App.ReloadSettings();
-    App.RefreshData(all: true);
+    App.RefreshData(RefreshPart.UpdateAll);
 
-    if (saveAsCurrent) {
-      this.SetCurrentAccount(account);
+    if (!saveAsCurrent) {
+      return;
     }
+
+    this.SetCurrentAccount(account);
   }
 
   /// <summary>
@@ -139,7 +145,6 @@ internal sealed class AccountManager {
   /// Adds the item using the specified item
   /// </summary>
   /// <param name="account">The item</param>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   internal void AddOrUpdateAccount(TOTPAccount account) {
     var existingAccount = this.Accounts.FirstOrDefault(account => account.Id == account.Id);
     Logger.Debug("Existing Account: {0}", existingAccount?.Id);
@@ -219,7 +224,6 @@ internal sealed class AccountManager {
   /// <summary>
   /// Saves this instance
   /// </summary>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   internal void Save() {
     AccountManager.Save(this.Accounts);
   }
@@ -229,7 +233,7 @@ internal sealed class AccountManager {
   /// </summary>
   /// <param name="accounts">The accounts</param>
   private static void Save(ObservableCollection<TOTPAccount> accounts) {
-    var text = JsonConvert.SerializeObject(accounts, App.SerializerSettings);
+    var text = JsonConvert.SerializeObject(accounts, Util.SerializerSettings);
     File.WriteAllText(_configurationPath, text);
   }
 
@@ -249,7 +253,7 @@ internal sealed class AccountManager {
       using var sr   = new StreamReader(fs);
       var       text = sr.ReadToEnd();
 
-      output = JsonConvert.DeserializeObject<List<TOTPAccount>>(text, App.SerializerSettings);
+      output = JsonConvert.DeserializeObject<List<TOTPAccount>>(text, Util.SerializerSettings);
 #if DEBUG
       if (output is null || output.Count == 0) {
         var ipAddress = new IPAddress([127, 0, 0, 1]);
@@ -271,7 +275,6 @@ internal sealed class AccountManager {
   /// Sets the current account using the specified account
   /// </summary>
   /// <param name="account">The account</param>
-  [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
   internal void SetCurrentAccount(TOTPAccount? account) {
     this.CurrentAccount = this.Accounts.FirstOrDefault(item => item.Id == account?.Id);
   }
@@ -283,6 +286,7 @@ internal sealed class AccountManager {
   /// <returns>A task containing the OTP key response exception</returns>
   internal static async Task<(OTPKeyResponse Response, Exception? Exception)> SendOTPKeyAsync(string? otpValue) {
     Exception? exception = null;
+
     if (App.AccountManager.CurrentAccount is null) {
       return (OTPKeyResponse.CurrentAccountNull, exception);
     }
@@ -295,17 +299,16 @@ internal sealed class AccountManager {
       return (OTPKeyResponse.OTPValueNull, exception);
     }
 
-    using var httpClient = new HttpClient();
     IXLLauncherResponse? result = null;
     try {
-      result = await httpClient.GetFromJsonAsync<IXLLauncherResponse>(string.Format(CultureInfo.InvariantCulture, "http://{0}:4646/ffxivlauncher/{1}", App.AccountManager.CurrentAccount.LauncherIpAddress, otpValue), App.SerializerSettings).ConfigureAwait(false);
+      result = await App.HttpClient.GetFromJsonAsync<IXLLauncherResponse>(string.Format(CultureInfo.InvariantCulture, "http://{0}:4646/ffxivlauncher/{1}", App.AccountManager.CurrentAccount.LauncherIpAddress, otpValue), Util.SerializerSettings).ConfigureAwait(false);
     } catch (Exception innerException) {
       Logger.Error(innerException, "Failed to send OTP key to XLLauncher");
       exception = innerException;
     }
 
     if (result is IXLLauncherResponse response && response.App.Equals("XIVLauncher", StringComparison.OrdinalIgnoreCase)) {
-      return (OTPKeyResponse.OTPValueNull, exception);
+      return (OTPKeyResponse.Success, exception);
     }
 
     return (OTPKeyResponse.Failed, exception);

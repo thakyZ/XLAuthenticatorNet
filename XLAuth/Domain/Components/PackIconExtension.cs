@@ -10,15 +10,11 @@ namespace XLAuth.Resources;
 /// </summary>
 /// <seealso cref="MarkupExtension"/>
 [MarkupExtensionReturnType(typeof(PackIcon))]
-[SuppressMessage("ReSharper", "UnusedType.Global"),
- SuppressMessage("ReSharper", "MemberCanBePrivate.Global"),
- SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 internal sealed class PackIconExtension : MarkupExtension {
   /// <summary>
   /// Initializes a new instance of the <see cref="PackIconExtension"/> class
   /// </summary>
-  internal PackIconExtension() {
-  }
+  internal PackIconExtension() { }
 
   /// <summary>
   /// Initializes a new instance of the <see cref="PackIconExtension"/> class
@@ -47,7 +43,6 @@ internal sealed class PackIconExtension : MarkupExtension {
   /// <summary>
   /// Gets or sets the value of the size
   /// </summary>
-#pragma warning disable MA0083 // TODO: Wait for the issue to be fixed: https://github.com/meziantou/Meziantou.Analyzer/issues/775
   [ConstructorArgument("size")]
   internal double? Size { get; set; }
 
