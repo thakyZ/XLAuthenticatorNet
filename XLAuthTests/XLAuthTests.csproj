@@ -6,7 +6,7 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <!-- <NoWarn>$(NoWarn);AD0001</NoWarn> -->
+    <NoWarn>$(NoWarn);AD0001;CODEGENCS003</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

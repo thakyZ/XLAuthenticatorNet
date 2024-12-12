@@ -31,9 +31,9 @@ public static class Logger {
         return false;
       }
       Log.Logger = new LoggerConfiguration()
-          .WriteTo.Async(settings => settings.File(logOutput))
-          .WriteTo.Async(settings => settings.Debug()).MinimumLevel.Verbose()
-          .CreateLogger();
+        .WriteTo.Async(settings => settings.File(logOutput))
+        .WriteTo.Async(settings => settings.Debug()).MinimumLevel.Verbose()
+        .CreateLogger();
       return true;
     } catch (Exception exception) {
       Log.Error(exception, "Failed at init");
@@ -43,8 +43,7 @@ public static class Logger {
 
   public static bool Info(string message, params string[] arguments) {
     try {
-      var initilized = Init();
-      if (!initilized) {
+      if (!Init()) {
         return false;
       }
       var context = Logger.GetContext();
