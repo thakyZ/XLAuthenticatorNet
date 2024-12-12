@@ -10,11 +10,13 @@ namespace XLAuth.Windows;
 /// </summary>
 /// <seealso cref="Window"/>
 public partial class UpdateLoadingWindow : Window  {
-  ///// <summary>
-  ///// Gets the value of the model
-  ///// </summary>
-  //private UpdateLoadingWindowViewModel Model
-  //  => (this.DataContext as UpdateLoadingWindowViewModel)!;
+  /*
+  /// <summary>
+  /// Gets the value of the model
+  /// </summary>
+  private UpdateLoadingWindowViewModel Model
+   => (this.DataContext as UpdateLoadingWindowViewModel)!;
+  */
 
   /// <summary>
   /// Initializes a new instance of the <see cref="UpdateLoadingWindow"/> class
@@ -28,8 +30,8 @@ public partial class UpdateLoadingWindow : Window  {
   /// <summary>
   /// Updates the loading window on mouse move using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="event">The </param>
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="NotifyCollectionChangedEventArgs" /> event args.</param>
   private void OnMouseMove(object? sender, MouseEventArgs @event) {
     if (@event.LeftButton == MouseButtonState.Pressed) {
       this.DragMove();

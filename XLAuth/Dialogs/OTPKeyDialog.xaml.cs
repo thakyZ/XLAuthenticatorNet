@@ -8,11 +8,13 @@ namespace XLAuth.Dialogs;
 /// Interaction logic for OTPKeyDialog.xaml
 /// </summary>
 public partial class OTPKeyDialog : UserControl {
-  ///// <summary>
-  ///// Gets the value of the model
-  ///// </summary>
-  //private OTPKeyDialogViewModel Model
-  //  => (this.DataContext as OTPKeyDialogViewModel)!;
+  /*
+  /// <summary>
+  /// Gets the value of the model
+  /// </summary>
+  private OTPKeyDialogViewModel Model
+   => (this.DataContext as OTPKeyDialogViewModel)!;
+  */
 
   /// <summary>
   /// Initializes a new instance of the <see cref="OTPKeyDialog"/> class

@@ -146,10 +146,10 @@ public partial class App : Application {
   }
 
   /// <summary>
-  /// Apps the on startup using the specified sender
+  /// Triggered upon startup of the <see cref="App"/>.
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="event">The </param>
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="StartupEventArgs" /> event args.</param>
   private void OnStartup(object? sender, StartupEventArgs @event) {
     // HW rendering commonly causes issues with material design, so we turn it off by default for now
     try {
@@ -298,8 +298,8 @@ public partial class App : Application {
   /// <summary>
   /// Triggered when the <see cref="App" /> exits.
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="event">The event</param>
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="ExitEventArgs" /> event args.</param>
   private void OnExit(object sender, ExitEventArgs @event) {
     AccountManager.Save();
     Settings.Save();
@@ -322,20 +322,20 @@ public partial class App : Application {
 #if !DEBUG
 #if !XL_NOAUTOUPDATE
   /// <summary>
-  /// Tasks the scheduler on unobserved task exception using the specified sender
+  /// Triggered when the <see cref="TaskScheduler" /> gets an unobserved task exception.
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void TaskSchedulerOnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="UnobservedTaskExceptionEventArgs" /> event args.</param>
+  private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs event) {
     if (!e.Observed) EarlyInitExceptionHandler(sender, new UnhandledExceptionEventArgs(e.Exception, isTerminating: true));
   }
 #endif
   /// <summary>
-  /// Earlies the init exception handler using the specified sender
+  /// Triggered when the <see cref="TaskScheduler" /> gets an early init exception.
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void EarlyInitExceptionHandler(object? sender, UnhandledExceptionEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="UnhandledExceptionEventArgs" /> event args.</param>
+  private void EarlyInitExceptionHandler(object? sender, UnhandledExceptionEventArgs event) {
     this.Dispatcher.Invoke(() => {
       Logger.Error((Exception)e.ExceptionObject, "Unhandled exception");
 

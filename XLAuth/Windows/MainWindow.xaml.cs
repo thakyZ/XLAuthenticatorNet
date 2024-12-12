@@ -83,8 +83,8 @@ public partial class MainWindow : Window {
   /// <summary>
   /// Dispatchers the timer tick using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="event">The </param>
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="EventArgs" /> event args.</param>
   private void DispatcherTimer_Tick(object? sender, EventArgs @event) {
     this.MainContent.RefreshData(RefreshPart.UpdateOTP);
   }
@@ -92,8 +92,8 @@ public partial class MainWindow : Window {
   /// <summary>
   /// Main the window on closing using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="event">The </param>
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="CancelEventArgs" /> event args.</param>
   private void MainWindow_OnClosing(object? sender, CancelEventArgs @event) {
     this.ViewModel.Dispose();
     this.Hide();

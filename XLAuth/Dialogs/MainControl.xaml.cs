@@ -49,22 +49,22 @@ public partial class MainControl : UserControl {
                                     Background: new SolidColorBrush(theme.PrimaryLight.ForegroundColor ?? theme.PrimaryLight.Color));
       this._progressBarThemes[1] = (Foreground: new SolidColorBrush(MaterialDesignColors.Recommended.RedSwatch.Red700),
                                     Background: new SolidColorBrush(MaterialDesignColors.Recommended.RedSwatch.Red200));
-    } catch (Exception e) {
-      Logger.Error(e, "Failed to set progress bar theme.");
+    } catch (Exception exception) {
+      Logger.Error(exception, "Failed to set progress bar theme.");
     }
   }
 
   /// <summary>
-  /// Otps the time left on value changed using the specified sender
+  /// Triggered when the <see cref="ProgressBar"/> for the OTP time left has a change of a value.
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void OTPTimeLeft_OnValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="RoutedPropertyChangedEventArgs{double}" /> event args.</param>
+  private void OTPTimeLeft_OnValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> @event) {
     if (sender is not ProgressBar progressbar || this._progressBarThemes.Keys.Count != 2) {
       return;
     }
 
-    if (e.NewValue < 8) {
+    if (@event.NewValue < 8) {
       progressbar.Background = this._progressBarThemes[1].Background;
       progressbar.BorderBrush = this._progressBarThemes[1].Background;
       progressbar.Foreground = this._progressBarThemes[1].Foreground;

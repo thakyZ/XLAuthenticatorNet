@@ -78,36 +78,36 @@ internal sealed class MainWindowViewModel : ViewModelBase<MainWindow>, ISlideNav
   /// <summary>
   /// Shows the settings executed using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void ShowSettingsExecuted(object? sender, ExecutedRoutedEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="ExecutedRoutedEventArgs" /> event args.</param>
+  private void ShowSettingsExecuted(object? sender, ExecutedRoutedEventArgs @event) {
     this._slideNavigator.GoTo<SettingsControl>();
   }
 
   /// <summary>
   /// Hides the settings executed using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void HideSettingsExecuted(object? sender, ExecutedRoutedEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="ExecutedRoutedEventArgs" /> event args.</param>
+  private void HideSettingsExecuted(object? sender, ExecutedRoutedEventArgs @event) {
     this._slideNavigator.GoTo<MainControl>();
   }
 
   /// <summary>
   /// Goes the back executed using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void GoBackExecuted(object? sender, ExecutedRoutedEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="ExecutedRoutedEventArgs" /> event args.</param>
+  private void GoBackExecuted(object? sender, ExecutedRoutedEventArgs @event) {
     this._slideNavigator.GoBack();
   }
 
   /// <summary>
   /// Goes the forward executed using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void GoForwardExecuted(object? sender, ExecutedRoutedEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="ExecutedRoutedEventArgs" /> event args.</param>
+  private void GoForwardExecuted(object? sender, ExecutedRoutedEventArgs @event) {
     this._slideNavigator.GoForward();
   }
 }

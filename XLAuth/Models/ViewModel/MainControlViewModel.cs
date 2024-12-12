@@ -191,15 +191,15 @@ internal sealed class MainControlViewModel : ViewModelBase<MainControl> {
   }
 
   /// <summary>
-  /// Ons the switch account using the specified
+  /// Triggered w
   /// </summary>
-  /// <param name="_">The </param>
-  /// <param name="e">The </param>
-  private void OnSwitchAccount(object? _, AccountSwitchedEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="AccountSwitchedEventArgs" /> event args.</param>
+  private void OnSwitchAccount(object? sender, AccountSwitchedEventArgs @event) {
     this.NotifyPropertyChanged(nameof(this.CurrentAccountName));
     (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData(RefreshPart.UpdateAll);
-    if (e.NewAccount is not null) {
-      this.CurrentTOTP = e.NewAccount.CreateTOTP();
+    if (@event.NewAccount is not null) {
+      this.CurrentTOTP = @event.NewAccount.CreateTOTP();
     }
   }
 

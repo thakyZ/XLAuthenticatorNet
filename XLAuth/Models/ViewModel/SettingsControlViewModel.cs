@@ -584,43 +584,43 @@ internal sealed class SettingsControlViewModel : ViewModelBase<SettingsControl> 
   /// <summary>
   /// Accounts the manager on account switched using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void AccountManager_OnReloadTriggered(object? sender, EventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="EventArgs" /> event args.</param>
+  private void AccountManager_OnReloadTriggered(object? sender, EventArgs @event) {
     this.RefreshData(RefreshPart.UpdatePopupContent | RefreshPart.UpdateOTPKeyContent | RefreshPart.UpdateLauncherIPContent | RefreshPart.UpdateLabels);
   }
 
   /// <summary>
   /// Accounts the manager on account switched using the specified sender
   /// </summary>
-  /// <param name="sender">The sender</param>
-  /// <param name="e">The </param>
-  private void AccountManager_OnAccountSwitched(object? sender, AccountSwitchedEventArgs e) {
+  /// <param name="sender">The sender of this event.</param>
+  /// <param name="event">The <see cref="AccountSwitchedEventArgs" /> event args.</param>
+  private void AccountManager_OnAccountSwitched(object? sender, AccountSwitchedEventArgs @event) {
     this.NotifyPropertyChanged(nameof(this.CurrentAccountName));
     (this.Parent.ParentWindow as MainWindow)?.SettingsControl.RefreshData(RefreshPart.UpdateAll);
 
     // ReSharper disable once InvertIf
-    if (e.NewAccount is not null) {
-      this.SetOTPKey(e.NewAccount.Token is not null);
-      this.SetIP(e.NewAccount.LauncherIpAddress);
+    if (@event.NewAccount is not null) {
+      this.SetOTPKey(@event.NewAccount.Token is not null);
+      this.SetIP(@event.NewAccount.LauncherIpAddress);
     }
   }
 
   /// <summary>
   /// Accounts the selection button actual width size changed using the specified
   /// </summary>
-  /// <param name="_">The </param>
+  /// <param name="sender">The </param>
   /// <param name="args">The args</param>
-  private void AccountSelectionButtonActualWidth_SizeChanged(object? _, SizeChangedEventArgs args) {
+  private void AccountSelectionButtonActualWidth_SizeChanged(object? sender, SizeChangedEventArgs args) {
     this.AccountSelectionButtonActualWidth = args.NewSize.Width - 48;
   }
 
   /// <summary>
   /// Grids the actual height size changed using the specified
   /// </summary>
-  /// <param name="_">The </param>
+  /// <param name="sender">The </param>
   /// <param name="args">The args</param>
-  private void GridActualHeight_SizeChanged(object? _, SizeChangedEventArgs args) {
+  private void GridActualHeight_SizeChanged(object? sender, SizeChangedEventArgs args) {
     this.GridActualHeight = args.NewSize.Height;
   }
 #endregion Event Handlers

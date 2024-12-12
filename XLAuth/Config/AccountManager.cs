@@ -59,16 +59,16 @@ internal sealed class AccountManager {
   }
 
   /// <summary>
-  /// 
+  /// Trigged when the reload of the <see cref="AccountManager" /> is directed to be triggered.
   /// </summary>
-  /// <param name="caller"></param>
+  /// <param name="caller">The name of the member that called this class.</param>
   internal void OnReloadTriggered([CallerMemberName] string caller = "") {
     var eventArgs = new PropertyChangedEventArgs(caller);
     this.ReloadTriggered?.Invoke(this, eventArgs);
   }
 
   /// <summary>
-  /// Handles if the Accounts collection is changed.
+  /// Handles if the collection of <see cref="Accounts"/> is changed.
   /// </summary>
   /// <param name="sender">The sender of this event.</param>
   /// <param name="event">The <see cref="NotifyCollectionChangedEventArgs" /> event args.</param>

@@ -17,6 +17,7 @@ internal static class SecureStringExtensions {
   internal static string ToPlainText(this SecureString secureString)
     => new NetworkCredential("", secureString).Password;
 
+  /*
   /// <summary>
   /// Indicates whether the specified <see cref="SecureString" />'s value is <see langword="null"/> or an empty string ("").
   /// </summary>
@@ -25,7 +26,9 @@ internal static class SecureStringExtensions {
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   internal static bool IsNullOrEmpty([NotNullWhen(false)] this SecureString? secureString)
     => secureString?.ToPlainText().IsNullOrEmpty() != false;
+  */
 
+  /*
   /// <summary>
   /// Indicates whether a specified <see cref="SecureString" />'s value is <see langword="null"/>, empty, or consists only of white-space characters.
   /// </summary>
@@ -34,6 +37,7 @@ internal static class SecureStringExtensions {
   [MethodImpl(MethodImplOptions.AggressiveInlining)]
   internal static bool IsNullOrWhiteSpace([NotNullWhen(false)] this SecureString? secureString)
     => secureString?.ToPlainText().IsNullOrWhiteSpace() != false;
+  */
 
   /// <summary>
   /// Indicates whether a specified <see cref="SecureString" />'s value is <see langword="null"/>, empty, or consists only of white-space characters.

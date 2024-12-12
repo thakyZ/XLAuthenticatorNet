@@ -25,16 +25,6 @@ internal sealed class PackIconExtension : MarkupExtension {
   }
 
   /// <summary>
-  /// Initializes a new instance of the <see cref="PackIconExtension"/> class
-  /// </summary>
-  /// <param name="kind">The kind</param>
-  /// <param name="size">The size</param>
-  internal PackIconExtension(PackIconKind kind, double size) {
-    this.Kind = kind;
-    this.Size = size;
-  }
-
-  /// <summary>
   /// Gets or sets the value of the kind
   /// </summary>
   [ConstructorArgument("kind")]
@@ -43,7 +33,6 @@ internal sealed class PackIconExtension : MarkupExtension {
   /// <summary>
   /// Gets or sets the value of the size
   /// </summary>
-  [ConstructorArgument("size")]
   internal double? Size { get; set; }
 
   /// <summary>
