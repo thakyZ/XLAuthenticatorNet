@@ -22,7 +22,9 @@ namespace XLAuth.Update;
 /// </summary>
 internal sealed partial class Updates : IDisposable {
 #region Events
+#pragma warning disable CS0067 // An event was declared but never used in the class in which it was declared.
   internal event EventHandler<BooleanEventArgs>? UpdateCheckFinished;
+#pragma warning restore CS0067 // An event was declared but never used in the class in which it was declared.
 #endregion Events
 
 #region Fields

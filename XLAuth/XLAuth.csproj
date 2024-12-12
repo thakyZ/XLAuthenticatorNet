@@ -29,6 +29,10 @@
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(CI)' != 'True'">
+    <NoWarn>$(NoWarn);DOTENVGEN004</NoWarn>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <Optimize>false</Optimize>
     <DefineConstants>TRACE;DEBUG;XL_NOAUTOUPDATE</DefineConstants>
@@ -65,7 +69,7 @@
     <PackageReference Include="Serilog.Enrichers.Demystifier" Version="1.0.3" />
     <PackageReference Include="Serilog.Enrichers.Sensitive" Version="1.7.3" />
     <PackageReference Include="Serilog.Enrichers.ShortTypeName" Version="1.1.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />

@@ -9,12 +9,14 @@ using System.Diagnostics.CodeAnalysis;
 
 #if DEBUG
 [assembly: SuppressMessage("Code smell", "BCC4009:Catch should do more than rethrow", Scope = "member", Target = "~M:XLAuth.Support.LogInit.Setup(System.String,System.String[])", Justification = "Only when debugging.")]
+[assembly: SuppressMessage("Compiler Warning", "CS0067:An event was declared but never used in the class in which it was declared.", Scope = "member", Target = "~E:XLAuth.Update.Updates.UpdateCheckFinished", MessageId = "Updates.UpdateCheckFinished", Justification = "Only when debugging.")]
 #else
 #endif
 
 // TODO: Wait for the issue to be fixed: https://github.com/meziantou/Meziantou.Analyzer/issues/775
 [assembly: SuppressMessage("Design", "MA0083:ConstructorArgument parameters should exist in constructors", Scope = "member", Target = "~P:XLAuth.Resources.PackIconExtension.Size", MessageId = "size")]
 
+[assembly: SuppressMessage("Design", "MA0048:File name must match type name", Scope = "type", Target = "~T:DotEnv.Generated.Environment", Justification = "Generated Code")]
 [assembly: SuppressMessage("Code smell", "BCC4006:Methods should not have too many return statements", Scope = "member", Target = "~M:XLAuth.Support.Logger.GetMicrosoftContext(System.Int32)~Microsoft.Extensions.Logging.ILogger", Justification = "Required")]
 [assembly: SuppressMessage("Code smell", "BCC4006:Methods should not have too many return statements", Scope = "member", Target = "~M:XLAuth.Config.AccountManager.SendOTPKeyAsync(System.String)~System.Threading.Tasks.Task{System.ValueTuple{XLAuth.Domain.OTPKeyResponse,System.Exception}}", Justification = "Required")]
 [assembly: SuppressMessage("Design", "MA0051:Method is too long", Scope = "member", Target = "~M:XLAuth.App.OnStartup(System.Object,System.Windows.StartupEventArgs)", Justification = "Startup methods should be heavy.")]
